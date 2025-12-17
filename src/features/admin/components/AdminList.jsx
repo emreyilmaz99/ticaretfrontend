@@ -4,10 +4,12 @@ import Pagination from '../../../components/ui/Pagination';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdmins, deleteAdmin } from '../api/adminApi';
 import { useToast } from '../../../components/common/Toast';
+import AddAdminModal from './AddAdminModal';
 
 const AdminList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -69,7 +71,9 @@ const AdminList = () => {
           </div>
         </div>
 
-        <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}>
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}>
           <FaPlus /> Yeni Yönetici Ekle
         </button>
       </div>
@@ -131,6 +135,12 @@ const AdminList = () => {
           />
         </div>
       </div>
+
+      {/* Add Admin Modal */}
+      <AddAdminModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </div>
   );
 };

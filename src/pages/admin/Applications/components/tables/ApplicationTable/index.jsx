@@ -11,7 +11,7 @@ import { styles } from '../../../styles';
  * Supports both 'full' and 'pre' application modes
  */
 const ApplicationTable = React.memo(({
-  applications,
+  applications = [],
   isLoading,
   searchTerm,
   hoveredRow,
@@ -26,6 +26,9 @@ const ApplicationTable = React.memo(({
 }) => {
   const isFull = mode === 'full';
   const isPre = mode === 'pre';
+  
+  // Ensure applications is always an array
+  const safeApplications = applications || [];
 
   // Default messages
   const defaultEmptyMessage = isFull
@@ -145,7 +148,7 @@ const ApplicationTable = React.memo(({
           </tr>
         </thead>
         <tbody>
-          {applications.length === 0 ? (
+          {safeApplications.length === 0 ? (
             <tr>
               <td colSpan={colSpan} style={styles.emptyState}>
                 <EmptyState
@@ -162,7 +165,7 @@ const ApplicationTable = React.memo(({
               </td>
             </tr>
           ) : (
-            applications.map((app) => (
+            safeApplications.map((app) => (
               <ApplicationRow
                 key={app.id}
                 application={app}

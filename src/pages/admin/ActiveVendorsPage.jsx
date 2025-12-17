@@ -1,14 +1,202 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaStore, FaPlus, FaFileExcel, FaPrint } from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
 import ActiveVendorList from '../../features/vendor/components/ActiveVendorList';
+import { getVendors } from '../../features/vendor/api/vendorApi';
+import { useToast } from '../../components/common/Toast';
+import AddVendorModal from '../../features/vendor/components/AddVendorModal';
 
 const ActiveVendorsPage = () => {
-  const handleDownloadExcel = () => {
-    alert('Excel indirme özelliği yakında eklenecek');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const toast = useToast();
+
+  // Tüm satıcıları excel/print için çek
+  const { data: allVendorsData } = useQuery({
+    queryKey: ['all-active-vendors-export'],
+    queryFn: async () => {
+      const response = await getVendors({ status: 'active', per_page: 1000 });
+      return response.data;
+    },
+    enabled: false, // Manuel olarak tetiklenecek
+  });
+
+  const handleDownloadExcel = async () => {
+    try {
+      toast.info('Excel hazırlanıyor...', 'Lütfen bekleyin.');
+      
+      // Satıcı verilerini çek
+      const response = await getVendors({ status: 'active', per_page: 1000 });
+      const vendors = response.data?.data || [];
+
+      if (vendors.length === 0) {
+        toast.warning('Veri Yok', 'Aktif satıcı bulunamadı.');
+        return;
+      }
+
+      // Excel için CSV formatında veri hazırla
+      const headers = ['ID', 'Mağaza Adı', 'Yetkili', 'E-posta', 'Telefon', 'Durum', 'Kayıt Tarihi'];
+      const csvContent = [
+        headers.join(','),
+        ...vendors.map(v => [
+          v.id,
+          `"${v.store_name || ''}"`,
+          `"${v.full_name || v.owner || ''}"`,
+          v.email || '',
+          v.phone || '',
+          v.status || '',
+          v.created_at ? new Date(v.created_at).toLocaleDateString('tr-TR') : ''
+        ].join(','))
+      ].join('\n');
+
+      // BOM ekle (Excel'de Türkçe karakterler için)
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `aktif-saticilar-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('İndirildi', 'Excel dosyası başarıyla indirildi.');
+    } catch (error) {
+      console.error('Excel download error:', error);
+      toast.error('Hata', 'Excel indirilemedi. Lütfen tekrar deneyin.');
+    }
   };
 
-  const handlePrint = () => {
-    alert('Yazdırma özelliği yakında eklenecek');
+  const handlePrint = async () => {
+    try {
+      toast.info('Yazdırma hazırlanıyor...', 'Lütfen bekleyin.');
+      
+      // Satıcı verilerini çek
+      const response = await getVendors({ status: 'active', per_page: 1000 });
+      const vendors = response.data?.data || [];
+
+      if (vendors.length === 0) {
+        toast.warning('Veri Yok', 'Aktif satıcı bulunamadı.');
+        return;
+      }
+
+      // Yeni pencere aç ve yazdırma formatı oluştur
+      const printWindow = window.open('', '_blank');
+      
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Aktif Satıcılar Raporu</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px;
+              color: #333;
+            }
+            h1 { 
+              color: #059669;
+              border-bottom: 3px solid #059669;
+              padding-bottom: 10px;
+              margin-bottom: 20px;
+            }
+            .meta {
+              margin-bottom: 20px;
+              color: #666;
+              font-size: 14px;
+            }
+            table { 
+              width: 100%; 
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th { 
+              background-color: #f3f4f6;
+              color: #374151;
+              padding: 12px;
+              text-align: left;
+              border: 1px solid #e5e7eb;
+              font-weight: 600;
+            }
+            td { 
+              padding: 10px;
+              border: 1px solid #e5e7eb;
+            }
+            tr:nth-child(even) { 
+              background-color: #f9fafb;
+            }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              color: #666;
+              font-size: 12px;
+              border-top: 1px solid #e5e7eb;
+              padding-top: 20px;
+            }
+            @media print {
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>🏪 Aktif Satıcılar Raporu</h1>
+          <div class="meta">
+            <strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}<br>
+            <strong>Toplam Satıcı:</strong> ${vendors.length}
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Mağaza Adı</th>
+                <th>Yetkili</th>
+                <th>E-posta</th>
+                <th>Telefon</th>
+                <th>Kayıt Tarihi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${vendors.map(v => `
+                <tr>
+                  <td>${v.id}</td>
+                  <td><strong>${v.store_name || '-'}</strong></td>
+                  <td>${v.full_name || v.owner || '-'}</td>
+                  <td>${v.email || '-'}</td>
+                  <td>${v.phone || '-'}</td>
+                  <td>${v.created_at ? new Date(v.created_at).toLocaleDateString('tr-TR') : '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <p>Bu rapor otomatik olarak oluşturulmuştur.</p>
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 500);
+            };
+          </script>
+        </body>
+        </html>
+      `;
+      
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('Hata', 'Yazdırma işlemi başarısız. Lütfen tekrar deneyin.');
+    }
   };
 
   return (
@@ -26,13 +214,21 @@ const ActiveVendorsPage = () => {
           <button style={styles.exportBtn} onClick={handleDownloadExcel}>
             <FaFileExcel /> Excel İndir
           </button>
-          <button style={styles.addBtn}>
+          <button style={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
             <FaPlus /> Yeni Satıcı Ekle
           </button>
         </div>
       </div>
 
       <ActiveVendorList />
+
+      {/* Add Vendor Modal */}
+      {isAddModalOpen && (
+        <AddVendorModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

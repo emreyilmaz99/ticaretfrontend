@@ -48,10 +48,11 @@ const useFullApplications = () => {
 
   // Filtrelenmiş vendorlar
   const filteredVendors = useMemo(() => {
-    if (!searchTerm.trim()) return vendors;
+    const vendorList = vendors || [];
+    if (!searchTerm.trim()) return vendorList;
     
     const term = searchTerm.toLowerCase();
-    return vendors.filter(vendor => 
+    return vendorList.filter(vendor => 
       vendor.full_name?.toLowerCase().includes(term) ||
       vendor.email?.toLowerCase().includes(term) ||
       vendor.company_name?.toLowerCase().includes(term) ||
@@ -141,7 +142,7 @@ const useFullApplications = () => {
   return {
     // Data
     vendors: filteredVendors,
-    totalVendors: vendors.length,
+    totalVendors: (vendors || []).length,
     commissionPlans,
     isLoading,
     error,

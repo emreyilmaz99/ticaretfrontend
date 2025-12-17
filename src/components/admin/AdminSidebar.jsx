@@ -219,7 +219,7 @@ const AdminSidebar = () => {
               color: 'white',
               fontFamily: "'Plus Jakarta Sans', sans-serif"
             }}>
-              Ticaret<span style={{ color: '#10b981' }}>Panel</span>
+              Admin<span style={{ color: '#10b981' }}>Panel</span>
             </h2>
             <p style={{ fontSize: '11px', color: '#6ee7b7', marginTop: '2px', fontWeight: '500' }}>
               Yönetici Konsolu

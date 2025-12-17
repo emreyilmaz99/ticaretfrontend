@@ -284,7 +284,7 @@ const Navbar = () => {
         isOpen={isAddressModalOpen} 
         onClose={handleAddressModalClose} 
         onSave={handleSaveAddress}
-        onDeleteAddress={handleDeleteAddress}
+        onDelete={handleDeleteAddress}
         initialAddress={currentAddress}
       />
 

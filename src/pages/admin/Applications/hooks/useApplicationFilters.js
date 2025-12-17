@@ -39,17 +39,43 @@ const useApplicationFilters = (applications = [], vendors = []) => {
   }, [vendors, searchTerm]);
 
   // Calculate stats for pre-applications
-  const preStats = useMemo(() => ({
-    total: applications.length,
-    pending: applications.filter(a => a.status === 'pending').length,
-    approved: applications.filter(a => a.status === 'approved').length,
-    rejected: applications.filter(a => a.status === 'rejected').length,
-  }), [applications]);
+  const preStats = useMemo(() => {
+    const apps = applications || [];
+    return [
+      {
+        title: 'Toplam Başvuru',
+        value: apps.length,
+        color: '#3b82f6',
+        filter: 'all'
+      },
+      {
+        title: 'Bekleyen',
+        value: apps.filter(a => a.status === 'pending').length,
+        color: '#f59e0b',
+        filter: 'pending'
+      },
+      {
+        title: 'Onaylanan',
+        value: apps.filter(a => a.status === 'approved').length,
+        color: '#10b981',
+        filter: 'approved'
+      },
+      {
+        title: 'Reddedilen',
+        value: apps.filter(a => a.status === 'rejected').length,
+        color: '#ef4444',
+        filter: 'rejected'
+      }
+    ];
+  }, [applications]);
 
   // Calculate stats for vendors
-  const vendorStats = useMemo(() => ({
-    total: vendors.length,
-  }), [vendors]);
+  const vendorStats = useMemo(() => {
+    const vnds = vendors || [];
+    return {
+      total: vnds.length,
+    };
+  }, [vendors]);
 
   // Reset filters
   const resetFilters = () => {

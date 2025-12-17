@@ -1,6 +1,6 @@
 // src/pages/admin/Applications/components/RejectModal.jsx
 import React from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { styles } from '../styles';
 
 /**
@@ -20,94 +20,272 @@ const RejectModal = ({
 
   const isValid = reason.length >= minLength;
 
+  const modalStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backdropFilter: 'blur(4px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px',
+    animation: 'fadeIn 0.2s ease',
+  };
+
+  const contentStyle = {
+    backgroundColor: 'white',
+    borderRadius: '20px',
+    width: '100%',
+    maxWidth: '580px',
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+    animation: 'slideUp 0.3s ease',
+    overflow: 'hidden',
+  };
+
+  const headerStyle = {
+    background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+    padding: '32px',
+    borderBottom: '1px solid #fecaca',
+    position: 'relative',
+  };
+
+  const iconContainerStyle = {
+    width: '64px',
+    height: '64px',
+    borderRadius: '16px',
+    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '16px',
+    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)',
+  };
+
+  const closeButtonStyle = {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+    background: 'white',
+    border: 'none',
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#6b7280',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.2s',
+  };
+
+  const bodyStyle = {
+    padding: '32px',
+  };
+
+  const textareaStyle = {
+    width: '100%',
+    minHeight: '140px',
+    padding: '16px',
+    border: `2px solid ${reason.length > 0 && !isValid ? '#fca5a5' : '#e5e7eb'}`,
+    borderRadius: '12px',
+    fontSize: '14px',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    outline: 'none',
+    transition: 'all 0.2s',
+    lineHeight: '1.6',
+    backgroundColor: '#fafafa',
+  };
+
+  const footerStyle = {
+    padding: '24px 32px',
+    background: '#f9fafb',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '12px',
+    borderTop: '1px solid #e5e7eb',
+  };
+
+  const cancelButtonStyle = {
+    padding: '12px 28px',
+    borderRadius: '12px',
+    border: '2px solid #e5e7eb',
+    background: 'white',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '14px',
+    color: '#6b7280',
+    transition: 'all 0.2s',
+  };
+
+  const rejectButtonStyle = {
+    padding: '12px 28px',
+    borderRadius: '12px',
+    border: 'none',
+    background: !isValid
+      ? '#d1d5db'
+      : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    color: 'white',
+    cursor: !isValid ? 'not-allowed' : 'pointer',
+    fontWeight: '700',
+    fontSize: '14px',
+    boxShadow: isValid ? '0 6px 20px rgba(239, 68, 68, 0.4)' : 'none',
+    transition: 'all 0.2s',
+    opacity: !isValid ? 0.6 : 1,
+  };
+
   return (
-    <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <div style={{
-          ...styles.modalHeader, 
-          background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'
-        }}>
-          <h2 style={{margin: 0, fontSize: '20px', fontWeight: '700', color: '#374151'}}>
-            ⚠️ Başvuruyu Reddet
-          </h2>
-          <button 
-            onClick={onClose} 
-            style={{
-              background: 'white', 
-              border: 'none', 
-              cursor: 'pointer', 
-              padding: '8px', 
-              borderRadius: '8px',
-              color: '#374151'
+    <div style={modalStyle} onClick={onClose}>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes slideUp {
+            from { 
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to { 
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
+      <div style={contentStyle} onClick={e => e.stopPropagation()}>
+        <div style={headerStyle}>
+          <button
+            onClick={onClose}
+            style={closeButtonStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.background = '#fee2e2';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = 'white';
             }}
           >
-            <FaTimes size={18} />
+            <FaTimes size={16} />
           </button>
-        </div>
-        
-        <div style={styles.modalBody}>
-          <p style={{
-            marginBottom: '16px', 
-            fontSize: '14px', 
-            color: '#6b7280', 
-            lineHeight: '1.5'
+          
+          <div style={iconContainerStyle}>
+            <FaExclamationTriangle size={32} color="white" />
+          </div>
+          
+          <h2 style={{
+            margin: 0,
+            fontSize: '24px',
+            fontWeight: '800',
+            color: '#991b1b',
+            marginBottom: '8px',
+            letterSpacing: '-0.02em'
           }}>
-            <strong>{vendor.full_name || vendor.owner}</strong> için red nedenini giriniz.
+            Başvuruyu Reddet
+          </h2>
+          
+          <p style={{
+            margin: 0,
+            fontSize: '14px',
+            color: '#7f1d1d',
+            lineHeight: '1.5',
+            fontWeight: '500'
+          }}>
+            <strong>{vendor.full_name || vendor.owner}</strong> adlı başvuruyu reddetmek üzeresiniz
           </p>
-          <textarea 
-            style={{
-              ...styles.textarea,
-              borderColor: reason.length > 0 && !isValid ? '#6b7280' : '#e5e7eb'
-            }}
+        </div>
+
+        <div style={bodyStyle}>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#374151',
+            marginBottom: '12px'
+          }}>
+            Red Nedeni <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          
+          <textarea
+            style={textareaStyle}
             value={reason}
             onChange={(e) => onReasonChange(e.target.value)}
             placeholder="Örn: Belgeleriniz eksik veya hatalı..."
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#ef4444';
+              e.currentTarget.style.backgroundColor = 'white';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = reason.length > 0 && !isValid ? '#fca5a5' : '#e5e7eb';
+              e.currentTarget.style.backgroundColor = '#fafafa';
+            }}
           />
+          
           <div style={{
-            textAlign: 'right', 
-            fontSize: '12px', 
-            marginTop: '8px', 
-            color: !isValid ? '#6b7280' : '#059669',
-            fontWeight: '500'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '12px',
           }}>
-            {reason.length} / 1000 (Min {minLength})
+            <div style={{
+              fontSize: '12px',
+              color: !isValid && reason.length > 0 ? '#ef4444' : '#9ca3af',
+              fontWeight: '600'
+            }}>
+              {!isValid && reason.length > 0 && (
+                <span>⚠️ En az {minLength} karakter gerekli</span>
+              )}
+            </div>
+            <div style={{
+              fontSize: '12px',
+              color: !isValid ? '#9ca3af' : '#10b981',
+              fontWeight: '600'
+            }}>
+              {reason.length} / 1000
+            </div>
           </div>
         </div>
-        
-        <div style={styles.modalFooter}>
-          <button 
-            onClick={onClose} 
-            style={{
-              padding: '12px 24px', 
-              borderRadius: '10px', 
-              border: '2px solid #e5e7eb', 
-              background: 'white', 
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '14px',
-              color: '#6b7280'
+
+        <div style={footerStyle}>
+          <button
+            onClick={onClose}
+            style={cancelButtonStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#f3f4f6';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
             İptal
           </button>
-          <button 
+          <button
             onClick={onSubmit}
             disabled={!isValid || isSubmitting}
-            style={{
-              padding: '12px 24px', 
-              borderRadius: '10px', 
-              border: 'none', 
-              background: !isValid 
-                ? '#9ca3af' 
-                : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)', 
-              color: 'white', 
-              cursor: !isValid ? 'not-allowed' : 'pointer',
-              fontWeight: '600',
-              fontSize: '14px',
-              boxShadow: isValid ? '0 4px 12px rgba(107, 114, 128, 0.3)' : 'none'
+            style={rejectButtonStyle}
+            onMouseEnter={(e) => {
+              if (isValid && !isSubmitting) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(239, 68, 68, 0.5)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isValid && !isSubmitting) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+              }
             }}
           >
-            {isSubmitting ? 'Reddediliyor...' : 'Reddet'}
+            {isSubmitting ? '🔄 Reddediliyor...' : '✕ Reddet'}
           </button>
         </div>
       </div>
