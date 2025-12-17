@@ -1,8 +1,8 @@
 // src/pages/user/UserReviews/index.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   FaStar, FaClipboardList, FaClock, FaCheckCircle, 
-  FaCommentAlt, FaShoppingBag 
+  FaCommentAlt, FaShoppingBag, FaTimes
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
@@ -17,6 +17,7 @@ import {
 
 const UserReviews = () => {
   const styles = getStyles();
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const {
     // Tab
@@ -188,6 +189,7 @@ const UserReviews = () => {
                   key={review.id}
                   review={review}
                   onDelete={(id) => setDeleteModal({ isOpen: true, reviewId: id })}
+                  onImageClick={setLightboxImage}
                   getStatusConfig={getStatusConfig}
                   styles={styles}
                 />
@@ -243,6 +245,63 @@ const UserReviews = () => {
         type="danger"
         isLoading={isDeleting}
       />
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            cursor: 'pointer',
+          }} 
+          onClick={() => setLightboxImage(null)}
+        >
+          <img 
+            src={lightboxImage} 
+            alt="" 
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              objectFit: 'contain',
+            }} 
+          />
+          <button 
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#fff',
+              fontSize: '20px',
+              transition: 'background 0.2s',
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxImage(null);
+            }}
+            onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            <FaTimes />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

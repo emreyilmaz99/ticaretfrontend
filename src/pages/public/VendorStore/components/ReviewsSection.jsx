@@ -1,6 +1,6 @@
 // src/pages/public/VendorStore/components/ReviewsSection.jsx
-import React from 'react';
-import { FaStar, FaUser, FaThumbsUp, FaSpinner } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaStar, FaUser, FaThumbsUp, FaSpinner, FaTimes } from 'react-icons/fa';
 
 const ReviewsSection = ({
   reviews,
@@ -12,6 +12,7 @@ const ReviewsSection = ({
   setSelectedRating,
   isMobile,
 }) => {
+  const [lightboxImage, setLightboxImage] = useState(null);
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('tr-TR', {
       year: 'numeric',
@@ -177,7 +178,13 @@ const ReviewsSection = ({
               {review.images && review.images.length > 0 && (
                 <div style={styles.reviewImages}>
                   {review.images.map((img, idx) => (
-                    <img key={idx} src={img} alt="" style={styles.reviewImage} />
+                    <img 
+                      key={idx} 
+                      src={img} 
+                      alt="" 
+                      style={{...styles.reviewImage, cursor: 'pointer'}} 
+                      onClick={() => setLightboxImage(img)}
+                    />
                   ))}
                 </div>
               )}
@@ -204,6 +211,24 @@ const ReviewsSection = ({
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div style={styles.lightbox} onClick={() => setLightboxImage(null)}>
+          <img src={lightboxImage} alt="" style={styles.lightboxImage} />
+          <button 
+            style={styles.lightboxClose} 
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxImage(null);
+            }}
+            onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            <FaTimes />
+          </button>
         </div>
       )}
     </div>
@@ -517,6 +542,41 @@ const styles = {
     color: '#1e293b',
     lineHeight: '1.6',
     margin: 0,
+  },
+  lightbox: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
+    cursor: 'pointer',
+  },
+  lightboxImage: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    objectFit: 'contain',
+  },
+  lightboxClose: {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+    background: 'rgba(255, 255, 255, 0.2)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    color: '#fff',
+    fontSize: '20px',
+    transition: 'background 0.2s',
   },
 };
 

@@ -1,8 +1,17 @@
 // src/components/modals/shared/ModalOverlay.jsx
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
+import { getModalBaseStyles } from './styles/modalBase';
 import './styles/animations.css';
 
 const ModalOverlay = React.memo(({ isOpen, onClose, children, closeOnClickOutside = true }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleEscKey = useCallback((e) => {
     if (e.key === 'Escape' && onClose) {
       onClose();
@@ -28,8 +37,10 @@ const ModalOverlay = React.memo(({ isOpen, onClose, children, closeOnClickOutsid
     }
   }, [closeOnClickOutside, onClose]);
 
+  const styles = getModalBaseStyles(isMobile);
+
   return (
-    <div onClick={handleOverlayClick}>
+    <div style={styles.overlay} onClick={handleOverlayClick}>
       {children}
     </div>
   );

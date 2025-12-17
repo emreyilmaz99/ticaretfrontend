@@ -7,8 +7,11 @@ import { useHoverEffect } from '../../../../hooks/useHoverEffect';
 import { styles } from '../styles';
 
 const QuantitySelector = React.memo(({ quantity, onQuantityChange, max = quantityConfig.max }) => {
-  const minusHover = useHoverEffect({ backgroundColor: '#e0e0e0' });
-  const plusHover = useHoverEffect({ backgroundColor: '#e0e0e0' });
+  const defaultBg = styles.quantityButton?.backgroundColor || '#f5f5f5';
+  const hoverBg = '#e0e0e0';
+  
+  const minusHover = useHoverEffect({ backgroundColor: defaultBg }, { backgroundColor: hoverBg });
+  const plusHover = useHoverEffect({ backgroundColor: defaultBg }, { backgroundColor: hoverBg });
 
   const handleDecrease = useCallback(() => {
     if (quantity > quantityConfig.min) {
@@ -38,7 +41,7 @@ const QuantitySelector = React.memo(({ quantity, onQuantityChange, max = quantit
         <button
           style={{
             ...styles.quantityButton,
-            backgroundColor: minusHover.style.backgroundColor,
+            backgroundColor: minusHover.isHovered ? hoverBg : defaultBg,
           }}
           onClick={handleDecrease}
           disabled={quantity <= quantityConfig.min}
@@ -58,7 +61,7 @@ const QuantitySelector = React.memo(({ quantity, onQuantityChange, max = quantit
         <button
           style={{
             ...styles.quantityButton,
-            backgroundColor: plusHover.style.backgroundColor,
+            backgroundColor: plusHover.isHovered ? hoverBg : defaultBg,
           }}
           onClick={handleIncrease}
           disabled={quantity >= max}

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../../../../context/AuthContext';
-import { useCart } from '../../../../context/CartContext';
+import useCartStore from '../../../../stores/useCartStore';
 import { useToast } from '../../../../components/common/Toast';
 
 /**
@@ -13,7 +13,7 @@ export const useAuthForm = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
   const auth = useAuthContext();
-  const { mergeGuestCart, fetchCart } = useCart();
+  const fetchCart = useCartStore((state) => state.fetchCart);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -25,7 +25,7 @@ export const useAuthForm = () => {
 
   const handlePostAuth = async () => {
     try {
-      await mergeGuestCart();
+      // Zustand kullanıyoruz, guest cart merge artık yok
       await fetchCart();
     } catch (cartError) {
       console.error('Sepet aktarılırken hata:', cartError);

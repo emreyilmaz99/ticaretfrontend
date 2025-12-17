@@ -108,9 +108,9 @@ const UserOrders = () => {
                   <div style={{ textAlign: 'center', padding: '40px' }}>
                     <FiLoader className="animate-spin" size={24} color="#2563eb" style={{ margin: '0 auto' }} />
                   </div>
-                ) : orderDetail ? (
+                ) : orderDetail?.data ? (
                   <OrderDetailContent 
-                    order={orderDetail.data.order} 
+                    order={orderDetail.data} 
                     formatPrice={formatPrice} 
                     formatDate={formatDate}
                   />
@@ -323,29 +323,32 @@ const OrderDetailContent = ({ order, formatPrice, formatDate }) => {
           <button
             onClick={() => window.open(`/invoice/${order.order_number}`, '_blank')}
             style={{
-              padding: '6px 12px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500',
+              padding: '10px 20px',
+              background: '#ffffff',
+              border: '2px solid #e5e7eb',
+              borderRadius: '10px',
+              fontSize: '13px',
+              fontWeight: '600',
               color: '#374151',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
+              gap: '8px',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb';
-              e.target.style.borderColor = '#9ca3af';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = '#ffffff';
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
               e.target.style.borderColor = '#d1d5db';
             }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.05)';
+              e.target.style.borderColor = '#e5e7eb';
+            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
               <line x1="16" y1="13" x2="8" y2="13"></line>

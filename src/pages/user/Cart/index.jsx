@@ -24,11 +24,9 @@ const Cart = () => {
   // Custom hook'tan tüm state ve fonksiyonları al
   const {
     cartItems,
-    vendorGroups,
-    coupon,
+    itemCount,
     totals,
     loading,
-    initialized,
     couponInput,
     isMobile,
     // Address
@@ -40,19 +38,25 @@ const Cart = () => {
     deleteConfirm,
     confirmDeleteAddress,
     cancelDeleteAddress,
+    // Clear Cart Confirm
+    clearCartConfirm,
+    confirmClearCart,
+    cancelClearCart,
+    // Coupon
+    coupon,
+    couponLoading,
+    setCouponInput,
+    handleApplyCoupon,
+    handleRemoveCoupon,
     // Checkout
     showCheckoutModal,
     checkoutStep,
     paymentHtml,
     isCheckoutLoading,
-    // Setters
-    setCouponInput,
     // Handlers
-    handleApplyCoupon,
     handleRemoveItem,
     handleUpdateQuantity,
     handleClearCart,
-    handleRemoveCoupon,
     // Address Handlers
     handleSelectAddress,
     handleOpenAddressModal,
@@ -69,18 +73,25 @@ const Cart = () => {
   // Responsive stiller
   const styles = getStyles(isMobile);
 
-  // Yükleniyor veya boş sepet durumu
-  if (!initialized || cartItems.length === 0) {
+  // Yükleniyor durumu
+  if (loading && cartItems.length === 0) {
     return (
       <EmptyCart 
-        isLoading={!initialized} 
+        isLoading={true} 
         styles={styles} 
       />
     );
   }
 
-  // Vendor grupları mevcut mu kontrol et
-  const hasVendorGroups = vendorGroups && vendorGroups.length > 0;
+  // Boş sepet durumu
+  if (cartItems.length === 0) {
+    return (
+      <EmptyCart 
+        isLoading={false} 
+        styles={styles} 
+      />
+    );
+  }
 
   // Normal sepet görünümü
   return (
@@ -107,33 +118,16 @@ const Cart = () => {
             isMobile={isMobile}
           />
 
-          {/* Vendor Grupları veya Normal Ürün Listesi */}
-          {hasVendorGroups ? (
-            // Vendor'a göre gruplanmış görünüm
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-              {vendorGroups.map((group) => (
-                <VendorGroup
-                  key={group.vendor_id}
-                  vendorGroup={group}
-                  onRemoveItem={handleRemoveItem}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  loading={loading}
-                  isMobile={isMobile}
-                />
-              ))}
-            </div>
-          ) : (
-            // Fallback: Normal ürün listesi
-            <CartProductList
-              cartItems={cartItems}
-              onRemoveItem={handleRemoveItem}
-              onUpdateQuantity={handleUpdateQuantity}
-              onClearCart={handleClearCart}
-              loading={loading}
-              isMobile={isMobile}
-              styles={styles}
-            />
-          )}
+          {/* Ürün Listesi */}
+          <CartProductList
+            cartItems={cartItems}
+            onRemoveItem={handleRemoveItem}
+            onUpdateQuantity={handleUpdateQuantity}
+            onClearCart={handleClearCart}
+            loading={loading}
+            isMobile={isMobile}
+            styles={styles}
+          />
         </div>
 
         {/* Sağ Taraf: Sipariş Özeti */}
@@ -141,6 +135,7 @@ const Cart = () => {
           totals={totals}
           coupon={coupon}
           couponInput={couponInput}
+          couponLoading={couponLoading}
           onCouponInputChange={setCouponInput}
           onApplyCoupon={handleApplyCoupon}
           onRemoveCoupon={handleRemoveCoupon}
@@ -168,6 +163,18 @@ const Cart = () => {
         cancelText="Vazgeç"
         type="danger"
         isLoading={isDeleting}
+      />
+
+      {/* Sepeti Temizle Onay Modal */}
+      <ConfirmModal
+        isOpen={clearCartConfirm}
+        onClose={cancelClearCart}
+        onConfirm={confirmClearCart}
+        title="Sepeti Temizle"
+        message="Sepeti tamamen boşaltmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
+        confirmText="Evet, Temizle"
+        cancelText="Vazgeç"
+        type="warning"
       />
 
       {/* Checkout Modal - iyzico ödeme */}

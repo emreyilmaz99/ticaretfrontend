@@ -8,14 +8,15 @@ import ShippingBreakdown from './ShippingBreakdown';
 
 /**
  * Sipariş özeti bileşeni
- * Kupon, fiyat hesaplamaları ve checkout butonu içerir
+ * Fiyat hesaplamaları ve checkout butonu içerir
  */
 const OrderSummary = ({ 
-  totals, 
-  coupon, 
-  couponInput, 
-  onCouponInputChange, 
-  onApplyCoupon, 
+  totals,
+  coupon,
+  couponInput,
+  couponLoading,
+  onCouponInputChange,
+  onApplyCoupon,
   onRemoveCoupon,
   onCheckout,
   isCheckoutLoading,
@@ -26,18 +27,8 @@ const OrderSummary = ({
       <div style={styles.summaryCard}>
         <h2 style={styles.summaryTitle}>Sipariş Özeti</h2>
 
-        {/* Kupon Alanı */}
-        <CouponSection 
-          coupon={coupon}
-          couponInput={couponInput}
-          onCouponInputChange={onCouponInputChange}
-          onApplyCoupon={onApplyCoupon}
-          onRemoveCoupon={onRemoveCoupon}
-          styles={styles}
-        />
-
         {/* Hesaplamalar */}
-        <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '24px' }}>
+        <div style={{ paddingTop: '24px' }}>
           {/* Ara Toplam */}
           <div style={styles.row}>
             <span>Ara Toplam</span>
@@ -52,10 +43,10 @@ const OrderSummary = ({
             </div>
           )}
           
-          {/* Kupon İndirimi */}
+          {/* İndirim */}
           {(totals?.discount || 0) > 0 && (
             <div style={{ ...styles.row, color: '#16a34a' }}>
-              <span>Kupon İndirimi ({coupon?.code})</span>
+              <span>İndirim</span>
               <span>-{(totals?.discount || 0).toLocaleString('tr-TR')} TL</span>
             </div>
           )}
@@ -67,6 +58,17 @@ const OrderSummary = ({
             styles={styles}
           />
         </div>
+
+        {/* Kupon Bölümü */}
+        <CouponSection
+          coupon={coupon}
+          couponInput={couponInput}
+          couponLoading={couponLoading}
+          onCouponInputChange={onCouponInputChange}
+          onApplyCoupon={onApplyCoupon}
+          onRemoveCoupon={onRemoveCoupon}
+          styles={styles}
+        />
 
         {/* Genel Toplam */}
         <div style={styles.totalRow}>
@@ -146,11 +148,14 @@ OrderSummary.propTypes = {
   coupon: PropTypes.shape({
     code: PropTypes.string,
     discount: PropTypes.number,
+    type: PropTypes.string,
+    min_amount: PropTypes.number,
   }),
-  couponInput: PropTypes.string.isRequired,
-  onCouponInputChange: PropTypes.func.isRequired,
-  onApplyCoupon: PropTypes.func.isRequired,
-  onRemoveCoupon: PropTypes.func.isRequired,
+  couponInput: PropTypes.string,
+  couponLoading: PropTypes.bool,
+  onCouponInputChange: PropTypes.func,
+  onApplyCoupon: PropTypes.func,
+  onRemoveCoupon: PropTypes.func,
   onCheckout: PropTypes.func.isRequired,
   isCheckoutLoading: PropTypes.bool,
   styles: PropTypes.object.isRequired,
@@ -158,6 +163,8 @@ OrderSummary.propTypes = {
 
 OrderSummary.defaultProps = {
   isCheckoutLoading: false,
+  couponInput: '',
+  onCouponInputChange: () => {},
 };
 
 export default OrderSummary;

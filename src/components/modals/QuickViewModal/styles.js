@@ -1,181 +1,345 @@
 // src/components/modals/QuickViewModal/styles.js
 export const styles = {
-  content: {
-    display: 'flex',
-    gap: '30px',
-    padding: '20px',
-    maxHeight: '70vh',
-    overflow: 'auto',
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderRadius: '16px',
+    width: '95%',
+    maxWidth: '1000px',
+    maxHeight: '90vh',
+    overflow: 'hidden',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    animation: 'modalSlideUp 0.3s ease',
   },
 
+  content: {
+    display: 'flex',
+    minHeight: '500px',
+  },
+
+  // Sol taraf - Resim
   imageSection: {
-    flex: '0 0 400px',
+    flex: '0 0 50%',
+    backgroundColor: '#f8fafc',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px',
+    position: 'relative',
   },
 
   imageContainer: {
-    position: 'relative',
     width: '100%',
-    paddingBottom: '100%',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
-    overflow: 'hidden',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   image: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
+    maxWidth: '100%',
+    maxHeight: '400px',
     objectFit: 'contain',
   },
 
-  infoSection: {
-    flex: 1,
+  noImage: {
+    color: '#94a3b8',
+    fontSize: '14px',
     display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
+    alignItems: 'center',
+    gap: '8px',
   },
 
-  title: {
-    fontSize: '24px',
+  // Sağ taraf - Bilgiler
+  infoSection: {
+    flex: '0 0 50%',
+    padding: '32px',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+
+  // Kapatma butonu
+  closeButton: {
+    position: 'absolute',
+    top: '16px',
+    right: '16px',
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    border: '1px solid #e2e8f0',
+    backgroundColor: '#fff',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#64748b',
+    fontSize: '18px',
+    transition: 'all 0.2s ease',
+    zIndex: 10,
+  },
+
+  closeButtonHover: {
+    backgroundColor: '#f1f5f9',
+    color: '#1e293b',
+  },
+
+  // Kategori
+  category: {
+    fontSize: '13px',
     fontWeight: '600',
-    color: '#333',
+    color: '#059669',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
     marginBottom: '8px',
   },
 
-  priceSection: {
+  // Başlık
+  title: {
+    fontSize: '24px',
+    fontWeight: '700',
+    color: '#1e293b',
+    lineHeight: '1.3',
+    marginBottom: '16px',
+    paddingRight: '50px',
+  },
+
+  // Değerlendirme satırı
+  ratingRow: {
     display: 'flex',
-    alignItems: 'baseline',
-    gap: '12px',
+    alignItems: 'center',
+    gap: '16px',
+    marginBottom: '20px',
+    flexWrap: 'wrap',
+  },
+
+  ratingBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    color: '#f59e0b',
+    fontWeight: '600',
+    fontSize: '15px',
+  },
+
+  starIcon: {
+    color: '#f59e0b',
+  },
+
+  reviewCount: {
+    color: '#64748b',
+    fontSize: '14px',
+  },
+
+  stockBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    color: '#059669',
+    fontSize: '14px',
+    fontWeight: '500',
+  },
+
+  outOfStock: {
+    color: '#dc2626',
+  },
+
+  divider: {
+    color: '#e2e8f0',
+    fontSize: '14px',
+  },
+
+  // Fiyat
+  priceSection: {
+    marginBottom: '24px',
   },
 
   price: {
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: '700',
-    color: '#4CAF50',
+    color: '#1e293b',
   },
 
   oldPrice: {
-    fontSize: '20px',
-    color: '#999',
+    fontSize: '18px',
+    color: '#94a3b8',
     textDecoration: 'line-through',
+    marginLeft: '12px',
   },
 
-  discount: {
-    backgroundColor: '#f44336',
-    color: '#fff',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '14px',
+  // Teknik Özellikler
+  specsContainer: {
+    backgroundColor: '#f8fafc',
+    borderRadius: '12px',
+    padding: '20px',
+    marginBottom: '24px',
+  },
+
+  specsTitle: {
+    fontSize: '15px',
     fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: '16px',
   },
 
-  description: {
-    color: '#666',
-    lineHeight: '1.6',
-    fontSize: '14px',
+  specsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '12px 24px',
   },
 
-  specs: {
+  specItem: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-  },
-
-  specRow: {
-    display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: '12px',
-    padding: '10px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '6px',
   },
 
   specLabel: {
     fontSize: '14px',
-    color: '#666',
-    fontWeight: '500',
-    minWidth: '100px',
+    color: '#64748b',
   },
 
   specValue: {
     fontSize: '14px',
-    color: '#333',
     fontWeight: '600',
+    color: '#1e293b',
   },
 
-  quantitySection: {
+  // Alt kısım - Miktar ve butonlar
+  bottomSection: {
+    marginTop: 'auto',
+  },
+
+  actionsRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    marginBottom: '20px',
   },
 
-  quantityLabel: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#333',
-  },
-
+  // Miktar seçici
   quantityControl: {
     display: 'flex',
     alignItems: 'center',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
     overflow: 'hidden',
   },
 
   quantityButton: {
-    width: '36px',
-    height: '36px',
+    width: '40px',
+    height: '44px',
     border: 'none',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'background-color 0.2s ease',
+    color: '#64748b',
+    fontSize: '16px',
+    transition: 'all 0.2s ease',
+  },
+
+  quantityButtonHover: {
+    backgroundColor: '#f1f5f9',
+    color: '#1e293b',
+  },
+
+  quantityButtonDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
   },
 
   quantityInput: {
-    width: '60px',
-    height: '36px',
+    width: '50px',
+    height: '44px',
     border: 'none',
+    borderLeft: '1px solid #e2e8f0',
+    borderRight: '1px solid #e2e8f0',
     textAlign: 'center',
-    fontSize: '14px',
+    fontSize: '16px',
     fontWeight: '600',
+    color: '#1e293b',
+    outline: 'none',
+    MozAppearance: 'textfield',
+    WebkitAppearance: 'none',
+    appearance: 'textfield',
   },
 
-  actions: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: 'auto',
-  },
-
-  button: (variant = 'primary') => ({
+  // Sepete Ekle butonu
+  addToCartButton: {
     flex: 1,
-    padding: '14px 24px',
+    height: '44px',
+    backgroundColor: '#1e293b',
+    color: '#fff',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '15px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    backgroundColor: variant === 'primary' ? '#4CAF50' : variant === 'secondary' ? '#2196F3' : '#f5f5f5',
-    color: variant === 'outline' ? '#666' : '#fff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-  }),
+    transition: 'all 0.2s ease',
+  },
 
-  '@media (max-width: 768px)': {
-    content: {
-      flexDirection: 'column',
-      gap: '20px',
-    },
-    imageSection: {
-      flex: '1',
-    },
+  addToCartButtonHover: {
+    backgroundColor: '#334155',
+  },
+
+  addToCartButtonDisabled: {
+    backgroundColor: '#94a3b8',
+    cursor: 'not-allowed',
+  },
+
+  // Favori butonu
+  favoriteButton: {
+    width: '44px',
+    height: '44px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    backgroundColor: '#fff',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#64748b',
+    fontSize: '18px',
+    transition: 'all 0.2s ease',
+  },
+
+  favoriteButtonHover: {
+    borderColor: '#fecaca',
+    color: '#ef4444',
+    backgroundColor: '#fef2f2',
+  },
+
+  favoriteButtonActive: {
+    borderColor: '#ef4444',
+    color: '#ef4444',
+    backgroundColor: '#fef2f2',
+  },
+
+  // Detaylara git linki
+  viewDetailsLink: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    color: '#059669',
+    fontSize: '15px',
+    fontWeight: '500',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    padding: '8px 0',
+    transition: 'all 0.2s ease',
+    border: 'none',
+    backgroundColor: 'transparent',
+    width: '100%',
+  },
+
+  viewDetailsLinkHover: {
+    color: '#047857',
+    gap: '10px',
   },
 };

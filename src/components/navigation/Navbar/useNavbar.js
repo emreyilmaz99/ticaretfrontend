@@ -6,7 +6,7 @@ import { getCategoryTree } from '../../../api/publicApi';
 import { useToast } from '../../common/Toast';
 import AuthContext from '../../../context/AuthContext';
 import { useFavorites } from '../../../context/FavoritesContext';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { getStyles } from './styles';
 import * as FaIcons from 'react-icons/fa';
 
@@ -34,7 +34,9 @@ const useNavbar = () => {
   const toast = useToast();
   const { user, logout } = useContext(AuthContext);
   const { favorites, count: favoriteCount } = useFavorites();
-  const { cartItems, totals, itemCount } = useCart();
+  const cartItems = useCartStore((state) => state.cartItems);
+  const totals = useCartStore((state) => state.totals);
+  const itemCount = useCartStore((state) => state.itemCount);
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();

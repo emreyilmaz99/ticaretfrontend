@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { useToast } from '../../../components/common/Toast';
 import { useAuth } from '../../../context/AuthContext';
 import { getProducts, getMainCategories } from '../../../api/publicApi';
@@ -13,7 +13,7 @@ import { CATEGORY_BANNERS } from './styles';
  * Custom hook for CategoryProducts page
  */
 export const useCategoryProducts = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get('category');
   const subcategoryName = searchParams.get('subcategory');
 
@@ -25,7 +25,7 @@ export const useCategoryProducts = () => {
   const [sortBy, setSortBy] = useState('featured');
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState(categoryId ? [categoryId] : []);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   
@@ -36,11 +36,20 @@ export const useCategoryProducts = () => {
   // Favorites State
   const [favorites, setFavorites] = useState([]);
 
-  const { addToCart } = useCart();
-  const { showToast } = useToast();
+  const addToCart = useCartStore((state) => state.addToCart);
+  const toast = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const loadMoreRef = useRef();
+
+  // URL'deki kategori değiştiğinde selectedCategories'i güncelle
+  useEffect(() => {
+    if (categoryId) {
+      setSelectedCategories([categoryId]);
+    } else {
+      setSelectedCategories([]);
+    }
+  }, [categoryId]);
 
   // Handle resize
   useEffect(() => {
@@ -175,23 +184,23 @@ export const useCategoryProducts = () => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Handlers
-  const handleAddToCart = useCallback((product) => {
-    addToCart(product); // CartContext zaten toast gösteriyor
+  const handleAddToCart = useCallback(async (product) => {
+    await addToCart(product, 1, null, toast, navigate);
     setQuickViewProduct(null);
-  }, [addToCart]);
+  }, [addToCart, toast, navigate]);
 
   const toggleCompare = useCallback((product) => {
     if (compareList.find(p => p.id === product.id)) {
       setCompareList(compareList.filter(p => p.id !== product.id));
-      showToast('Ürün karşılaştırma listesinden çıkarıldı.', 'info');
+      toast.info('Bilgi', 'Ürün karşılaştırma listesinden çıkarıldı.');
     } else {
       if (compareList.length >= 3) {
-        showToast('En fazla 3 ürün karşılaştırabilirsiniz.', 'warning');
+        toast.warning('Uyarı', 'En fazla 3 ürün karşılaştırabilirsiniz.');
         return;
       }
       const newCompareList = [...compareList, product];
       setCompareList(newCompareList);
-      showToast('Ürün karşılaştırma listesine eklendi.', 'success');
+      toast.success('Başarılı', 'Ürün karşılaştırma listesine eklendi.');
       
       // 2 veya daha fazla ürün varsa otomatik modal aç
       if (newCompareList.length >= 2) {
@@ -200,15 +209,27 @@ export const useCategoryProducts = () => {
         }, 500); // Toast gösterildikten sonra modal açılsın
       }
     }
-  }, [compareList, showToast]);
+  }, [compareList, toast]);
 
-  const toggleCategory = useCallback((categoryId) => {
-    if (categoryId === null) {
+  const toggleCategory = useCallback((catId) => {
+    if (catId === null) {
       setSelectedCategories([]);
+      // URL'den category parametresini kaldır
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('category');
+        return newParams;
+      });
     } else {
-      setSelectedCategories([categoryId]);
+      setSelectedCategories([catId]);
+      // URL'yi güncelle
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set('category', catId);
+        return newParams;
+      });
     }
-  }, []);
+  }, [setSearchParams]);
 
   // Mutation for toggling favorite
   const toggleFavoriteMutation = useMutation({
@@ -232,17 +253,24 @@ export const useCategoryProducts = () => {
     }
   });
 
-  const toggleFavorite = useCallback((e, productId) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const toggleFavorite = useCallback((eOrProductId, productId) => {
+    // Eğer ilk parametre event ise
+    if (eOrProductId?.stopPropagation) {
+      eOrProductId.stopPropagation();
+      eOrProductId.preventDefault();
+    } else if (eOrProductId !== null) {
+      // İlk parametre productId ise
+      productId = eOrProductId;
+    }
+    
     if (!user) {
-      showToast('Favorilere eklemek için lütfen giriş yapın.', 'warning');
+      toast.warning('Uyarı', 'Favorilere eklemek için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
     // API çağrısı yap
     toggleFavoriteMutation.mutate(productId);
-  }, [user, showToast, navigate, toggleFavoriteMutation]);
+  }, [user, toast, navigate, toggleFavoriteMutation]);
 
   return {
     // URL params

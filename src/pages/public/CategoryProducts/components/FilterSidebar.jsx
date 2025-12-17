@@ -129,8 +129,8 @@ const FilterContent = ({
             <label key={category.id} style={styles.brandItem}>
               <input
                 type="radio"
-                checked={selectedCategories.includes(category.id)}
-                onChange={() => toggleCategory(category.id)}
+                checked={selectedCategories.includes(String(category.id)) || selectedCategories.includes(category.id)}
+                onChange={() => toggleCategory(String(category.id))}
                 style={styles.brandCheckbox}
               />
               <span style={styles.brandLabel}>

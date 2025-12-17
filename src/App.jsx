@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/common/Toast';
 import { FavoritesProvider } from './context/FavoritesContext';
-import { CartProvider } from './context/CartContext';
 
 // --- LAYOUTS (DÜZENLER) ---
 import Navbar from './components/navigation/Navbar';
@@ -65,13 +64,16 @@ import VendorPromotions from './pages/vendor/Promotions';
 import VendorReviews from './pages/vendor/Reviews';
 import VendorLayout from './components/layouts/VendorLayout';
 import VendorCategories from './pages/vendor/Categories';
+import useCartInitializer from './hooks/useCartInitializer';
 
 function App() {
+  // Sepet store'unu başlat
+  useCartInitializer();
+
   return (
     <AuthProvider>
       <ToastProvider>
         <FavoritesProvider>
-          <CartProvider>
             <Router>
                 <div className="App">
                   <Routes>
@@ -172,7 +174,6 @@ function App() {
               </Routes>
               </div>
             </Router>
-          </CartProvider>
         </FavoritesProvider>
       </ToastProvider>
     </AuthProvider>

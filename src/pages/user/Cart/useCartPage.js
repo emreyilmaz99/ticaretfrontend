@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { useAuth } from '../../../context/AuthContext';
 import { getUserAddresses, createUserAddress, deleteUserAddress } from '../../../features/user/api/userAddressApi';
 import { initializeCheckout } from '../../../features/checkout/api/checkoutApi';
@@ -13,20 +13,19 @@ import { useToast } from '../../../components/common/Toast';
  * Tüm state yönetimi ve iş mantığını içerir
  */
 const useCartPage = () => {
-  // Cart context'ten verileri al
-  const {
-    cartItems,
-    vendorGroups,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    applyCoupon,
-    removeCoupon,
-    coupon,
-    totals,
-    loading,
-    initialized
-  } = useCart();
+  // Zustand store'dan verileri al
+  const cartItems = useCartStore((state) => state.cartItems);
+  const totals = useCartStore((state) => state.totals);
+  const loading = useCartStore((state) => state.loading);
+  const coupon = useCartStore((state) => state.coupon);
+  const couponLoading = useCartStore((state) => state.couponLoading);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+  const applyCoupon = useCartStore((state) => state.applyCoupon);
+  const removeCoupon = useCartStore((state) => state.removeCoupon);
+  const canApplyCoupon = useCartStore((state) => state.canApplyCoupon);
 
   const { user, isAuthenticated } = useAuth();
   const toast = useToast();
@@ -39,6 +38,7 @@ const useCartPage = () => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, addressId: null });
+  const [clearCartConfirm, setClearCartConfirm] = useState(false);
   
   // Checkout state
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -158,6 +158,11 @@ const useCartPage = () => {
     }
   });
 
+  // Sayfa yüklendiğinde sepeti getir
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
   // Resize listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -166,44 +171,67 @@ const useCartPage = () => {
   }, []);
 
   /**
-   * Kupon uygulama işlemi
-   */
-  const handleApplyCoupon = useCallback((e) => {
-    e.preventDefault();
-    if (!couponInput.trim()) return;
-    applyCoupon(couponInput);
-    setCouponInput('');
-  }, [couponInput, applyCoupon]);
-
-  /**
    * Ürün silme işlemi
    */
-  const handleRemoveItem = useCallback((itemId) => {
-    removeFromCart(itemId);
-  }, [removeFromCart]);
+  const handleRemoveItem = useCallback(async (itemId) => {
+    await removeFromCart(itemId, toast);
+  }, [removeFromCart, toast]);
 
   /**
    * Miktar güncelleme işlemi
    */
-  const handleUpdateQuantity = useCallback((itemId, newQuantity) => {
+  const handleUpdateQuantity = useCallback(async (itemId, newQuantity) => {
     if (newQuantity >= 1) {
-      updateQuantity(itemId, newQuantity);
+      await updateQuantity(itemId, newQuantity, toast);
     }
-  }, [updateQuantity]);
+  }, [updateQuantity, toast]);
 
   /**
    * Sepeti temizleme işlemi
    */
   const handleClearCart = useCallback(() => {
-    clearCart();
-  }, [clearCart]);
+    setClearCartConfirm(true);
+  }, []);
 
   /**
-   * Kuponu kaldırma işlemi
+   * Sepeti temizleme onayı
    */
-  const handleRemoveCoupon = useCallback(() => {
-    removeCoupon();
-  }, [removeCoupon]);
+  const confirmClearCart = useCallback(async () => {
+    await clearCart(toast);
+    setClearCartConfirm(false);
+  }, [clearCart, toast]);
+
+  /**
+   * Sepeti temizleme iptal
+   */
+  const cancelClearCart = useCallback(() => {
+    setClearCartConfirm(false);
+  }, []);
+
+  /**
+   * Kupon uygulama
+   */
+  const handleApplyCoupon = useCallback(async (e) => {
+    if (e) e.preventDefault();
+    
+    if (!couponInput || couponInput.trim() === '') {
+      toast.warning('Uyarı', 'Lütfen bir kupon kodu girin.');
+      return;
+    }
+
+    const result = await applyCoupon(couponInput, toast);
+    
+    if (result.success) {
+      setCouponInput(''); // Başarılı olunca input'u temizle
+    }
+  }, [couponInput, applyCoupon, toast]);
+
+  /**
+   * Kupon kaldırma
+   */
+  const handleRemoveCoupon = useCallback(async () => {
+    await removeCoupon(toast);
+  }, [removeCoupon, toast]);
 
   /**
    * Adres seçme işlemi
@@ -315,23 +343,11 @@ const useCartPage = () => {
   }, []);
 
   return {
-    // State
-    cartItems,
-    coupon,
-    totals,
-    loading,
-    initialized,
-    couponInput,
-    isMobile,
-
-    // Address State
     // Cart Data
     cartItems,
-    vendorGroups,
-    coupon,
+    itemCount: cartItems.length,
     totals,
     loading,
-    initialized,
     couponInput,
     isMobile,
 
@@ -346,6 +362,20 @@ const useCartPage = () => {
     confirmDeleteAddress,
     cancelDeleteAddress,
 
+    // Clear Cart Confirm Modal State
+    clearCartConfirm,
+    confirmClearCart,
+    cancelClearCart,
+
+    // Coupon State
+    coupon,
+    couponInput,
+    couponLoading,
+    setCouponInput,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+    canApplyCoupon,
+
     // Checkout State
     showCheckoutModal,
     checkoutStep,
@@ -356,11 +386,9 @@ const useCartPage = () => {
     setCouponInput,
 
     // Handlers
-    handleApplyCoupon,
     handleRemoveItem,
     handleUpdateQuantity,
     handleClearCart,
-    handleRemoveCoupon,
 
     // Address Handlers
     handleSelectAddress,

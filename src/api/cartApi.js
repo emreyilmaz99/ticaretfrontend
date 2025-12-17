@@ -87,7 +87,8 @@ export const clearCart = async () => {
  * Kupon uygula
  */
 export const applyCoupon = async (code) => {
-  const response = await apiClient.post('/v1/cart/coupon', { code }, cartAxios());
+  const config = cartAxios();
+  const response = await apiClient.post('/v1/cart/coupon', { code }, config);
   return response.data;
 };
 
@@ -95,7 +96,8 @@ export const applyCoupon = async (code) => {
  * Kuponu kaldır
  */
 export const removeCoupon = async () => {
-  const response = await apiClient.delete('/v1/cart/coupon', cartAxios());
+  const config = cartAxios();
+  const response = await apiClient.delete('/v1/cart/coupon', config);
   return response.data;
 };
 
@@ -107,4 +109,16 @@ export const mergeCart = async () => {
   // Başarılı merge sonrası session ID'yi temizle
   localStorage.removeItem('cartSessionId');
   return response.data;
+};
+
+// Default export
+export default {
+  getCart,
+  addToCart,
+  updateCartItem,
+  removeFromCart,
+  clearCart,
+  applyCoupon,
+  removeCoupon,
+  mergeCart,
 };

@@ -5,7 +5,7 @@ import {
   FaStore, FaCalendarAlt, FaCheckCircle, FaClock, FaTimesCircle
 } from 'react-icons/fa';
 
-const ReviewCard = ({ review, onDelete, getStatusConfig, styles }) => {
+const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles }) => {
   const statusConfig = getStatusConfig(review.status);
 
   const renderStars = (rating) => {
@@ -95,7 +95,14 @@ const ReviewCard = ({ review, onDelete, getStatusConfig, styles }) => {
               : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E';
             
             return (
-              <div key={index} style={styles.reviewMediaItem}>
+              <div 
+                key={index} 
+                style={{
+                  ...styles.reviewMediaItem,
+                  cursor: 'pointer',
+                }}
+                onClick={() => onImageClick && onImageClick(fullUrl)}
+              >
                 {media.type === 'video' ? (
                   <video src={fullUrl} style={styles.reviewMediaVideo} />
                 ) : (

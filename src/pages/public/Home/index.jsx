@@ -59,6 +59,7 @@ const Home = () => {
     toggleCompare,
     handleCategoryChange,
     clearFilters,
+    navigate,
   } = useHome();
 
   const styles = getStyles(isMobile);
@@ -170,7 +171,7 @@ const Home = () => {
       }} />
 
       {/* Deal of the Day */}
-      <DealSection addToCart={addToCart} styles={styles} isMobile={isMobile} />
+      <DealSection styles={styles} isMobile={isMobile} />
 
       {/* Features Section */}
       <FeaturesSection styles={styles} />
@@ -190,11 +191,20 @@ const Home = () => {
 
       {/* Quick View Modal */}
       <QuickViewModal 
+        isOpen={!!quickViewProduct}
         product={quickViewProduct} 
         onClose={() => setQuickViewProduct(null)} 
-        addToCart={addToCart}
-        toggleFavorite={toggleFavorite}
-        favorites={favorites}
+        onAddToCart={(product, quantity) => {
+          addToCart({ ...product, quantity });
+          setQuickViewProduct(null);
+        }}
+        onAddToFavorites={(product) => {
+          toggleFavorite(product.id);
+        }}
+        onViewDetails={(product) => {
+          navigate(`/product/${product.slug || product.id}`);
+        }}
+        isFavorite={quickViewProduct ? favorites.includes(quickViewProduct.id) : false}
       />
 
       {/* Compare Modal */}

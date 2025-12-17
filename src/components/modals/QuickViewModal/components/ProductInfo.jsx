@@ -53,7 +53,7 @@ const ProductInfo = React.memo(({ product }) => {
         <SpecificationRow
           icon={specificationIcons.category}
           label="Kategori"
-          value={product?.category}
+          value={typeof product?.category === 'object' ? product?.category?.name : product?.category}
         />
         <SpecificationRow
           icon={specificationIcons.stock}

@@ -1,12 +1,19 @@
 // src/pages/public/Home/components/DealSection.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaShoppingCart, FaClock, FaChevronLeft, FaChevronRight, FaEye } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../../../components/common/Toast';
+import useCartStore from '../../../../stores/useCartStore';
 import apiClient from '@lib/apiClient';
 
 /**
  * Dynamic Deal Section - Shows featured deals from database
  */
-const DealSection = ({ addToCart, styles, isMobile }) => {
+const DealSection = ({ styles, isMobile }) => {
+  const addToCart = useCartStore((state) => state.addToCart);
+  const toast = useToast();
+  const navigate = useNavigate();
+  
   const [deals, setDeals] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -114,10 +121,11 @@ const DealSection = ({ addToCart, styles, isMobile }) => {
     
     if (!cartItem.product_id) {
       console.error('Product ID is missing!', currentDeal);
+      toast.error('Hata', 'Ürün bilgisi bulunamadı.');
       return;
     }
     
-    addToCart(cartItem);
+    await addToCart(cartItem, 1, null, toast, navigate);
   };
 
   // Format time

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProduct, getRelatedProducts } from '../../../api/publicApi';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { useFavorites } from '../../../context/FavoritesContext';
 import { useToast } from '../../../components/common/Toast';
 import { useAuth } from '../../../context/AuthContext';
@@ -15,7 +15,7 @@ export const useProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
   const { isFavorite, toggleFavorite } = useFavorites();
   const toast = useToast();
 
@@ -130,23 +130,18 @@ export const useProductDetail = () => {
   const shareText = product?.name || '';
 
   // Handlers
-  const handleAddToCart = useCallback(() => {
-    if (!user) {
-      toast.warning('Dikkat', 'Sepete eklemek için lütfen giriş yapın.');
-      navigate('/register');
-      return;
-    }
-
+  const handleAddToCart = useCallback(async () => {
     if (!isInStock) {
       toast.error('Hata', 'Bu ürün şu anda stokta yok.');
       return;
     }
 
-    addToCart({
+    await addToCart({
       id: product.id,
+      name: product.name,
       variantId: selectedVariant?.id,
-    }, quantity, selectedVariant);
-  }, [user, isInStock, product, selectedVariant, quantity, addToCart, toast, navigate]);
+    }, quantity, selectedVariant, toast, navigate);
+  }, [isInStock, product, selectedVariant, quantity, addToCart, toast, navigate]);
 
   const handleShare = useCallback((platform) => {
     const urls = {

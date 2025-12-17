@@ -1,13 +1,13 @@
 // src/pages/user/Favorites/useFavoritesPage.js
 import { useState, useEffect } from 'react';
 import { useFavorites } from '../../../context/FavoritesContext';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../components/common/Toast';
 
 export const useFavoritesPage = () => {
   const { favorites, removeFromFavorites, clearFavorites, loading, count, fetchFavorites } = useFavorites();
-  const { addToCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
   const { user } = useAuth();
   const toast = useToast();
   const [sortBy, setSortBy] = useState('date'); // date, price-asc, price-desc
@@ -69,21 +69,20 @@ export const useFavoritesPage = () => {
     return new Date(productB.dateAdded || 0) - new Date(productA.dateAdded || 0);
   });
 
-  const handleAddToCart = (product) => {
-    addToCart({ id: product.id, name: product.title });
-    toast.success('Başarılı', 'Ürün sepete eklendi.');
+  const handleAddToCart = async (product) => {
+    await addToCart({ id: product.id, name: product.title }, 1, null, toast);
   };
 
-  const handleMoveAllToCart = () => {
+  const handleMoveAllToCart = async () => {
     if (favorites.length === 0) return;
     let addedCount = 0;
-    favorites.forEach(item => {
+    for (const item of favorites) {
       const product = getProduct(item);
       if (product.inStock) {
-        addToCart({ id: product.id, name: product.title });
-        addedCount++;
+        const result = await addToCart({ id: product.id, name: product.title }, 1, null, null);
+        if (result?.success) addedCount++;
       }
-    });
+    }
     if (addedCount > 0) {
       toast.success('Başarılı', `${addedCount} ürün sepete eklendi.`);
     } else {

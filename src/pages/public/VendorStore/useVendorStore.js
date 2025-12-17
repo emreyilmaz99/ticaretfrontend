@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useCart } from '../../../context/CartContext';
+import { useToast } from '../../../components/common/Toast';
+import useCartStore from '../../../stores/useCartStore';
 import apiClient from '@lib/apiClient';
 import { getMainCategories } from '../../../api/publicApi';
 
@@ -50,7 +51,8 @@ export const useVendorStore = () => {
   const [reviewsSortBy, setReviewsSortBy] = useState('newest');
   const [selectedRating, setSelectedRating] = useState(null);
 
-  const { addToCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
+  const toast = useToast();
   const loadMoreRef = useRef();
 
   // Handle resize
@@ -182,9 +184,9 @@ export const useVendorStore = () => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Handlers
-  const handleAddToCart = useCallback((product) => {
-    addToCart(product);
-  }, [addToCart]);
+  const handleAddToCart = useCallback(async (product) => {
+    await addToCart(product, 1, null, toast);
+  }, [addToCart, toast]);
 
   return {
     // Vendor data

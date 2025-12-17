@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import getStyles from './styles';
 import { useCategoryProducts } from './useCategoryProducts';
 
@@ -13,6 +14,7 @@ import {
 } from './components';
 
 const CategoryProducts = () => {
+  const navigate = useNavigate();
   const {
     isMobile,
     viewMode,
@@ -123,12 +125,20 @@ const CategoryProducts = () => {
 
       {quickViewProduct && (
         <QuickViewModal
+          isOpen={!!quickViewProduct}
           product={quickViewProduct}
           onClose={() => setQuickViewProduct(null)}
-          onAddToCart={handleAddToCart}
-          favorites={favorites}
-          toggleFavorite={toggleFavorite}
-          styles={styles}
+          onAddToCart={(product, quantity) => {
+            handleAddToCart({ ...product, quantity });
+            setQuickViewProduct(null);
+          }}
+          onAddToFavorites={(product) => {
+            toggleFavorite(null, product.id);
+          }}
+          onViewDetails={(product) => {
+            navigate(`/product/${product.slug || product.id}`);
+          }}
+          isFavorite={favorites.includes(quickViewProduct.id)}
         />
       )}
 

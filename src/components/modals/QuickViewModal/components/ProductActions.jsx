@@ -11,16 +11,16 @@ const ProductActions = React.memo(({
   onViewDetails,
   hasStock,
 }) => {
-  const cartHover = useHoverEffect({ scale: 1.02 });
-  const favoriteHover = useHoverEffect({ scale: 1.02 });
-  const detailsHover = useHoverEffect({ scale: 1.02 });
+  const cartHover = useHoverEffect({}, { transform: 'scale(1.02)' });
+  const favoriteHover = useHoverEffect({}, { transform: 'scale(1.02)' });
+  const detailsHover = useHoverEffect({}, { transform: 'scale(1.02)' });
 
   return (
     <div style={styles.actions}>
       <button
         style={{
           ...styles.button('primary'),
-          transform: cartHover.style.transform,
+          transform: cartHover.isHovered ? 'scale(1.02)' : 'scale(1)',
           opacity: hasStock ? 1 : 0.5,
           cursor: hasStock ? 'pointer' : 'not-allowed',
         }}
@@ -35,7 +35,7 @@ const ProductActions = React.memo(({
       <button
         style={{
           ...styles.button('secondary'),
-          transform: favoriteHover.style.transform,
+          transform: favoriteHover.isHovered ? 'scale(1.02)' : 'scale(1)',
         }}
         onClick={onAddToFavorites}
         onMouseEnter={favoriteHover.onMouseEnter}
@@ -47,7 +47,7 @@ const ProductActions = React.memo(({
       <button
         style={{
           ...styles.button('outline'),
-          transform: detailsHover.style.transform,
+          transform: detailsHover.isHovered ? 'scale(1.02)' : 'scale(1)',
         }}
         onClick={onViewDetails}
         onMouseEnter={detailsHover.onMouseEnter}

@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../../components/common/Toast';
 import { useAuth } from '../../../context/AuthContext';
-import { useCart } from '../../../context/CartContext';
+import useCartStore from '../../../stores/useCartStore';
 import { getProducts, getCategories } from '../../../api/publicApi';
 import apiClient from '@lib/apiClient';
 
@@ -13,9 +13,11 @@ import apiClient from '@lib/apiClient';
  */
 export const useHome = () => {
   const [searchParams] = useSearchParams();
+  const toast = useToast();
   const { showToast } = useToast();
   const { user } = useAuth();
-  const { fetchCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
+  const fetchCart = useCartStore((state) => state.fetchCart);
   const navigate = useNavigate();
   
   // Responsive state
@@ -93,44 +95,26 @@ export const useHome = () => {
     return (product.rating || 0) >= minRating;
   });
 
-  // Add to cart handler
-  const addToCart = useCallback(async (product) => {
-    if (!user) {
-      showToast('Sepete eklemek için lütfen giriş yapın.', 'warning');
-      navigate('/register');
-      return;
+  // Add to cart handler - Zustand ile
+  const addToCartAction = useCallback(async (product) => {
+    const result = await addToCart(product, product.quantity || 1, null, toast, navigate);
+    
+    if (result?.success) {
+      if (quickViewProduct) setQuickViewProduct(null);
     }
+  }, [addToCart, toast, navigate, quickViewProduct]);
 
-    try {
-      const payload = {
-        product_id: product.product_id || product.id,
-        variant_id: product.variant_id || null,
-        quantity: product.quantity || 1,
-      };
-
-      console.log('Adding to cart:', payload);
-
-      const response = await apiClient.post('/v1/cart/items', payload);
-
-      if (response.data.success) {
-        showToast(`${product.name} sepete eklendi!`, 'success');
-        // Sepet state'ini güncelle - bu sayede badge otomatik güncellenecek
-        await fetchCart();
-        if (quickViewProduct) setQuickViewProduct(null);
-      } else {
-        showToast(response.data.message || 'Sepete eklenirken bir hata oluştu.', 'error');
-      }
-    } catch (error) {
-      console.error('Add to cart error:', error);
-      const errorMessage = error.response?.data?.message || 'Sepete eklenirken bir hata oluştu.';
-      showToast(errorMessage, 'error');
+  // Toggle favorite handler - productId veya event alabilir
+  const toggleFavorite = useCallback((productIdOrEvent, productId) => {
+    // Eğer ilk parametre event ise
+    if (productIdOrEvent?.stopPropagation) {
+      productIdOrEvent.stopPropagation();
+      productIdOrEvent.preventDefault();
+    } else {
+      // İlk parametre productId
+      productId = productIdOrEvent;
     }
-  }, [user, showToast, navigate, quickViewProduct, fetchCart]);
-
-  // Toggle favorite handler
-  const toggleFavorite = useCallback((e, productId) => {
-    e.stopPropagation();
-    e.preventDefault();
+    
     if (!user) {
       showToast('Favorilere eklemek için lütfen giriş yapın.', 'warning');
       navigate('/login');
@@ -138,10 +122,8 @@ export const useHome = () => {
     }
     if (favorites.includes(productId)) {
       setFavorites(favorites.filter(id => id !== productId));
-      showToast('Ürün favorilerden çıkarıldı.', 'info');
     } else {
       setFavorites([...favorites, productId]);
-      showToast('Ürün favorilere eklendi!', 'success');
     }
   }, [user, favorites, showToast, navigate]);
 
@@ -208,10 +190,11 @@ export const useHome = () => {
     setSortOrder,
     
     // Handlers
-    addToCart,
+    addToCart: addToCartAction,
     toggleFavorite,
     toggleCompare,
     handleCategoryChange,
     clearFilters,
+    navigate,
   };
 };

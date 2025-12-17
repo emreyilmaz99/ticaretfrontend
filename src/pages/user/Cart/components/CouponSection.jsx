@@ -8,7 +8,8 @@ import { FiTag, FiX } from 'react-icons/fi';
  */
 const CouponSection = ({ 
   coupon, 
-  couponInput, 
+  couponInput,
+  couponLoading,
   onCouponInputChange, 
   onApplyCoupon, 
   onRemoveCoupon, 
@@ -29,6 +30,7 @@ const CouponSection = ({
           value={couponInput}
           onChange={onCouponInputChange}
           onSubmit={onApplyCoupon}
+          loading={couponLoading}
           styles={styles}
         />
       )}
@@ -43,30 +45,47 @@ const CouponSection = ({
 /**
  * Aktif kupon görüntüleme
  */
-const ActiveCoupon = ({ coupon, onRemove, styles }) => (
-  <div style={styles.activeCoupon}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <FiTag />
-      <span style={{ fontWeight: '600' }}>{coupon.code}</span>
+const ActiveCoupon = ({ coupon, onRemove, styles }) => {
+  // İndirim miktarını formatla
+  const discountText = coupon.type === 'percentage' 
+    ? `%${coupon.discount} İndirim`
+    : `${coupon.discount} TL İndirim`;
+
+  return (
+    <div style={styles.activeCoupon}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FiTag />
+          <span style={{ fontWeight: '600' }}>{coupon.code}</span>
+        </div>
+        <span style={{ fontSize: '12px', color: '#059669' }}>{discountText}</span>
+        {coupon.min_amount && (
+          <span style={{ fontSize: '11px', color: '#64748b' }}>
+            Min. {coupon.min_amount} TL
+          </span>
+        )}
+      </div>
+      <button 
+        onClick={onRemove} 
+        style={{
+          background: 'none', 
+          border: 'none', 
+          color: 'inherit', 
+          cursor: 'pointer',
+          padding: '4px',
+        }}
+        title="Kuponu Kaldır"
+      >
+        <FiX size={20} />
+      </button>
     </div>
-    <button 
-      onClick={onRemove} 
-      style={{
-        background: 'none', 
-        border: 'none', 
-        color: 'inherit', 
-        cursor: 'pointer'
-      }}
-    >
-      <FiX />
-    </button>
-  </div>
-);
+  );
+};
 
 /**
  * Kupon giriş formu
  */
-const CouponForm = ({ value, onChange, onSubmit, styles }) => (
+const CouponForm = ({ value, onChange, onSubmit, loading, styles }) => (
   <form onSubmit={onSubmit} style={styles.couponForm}>
     <input 
       type="text" 
@@ -74,9 +93,18 @@ const CouponForm = ({ value, onChange, onSubmit, styles }) => (
       style={styles.couponInput}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      disabled={loading}
     />
-    <button type="submit" style={styles.couponBtn}>
-      Uygula
+    <button 
+      type="submit" 
+      style={{
+        ...styles.couponBtn,
+        opacity: loading ? 0.7 : 1,
+        cursor: loading ? 'not-allowed' : 'pointer',
+      }}
+      disabled={loading}
+    >
+      {loading ? 'Uygulanıyor...' : 'Uygula'}
     </button>
   </form>
 );
@@ -87,6 +115,7 @@ CouponSection.propTypes = {
     discount: PropTypes.number,
   }),
   couponInput: PropTypes.string.isRequired,
+  couponLoading: PropTypes.bool,
   onCouponInputChange: PropTypes.func.isRequired,
   onApplyCoupon: PropTypes.func.isRequired,
   onRemoveCoupon: PropTypes.func.isRequired,
@@ -96,6 +125,9 @@ CouponSection.propTypes = {
 ActiveCoupon.propTypes = {
   coupon: PropTypes.shape({
     code: PropTypes.string.isRequired,
+    discount: PropTypes.number,
+    type: PropTypes.string,
+    min_amount: PropTypes.number,
   }).isRequired,
   onRemove: PropTypes.func.isRequired,
   styles: PropTypes.object.isRequired,
@@ -105,6 +137,7 @@ CouponForm.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
   styles: PropTypes.object.isRequired,
 };
 
