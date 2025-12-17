@@ -9,6 +9,7 @@ const VendorTable = React.memo(({
   vendors,
   isLoading,
   searchTerm,
+  activeFilters,
   meta,
   currentPage,
   itemsPerPage,
@@ -20,15 +21,52 @@ const VendorTable = React.memo(({
   onCategory,
   showCategoryButton = false,
 }) => {
-  // Client-side filtering for search
+  // Client-side filtering for search and advanced filters
   const filteredVendors = useMemo(() => {
-    if (!searchTerm) return vendors;
-    const lowerSearch = searchTerm.toLowerCase();
-    return vendors.filter(vendor =>
-      (vendor.storeName || '').toLowerCase().includes(lowerSearch) ||
-      (vendor.email || '').toLowerCase().includes(lowerSearch)
-    );
-  }, [vendors, searchTerm]);
+    let filtered = vendors;
+
+    // Search filter
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(vendor =>
+        (vendor.storeName || '').toLowerCase().includes(lowerSearch) ||
+        (vendor.email || '').toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    // Advanced filters
+    if (activeFilters) {
+      // Revenue filter
+      if (activeFilters.minRevenue || activeFilters.maxRevenue) {
+        filtered = filtered.filter(vendor => {
+          const revenueValue = parseFloat((vendor.revenue || '0').replace(/[^0-9.-]+/g, ''));
+          if (activeFilters.minRevenue && revenueValue < parseFloat(activeFilters.minRevenue)) return false;
+          if (activeFilters.maxRevenue && revenueValue > parseFloat(activeFilters.maxRevenue)) return false;
+          return true;
+        });
+      }
+
+      // Sort by filter
+      if (activeFilters.sortBy && activeFilters.sortBy !== 'all') {
+        filtered = [...filtered].sort((a, b) => {
+          switch (activeFilters.sortBy) {
+            case 'revenue-high':
+              return parseFloat((b.revenue || '0').replace(/[^0-9.-]+/g, '')) - parseFloat((a.revenue || '0').replace(/[^0-9.-]+/g, ''));
+            case 'revenue-low':
+              return parseFloat((a.revenue || '0').replace(/[^0-9.-]+/g, '')) - parseFloat((b.revenue || '0').replace(/[^0-9.-]+/g, ''));
+            case 'rating-high':
+              return (b.rating || 0) - (a.rating || 0);
+            case 'rating-low':
+              return (a.rating || 0) - (b.rating || 0);
+            default:
+              return 0;
+          }
+        });
+      }
+    }
+
+    return filtered;
+  }, [vendors, searchTerm, activeFilters]);
 
   const totalPages = meta?.last_page || 1;
 
@@ -96,6 +134,7 @@ VendorTable.propTypes = {
   vendors: PropTypes.array.isRequired,
   isLoading: PropTypes.bool,
   searchTerm: PropTypes.string,
+  activeFilters: PropTypes.object,
   meta: PropTypes.object,
   currentPage: PropTypes.number.isRequired,
   itemsPerPage: PropTypes.number.isRequired,

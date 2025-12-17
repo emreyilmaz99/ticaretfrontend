@@ -22,8 +22,6 @@ const ConfirmModal = ({
   const { isHovered: isCancelBtnHovered, handleMouseEnter: handleCancelBtnEnter, handleMouseLeave: handleCancelBtnLeave } = useHoverEffect();
   const { isHovered: isConfirmBtnHovered, handleMouseEnter: handleConfirmBtnEnter, handleMouseLeave: handleConfirmBtnLeave } = useHoverEffect();
 
-  if (!isOpen) return null;
-
   const config = confirmTypes[type] || confirmTypes.danger;
   const IconComponent = config.icon;
   const styles = getConfirmModalStyles(config);
@@ -39,6 +37,8 @@ const ConfirmModal = ({
       onConfirm();
     }
   }, [onConfirm, isLoading]);
+
+  if (!isOpen) return null;
 
   return (
     <div style={styles.overlay} onClick={handleOverlayClick}>

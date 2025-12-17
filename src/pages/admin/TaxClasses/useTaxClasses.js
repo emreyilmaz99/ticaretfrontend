@@ -93,9 +93,7 @@ export const useTaxClasses = () => {
   };
 
   const deleteTaxClass = (id) => {
-    if (window.confirm('Bu vergi sınıfını silmek istediğinize emin misiniz?')) {
-      deleteMutation.mutate(id);
-    }
+    deleteMutation.mutate(id);
   };
 
   return {

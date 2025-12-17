@@ -73,7 +73,7 @@ const PlanTable = ({
               </td>
               <td style={{ ...styles.td, textAlign: 'right' }}>
                 <button 
-                  onClick={() => onToggleActive(plan.id)}
+                  onClick={() => onToggleActive(plan)}
                   style={{ 
                     ...styles.actionBtn, 
                     ...(plan.is_active ? styles.btnToggleOn : styles.btnToggleOff) 
@@ -83,7 +83,7 @@ const PlanTable = ({
                   {plan.is_active ? <FaToggleOn size={16} /> : <FaToggleOff size={16} />}
                 </button>
                 <button 
-                  onClick={() => onSetDefault(plan.id)}
+                  onClick={() => onSetDefault(plan)}
                   style={{ 
                     ...styles.actionBtn, 
                     ...(plan.is_default ? styles.btnDefaultDisabled : styles.btnDefault) 
@@ -101,7 +101,7 @@ const PlanTable = ({
                   <FaEdit size={16} />
                 </button>
                 <button 
-                  onClick={() => onDelete(plan.id)}
+                  onClick={() => onDelete(plan)}
                   style={{ ...styles.actionBtn, ...styles.btnDelete }}
                   title="Sil"
                 >

@@ -11,10 +11,11 @@ import {
   FaFileExcel, FaShieldAlt, FaEye, FaEyeSlash, FaThLarge,
   FaList, FaChevronDown
 } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
+import { useToast } from '../../../components/common/Toast';
 
 const BannedWordsTab = ({ styles }) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   
   // Add animation styles
   React.useEffect(() => {
@@ -278,7 +279,7 @@ const BannedWordsTab = ({ styles }) => {
   // Handle export to Excel/CSV
   const handleExport = (format = 'csv') => {
     if (!bannedWordsData?.data || bannedWordsData.data.length === 0) {
-      toast.error('Dışa aktarılacak kelime bulunamadı');
+      toast.error('Veri Yok', 'Dışa aktarılacak kelime bulunamadı');
       return;
     }
     
@@ -295,7 +296,7 @@ const BannedWordsTab = ({ styles }) => {
       link.href = URL.createObjectURL(blob);
       link.download = `yasakli-kelimeler-${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
-      toast.success('CSV olarak dışa aktarıldı');
+      toast.success('Başarılı', 'CSV olarak dışa aktarıldı');
     } else if (format === 'json') {
       const json = JSON.stringify(words, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
@@ -303,7 +304,7 @@ const BannedWordsTab = ({ styles }) => {
       link.href = URL.createObjectURL(blob);
       link.download = `yasakli-kelimeler-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
-      toast.success('JSON olarak dışa aktarıldı');
+      toast.success('Başarılı', 'JSON olarak dışa aktarıldı');
     } else if (format === 'txt') {
       const txt = words.map(w => w.word).join('\n');
       const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
@@ -311,7 +312,7 @@ const BannedWordsTab = ({ styles }) => {
       link.href = URL.createObjectURL(blob);
       link.download = `yasakli-kelimeler-${new Date().toISOString().split('T')[0]}.txt`;
       link.click();
-      toast.success('TXT olarak dışa aktarıldı');
+      toast.success('Başarılı', 'TXT olarak dışa aktarıldı');
     }
     
     setShowExportMenu(false);
@@ -478,35 +479,6 @@ const BannedWordsTab = ({ styles }) => {
       }}>
         <button
           onClick={() => handleExport('csv')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 16px',
-            backgroundColor: '#059669',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#047857';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#059669';
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <FaDownload /> CSV Olarak İndir
-        </button>
-        <button
-          onClick={() => handleExport('json')}
           style={{
             display: 'flex',
             alignItems: 'center',

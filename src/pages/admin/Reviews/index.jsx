@@ -149,9 +149,6 @@ const ReviewsPage = () => {
           <button style={styles.exportBtn} onClick={handlePrint}>
             <FaPrint /> Yazdır
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
-            <FaFileExcel /> Excel İndir
-          </button>
         </div>
       </div>
 

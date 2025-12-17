@@ -1,5 +1,5 @@
 // src/features/vendor/components/VendorList/index.jsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getVendors } from '../../api/vendorApi';
@@ -10,12 +10,15 @@ import VendorFilters from './VendorFilters';
 import VendorTable from './VendorTable';
 import VendorEditModal from './modals/VendorEditModal';
 import VendorCategoryModal from '../../../admin/components/VendorCategoryModal';
+import ConfirmModal from '../../../../components/modals/ConfirmModal';
 import { VENDOR_STATUS, VENDOR_MODES } from '../../shared/constants';
 import { styles } from '../../shared/styles';
 
 const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
   const queryClient = useQueryClient();
   const isActiveMode = mode === VENDOR_MODES.ACTIVE_ONLY;
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, vendor: null, title: '', message: '' });
+  const [activeFilters, setActiveFilters] = useState({ sortBy: 'all', minRevenue: '', maxRevenue: '' });
 
   // Custom hooks
   const {
@@ -67,27 +70,52 @@ const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
   const vendors = responseData?.data || [];
   const meta = responseData?.meta || {};
 
+  // Confirm Modal Handlers
+  const openConfirmModal = (action, vendor, title, message) => {
+    setConfirmModal({ isOpen: true, action, vendor, title, message });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({ isOpen: false, action: null, vendor: null, title: '', message: '' });
+  };
+
+  const handleConfirmAction = () => {
+    const { action, vendor } = confirmModal;
+    if (action === 'approve') {
+      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.ACTIVE });
+    } else if (action === 'reject') {
+      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.REJECTED });
+    } else if (action === 'ban') {
+      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.BANNED });
+    }
+    closeConfirmModal();
+  };
+
   // Handlers
   const handleApprove = useCallback(
     (vendor) => {
-      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.ACTIVE });
+      openConfirmModal('approve', vendor, 'Satıcıyı Onayla', `"${vendor.storeName}" mağazasını onaylamak istediğinize emin misiniz?`);
     },
-    [updateStatusMutation]
+    []
   );
 
   const handleReject = useCallback(
     (vendor) => {
-      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.REJECTED });
+      openConfirmModal('reject', vendor, 'Başvuruyu Reddet', `"${vendor.storeName}" mağazasının başvurusunu reddetmek istediğinize emin misiniz?`);
     },
-    [updateStatusMutation]
+    []
   );
 
   const handleBan = useCallback(
     (vendor) => {
-      updateStatusMutation.mutate({ id: vendor.id, status: VENDOR_STATUS.BANNED });
+      openConfirmModal('ban', vendor, 'Satıcıyı Yasakla', `"${vendor.storeName}" mağazasını yasaklamak istediğinize emin misiniz? Bu işlem geri alınamaz.`);
     },
-    [updateStatusMutation]
+    []
   );
+
+  const handleApplyFilters = (filters) => {
+    setActiveFilters(filters);
+  };
 
   if (isLoading) {
     return (
@@ -106,12 +134,15 @@ const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
         onTabChange={handleTabChange}
         showTabs={!isActiveMode}
         title={isActiveMode ? 'Aktif Satıcılar' : undefined}
+        activeFilters={activeFilters}
+        onApplyFilters={handleApplyFilters}
       />
 
       <VendorTable
         vendors={vendors}
         isLoading={isLoading}
         searchTerm={searchTerm}
+        activeFilters={activeFilters}
         meta={meta}
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
@@ -139,6 +170,18 @@ const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
           vendor={selectedVendor}
         />
       )}
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Evet, Onayla"
+        cancelText="İptal"
+        type={confirmModal.action === 'ban' || confirmModal.action === 'reject' ? 'danger' : 'success'}
+        onConfirm={handleConfirmAction}
+        onClose={closeConfirmModal}
+      />
     </div>
   );
 });

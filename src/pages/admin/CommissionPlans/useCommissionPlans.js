@@ -135,9 +135,7 @@ const useCommissionPlans = () => {
 
   // Delete Handler
   const handleDelete = useCallback((id) => {
-    if (window.confirm('Bu planı silmek istediğinize emin misiniz?')) {
-      deleteMutation.mutate(id);
-    }
+    deleteMutation.mutate(id);
   }, [deleteMutation]);
 
   // Toggle & Default Handlers

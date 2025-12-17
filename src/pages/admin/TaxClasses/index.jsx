@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaStar, FaRegStar } from 'react-icons/fa';
 import { useTaxClasses } from './useTaxClasses';
 import TaxClassModal from './TaxClassModal';
+import ConfirmModal from '../../../components/modals/ConfirmModal';
 
 const TaxClasses = () => {
   const {
@@ -16,6 +17,7 @@ const TaxClasses = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTaxClass, setEditingTaxClass] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, taxClassId: null, taxClassName: '' });
 
   const handleCreate = () => {
     setEditingTaxClass(null);
@@ -47,6 +49,19 @@ const TaxClasses = () => {
 
   const handleSetDefault = (taxClass) => {
     updateTaxClass(taxClass.id, { is_default: true });
+  };
+
+  const openDeleteConfirm = (taxClass) => {
+    setConfirmModal({ isOpen: true, taxClassId: taxClass.id, taxClassName: taxClass.name });
+  };
+
+  const closeDeleteConfirm = () => {
+    setConfirmModal({ isOpen: false, taxClassId: null, taxClassName: '' });
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteTaxClass(confirmModal.taxClassId);
+    closeDeleteConfirm();
   };
 
   if (isLoading) {
@@ -138,7 +153,7 @@ const TaxClasses = () => {
                       </button>
                       <button
                         style={styles.deleteBtn}
-                        onClick={() => deleteTaxClass(taxClass.id)}
+                        onClick={() => openDeleteConfirm(taxClass)}
                         title="Sil"
                       >
                         <FaTrash />
@@ -164,6 +179,18 @@ const TaxClasses = () => {
         taxClass={editingTaxClass}
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
+      />
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Vergi Sınıfını Sil"
+        message={`"${confirmModal.taxClassName}" adlı vergi sınıfını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`}
+        confirmText="Evet, Sil"
+        cancelText="İptal"
+        type="danger"
+        onConfirm={handleDeleteConfirm}
+        onClose={closeDeleteConfirm}
       />
     </div>
   );

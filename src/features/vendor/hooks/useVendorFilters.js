@@ -31,9 +31,9 @@ export const useVendorFilters = (initialTab = 'all') => {
     searchTerm,
     activeTab,
     // Actions
-    setCurrentPage,
-    setSearchTerm: handleSearchChange,
-    setActiveTab: handleTabChange,
+    handlePageChange: setCurrentPage,
+    handleSearchChange,
+    handleTabChange,
     resetFilters,
   };
 };

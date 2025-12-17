@@ -65,10 +65,7 @@ const VendorRow = React.memo(({
           {canApprove && (
             <button
               title="Onayla"
-              onClick={() => {
-                if (!confirm('Bu satıcıyı onaylamak istiyor musunuz?')) return;
-                onApprove(vendor);
-              }}
+              onClick={() => onApprove(vendor)}
               style={styles.actionButton('approve')}
             >
               <FaCheck />
@@ -77,10 +74,7 @@ const VendorRow = React.memo(({
           {canReject && (
             <button
               title="Reddet"
-              onClick={() => {
-                if (!confirm('Bu satıcı başvurusunu reddetmek istiyor musunuz?')) return;
-                onReject(vendor);
-              }}
+              onClick={() => onReject(vendor)}
               style={styles.actionButton('reject')}
             >
               <FaTimes />
@@ -89,10 +83,7 @@ const VendorRow = React.memo(({
           {canBan && (
             <button
               title="Yasakla"
-              onClick={() => {
-                if (!confirm('Bu satıcıyı yasaklamak istiyor musunuz?')) return;
-                onBan(vendor);
-              }}
+              onClick={() => onBan(vendor)}
               style={styles.actionButton('reject')}
             >
               <FaBan />

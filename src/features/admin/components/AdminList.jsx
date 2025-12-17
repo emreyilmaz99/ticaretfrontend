@@ -5,11 +5,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdmins, deleteAdmin } from '../api/adminApi';
 import { useToast } from '../../../components/common/Toast';
 import AddAdminModal from './AddAdminModal';
+import EditAdminModal from './EditAdminModal';
+import ConfirmModal from '../../../components/modals/ConfirmModal';
 
 const AdminList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState({ isOpen: false, adminId: null, adminName: '' });
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -35,10 +40,27 @@ const AdminList = () => {
     }
   });
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Bu yöneticiyi silmek istediğinize emin misiniz?')) {
-      deleteMutation.mutate(id);
-    }
+  const openDeleteConfirm = (admin) => {
+    setDeleteConfirmModal({ isOpen: true, adminId: admin.id, adminName: admin.name });
+  };
+
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmModal({ isOpen: false, adminId: null, adminName: '' });
+  };
+
+  const handleDelete = () => {
+    deleteMutation.mutate(deleteConfirmModal.adminId);
+    closeDeleteConfirm();
+  };
+
+  const handleEdit = (admin) => {
+    setSelectedAdmin(admin);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedAdmin(null);
   };
 
   const getRoleBadge = (role) => {
@@ -115,8 +137,40 @@ const AdminList = () => {
                   <td style={{ padding: '16px 24px', color: 'var(--text-muted)', fontSize: '13px' }}>{new Date(admin.created_at).toLocaleDateString('tr-TR')}</td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                      <button title="Düzenle" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: 'var(--text-muted)', cursor: 'pointer' }}><FaEdit /></button>
-                      <button onClick={() => handleDelete(admin.id)} title="Sil" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2', backgroundColor: '#fff1f2', color: '#ef4444', cursor: 'pointer' }}><FaTrash /></button>
+                      <button 
+                        onClick={() => handleEdit(admin)}
+                        title="Düzenle" 
+                        style={{ 
+                          padding: '8px', 
+                          borderRadius: '6px', 
+                          border: '1px solid #d1fae5', 
+                          backgroundColor: '#ecfdf5', 
+                          color: '#059669', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d1fae5'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ecfdf5'}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button 
+                        onClick={() => openDeleteConfirm(admin)} 
+                        title="Sil" 
+                        style={{ 
+                          padding: '8px', 
+                          borderRadius: '6px', 
+                          border: '1px solid #fee2e2', 
+                          backgroundColor: '#fff1f2', 
+                          color: '#ef4444', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff1f2'}
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -140,6 +194,25 @@ const AdminList = () => {
       <AddAdminModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+      />
+
+      {/* Edit Admin Modal */}
+      <EditAdminModal
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        admin={selectedAdmin}
+      />
+
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirmModal.isOpen}
+        title="Yöneticiyi Sil"
+        message={`"${deleteConfirmModal.adminName}" isimli yöneticiyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`}
+        confirmText="Evet, Sil"
+        cancelText="İptal"
+        type="danger"
+        onConfirm={handleDelete}
+        onClose={closeDeleteConfirm}
       />
     </div>
   );
