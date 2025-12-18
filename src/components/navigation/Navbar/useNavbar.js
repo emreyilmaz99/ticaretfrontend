@@ -48,9 +48,12 @@ const useNavbar = () => {
     return IconComponent || FaIcons.FaBox;
   };
 
-  // --- Kategorileri Çek ---
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATION: Kategorileri Çek - Home ile aynı queryKey
+  // 'categories' anahtarı kullanılarak cache paylaşılıyor, duplicate fetch önlendi
+  // ============================================================================
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
-    queryKey: ['navbar-categories'],
+    queryKey: ['categories'], // UNIFIED: Home sayfası ile aynı key
     queryFn: getCategoryTree,
     staleTime: 1000 * 60 * 30, // 30 dakika cache
   });

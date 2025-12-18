@@ -7,9 +7,12 @@ const ProductStats = ({ products = [], statusFilter, setStatusFilter }) => {
   const [stockFilter, setStockFilter] = useState('all');
   const [stockSortOrder, setStockSortOrder] = useState(null);
 
-  const activeCount = products.filter(p => p.status === 'active').length;
-  const draftCount = products.filter(p => p.status === 'draft').length;
-  const totalStock = products.reduce((sum, p) => sum + (p.stock || 0), 0);
+  // PERFORMANCE: Memoize product counts to prevent recalculation on every render
+  const { activeCount, draftCount, totalStock } = useMemo(() => ({
+    activeCount: products.filter(p => p.status === 'active').length,
+    draftCount: products.filter(p => p.status === 'draft').length,
+    totalStock: products.reduce((sum, p) => sum + (p.stock || 0), 0)
+  }), [products]);
 
   const stockStats = useMemo(() => {
     const critical = products.filter(p => (p.stock || 0) <= 5).length;

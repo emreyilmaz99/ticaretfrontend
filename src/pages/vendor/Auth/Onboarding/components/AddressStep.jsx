@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { cities, cityPlateCodes } from '../../../../../data/turkeyData';
+import { cities, cityPlateCodes } from '../../../../../data/turkeyDataUtils';
 
 const AddressStep = ({ address, setAddress, styles }) => {
   return (

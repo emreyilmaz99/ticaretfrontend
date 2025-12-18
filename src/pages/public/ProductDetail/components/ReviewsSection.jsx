@@ -129,15 +129,6 @@ const ReviewsSection = ({ productId, productName, styles: parentStyles }) => {
   const summary = summaryData?.data || { total_reviews: 0, average_rating: 0, rating_breakdown: {} };
   const canReview = canReviewData?.canReview || false;
 
-  // Debug logging
-  React.useEffect(() => {
-    if (reviewsData) {
-      console.log('Reviews API Response:', reviewsData);
-      console.log('Extracted reviews:', reviews);
-      console.log('Reviews count:', reviews.length);
-    }
-  }, [reviewsData, reviews]);
-
   // Calculate rating percentages
   const ratingPercentages = useMemo(() => {
     const total = summary.total_reviews || 1;

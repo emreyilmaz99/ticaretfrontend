@@ -31,9 +31,10 @@ export const useVendorCategories = () => {
   } = useQuery({
     queryKey: ['vendorCategoryTree'],
     queryFn: async () => {
-      const response = await apiClient.get(`${BACKEND_URL}/api/v1/categories/tree`);
+      const response = await apiClient.get('/v1/categories/tree');
       return response.data.data || [];
-    }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - rarely changes
   });
 
   // Fetch user's selected categories
@@ -44,7 +45,7 @@ export const useVendorCategories = () => {
     queryKey: ['mySelectedCategories'],
     queryFn: async () => {
       const token = localStorage.getItem('vendor_token');
-      const response = await apiClient.get(`${BACKEND_URL}/api/v1/vendor/my-categories`, {
+      const response = await apiClient.get('/v1/vendor/my-categories', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.data?.categories || [];
@@ -63,7 +64,7 @@ export const useVendorCategories = () => {
     mutationFn: async (categoryIds) => {
       const token = localStorage.getItem('vendor_token');
       const response = await apiClient.put(
-        `${BACKEND_URL}/api/v1/vendor/my-categories`,
+        '/v1/vendor/my-categories',
         { category_ids: categoryIds },
         { headers: { Authorization: `Bearer ${token}` } }
       );

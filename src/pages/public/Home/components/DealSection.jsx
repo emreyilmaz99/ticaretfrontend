@@ -24,12 +24,14 @@ const DealSection = ({ styles, isMobile }) => {
     const fetchDeals = async () => {
       try {
         const response = await apiClient.get('/v1/featured-deals');
-        console.log('Featured Deals Response:', response.data);
         if (response.data.success && response.data.data && response.data.data.deals) {
           setDeals(response.data.data.deals);
         }
       } catch (error) {
-        console.error('Featured deals yüklenemedi:', error);
+        // PRODUCTION: Error logged to console only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Featured deals yüklenemedi:', error);
+        }
       } finally {
         setLoading(false);
       }
@@ -88,7 +90,7 @@ const DealSection = ({ styles, isMobile }) => {
     try {
       await apiClient.post(`${BACKEND_URL}/api/v1/featured-deals/${currentDeal.id}/click`);
     } catch (error) {
-      console.error('Click tracking failed:', error);
+      // Silent fail - click tracking is not critical
     }
   };
 
@@ -102,7 +104,7 @@ const DealSection = ({ styles, isMobile }) => {
     try {
       await apiClient.post(`${BACKEND_URL}/api/v1/featured-deals/${currentDeal.id}/conversion`);
     } catch (error) {
-      console.error('Conversion tracking failed:', error);
+      // Silent fail - conversion tracking is not critical
     }
 
     // Prepare cart item data
@@ -116,11 +118,7 @@ const DealSection = ({ styles, isMobile }) => {
       variant: currentDeal.variant
     };
 
-    console.log('Current Deal:', currentDeal);
-    console.log('Prepared cart item:', cartItem);
-    
     if (!cartItem.product_id) {
-      console.error('Product ID is missing!', currentDeal);
       toast.error('Hata', 'Ürün bilgisi bulunamadı.');
       return;
     }
@@ -282,7 +280,7 @@ const DealSection = ({ styles, isMobile }) => {
           <div style={{ 
             fontSize: isMobile ? '28px' : '36px', 
             fontWeight: '700', 
-            color: '#34d399' 
+            color: currentDeal.price_color || '#34d399' 
           }}>
             {parseFloat(currentDeal.deal_price).toLocaleString('tr-TR')} TL
           </div>
@@ -319,7 +317,7 @@ const DealSection = ({ styles, isMobile }) => {
             onClick={handleAddToCart} 
             style={{ 
               ...styles.heroBtn, 
-              backgroundColor: '#34d399', 
+              backgroundColor: currentDeal.add_to_cart_button_color || '#34d399', 
               color: '#0f172a', 
               width: isMobile ? '100%' : 'auto' 
             }}
@@ -332,8 +330,8 @@ const DealSection = ({ styles, isMobile }) => {
             onClick={handleClick}
             style={{ 
               ...styles.heroBtn, 
-              backgroundColor: 'rgba(255,255,255,0.2)', 
-              color: 'white',
+              backgroundColor: currentDeal.view_button_color || 'rgba(255,255,255,0.2)', 
+              color: currentDeal.view_button_color === '#ffffff' || currentDeal.view_button_color?.toLowerCase().includes('fff') ? '#0f172a' : 'white',
               textDecoration: 'none',
               width: isMobile ? '100%' : 'auto' 
             }}
@@ -507,6 +505,8 @@ const DealSection = ({ styles, isMobile }) => {
           <img 
             src={productImage} 
             alt={currentDeal.product?.name || 'Deal Product'} 
+            loading="lazy"
+            decoding="async"
             style={{ 
               width: '400px', 
               height: '400px', 

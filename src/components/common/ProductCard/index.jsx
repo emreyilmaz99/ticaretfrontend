@@ -12,7 +12,7 @@ import ProductImage from './ProductImage';
 import ProductActions from './ProductActions';
 import ProductInfo from './ProductInfo';
 
-const ProductCard = ({
+const ProductCard = React.memo(({
   product,
   viewMode = 'grid',
   isInCompareList = false,
@@ -28,9 +28,11 @@ const ProductCard = ({
   const { isMobile } = useResponsive();
   const { isHovered, handleMouseEnter, handleMouseLeave } = useHoverEffect();
   
+  // PERFORMANCE: Memoize favorite check to prevent recalculation on every render
   const isFav = useMemo(() => isFavorite(product.id), [isFavorite, product.id]);
   const productUrl = useMemo(() => `/product/${product.slug || product.id}`, [product.slug, product.id]);
   
+  // PERFORMANCE: Memoize styles to prevent recalculation
   const styles = useMemo(
     () => propStyles || getCardStyles(isMobile, viewMode, isInCompareList, isFav),
     [propStyles, isMobile, viewMode, isInCompareList, isFav]
@@ -160,6 +162,8 @@ const ProductCard = ({
       />
     </div>
   );
-};
+});
 
-export default React.memo(ProductCard);
+ProductCard.displayName = 'ProductCard';
+
+export default ProductCard;

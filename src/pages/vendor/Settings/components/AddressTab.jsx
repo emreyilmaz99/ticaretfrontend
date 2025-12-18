@@ -3,7 +3,7 @@ import React from 'react';
 import { FaMapMarkerAlt, FaPlus, FaEdit, FaTrash, FaSpinner, FaCheckCircle } from 'react-icons/fa';
 import { styles } from '../styles';
 import { TURKEY_CITIES, ADDRESS_LABELS } from '../useVendorSettings';
-import { cityPlateCodes } from '../../../../data/turkeyData';
+import { cityPlateCodes } from '../../../../data/turkeyDataUtils';
 
 const AddressTab = ({
   vendor,

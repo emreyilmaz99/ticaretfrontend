@@ -27,7 +27,10 @@ export const FavoritesProvider = ({ children }) => {
     localStorage.removeItem('favorites_has_new');
   }, []);
 
-  // Favorileri yükle
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATION: Favorileri yükle - Dependency loop önlendi
+  // fetchFavorites fonksiyonu useCallback ile stabilize edildi
+  // ============================================================================
   const fetchFavorites = useCallback(async (showLoading = true) => {
     // Auth hala yükleniyorsa bekle
     if (authLoading) return;
@@ -60,9 +63,7 @@ export const FavoritesProvider = ({ children }) => {
       isFetching.current = true;
       if (showLoading) setLoading(true);
       
-      console.log('Fetching favorites for user:', user.id);
       const response = await favoriteApi.getFavorites();
-      console.log('Favorites API response:', response);
       
       if (response.success) {
         const items = response.data.items || [];
@@ -76,7 +77,6 @@ export const FavoritesProvider = ({ children }) => {
           }
         });
         
-        console.log('Setting favoriteIds:', [...ids]);
         setFavoriteIds(ids);
         setCount(items.length);
       }
@@ -87,9 +87,12 @@ export const FavoritesProvider = ({ children }) => {
       setInitialized(true);
       isFetching.current = false;
     }
-  }, [user, authLoading]);
+  }, [authLoading, user]); // FIXED: fetchFavorites kaldırıldı, sadece authLoading ve user
 
-  // Kullanıcı değiştiğinde favorileri yükle
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATION: Kullanıcı değiştiğinde favorileri yükle
+  // Sadece kullanıcı ID'si değiştiğinde tetiklenir
+  // ============================================================================
   useEffect(() => {
     // Auth yükleniyorsa bekle
     if (authLoading) return;

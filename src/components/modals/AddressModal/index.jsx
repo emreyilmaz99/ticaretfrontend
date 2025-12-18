@@ -5,7 +5,7 @@ import { FaTimes, FaMapMarkerAlt, FaUser, FaPhone, FaIdCard, FaCity, FaHome, FaT
 import LocationMap from '../../common/LocationMap';
 import { useAddressForm } from './hooks/useAddressForm';
 import { useAddressValidation } from './hooks/useAddressValidation';
-import { cities, getDistricts, getNeighborhoods } from '../../../data/turkeyData';
+import { cities, getDistricts, getNeighborhoods } from '../../../data/turkeyDataUtils';
 
 // Arama destekli dropdown bileşeni
 const SearchableSelect = ({ 

@@ -5,7 +5,7 @@ import { FaBox, FaEye } from 'react-icons/fa';
 /**
  * Product image gallery with thumbnails
  */
-const ImageGallery = ({ 
+const ImageGallery = React.memo(({
   product, 
   selectedImage, 
   setSelectedImage, 
@@ -26,7 +26,9 @@ const ImageGallery = ({
               <img 
                 src={img.url} 
                 alt={img.alt || product.name} 
-                style={styles.thumbnailImg} 
+                style={styles.thumbnailImg}
+                loading="lazy"
+                decoding="async"
               />
             </div>
           ))}
@@ -47,6 +49,9 @@ const ImageGallery = ({
             src={product.images[selectedImage]?.url} 
             alt={product.name}
             style={styles.mainImageImg}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         ) : (
           <div style={styles.noImage}>
@@ -63,6 +68,8 @@ const ImageGallery = ({
       </div>
     </div>
   );
-};
+});
+
+ImageGallery.displayName = 'ImageGallery';
 
 export default ImageGallery;

@@ -1,5 +1,5 @@
 // src/pages/public/Home/components/FilterBar.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FaFilter } from 'react-icons/fa';
 
 /**
@@ -17,9 +17,15 @@ const FilterBar = ({
   setSortOrder,
   styles 
 }) => {
-  // Debug: Kategorileri konsola yazdır
-  console.log('FilterBar Categories:', categories);
-  
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATION: Kategori listesini limit et
+  // 205 kategoriyi render etmek yavaş - sadece "Tüm Ürünler" + ilk 20'yi göster
+  // ============================================================================
+  const limitedCategories = useMemo(() => {
+    if (categories.length <= 21) return categories;
+    return [categories[0], ...categories.slice(1, 21)]; // "Tüm Ürünler" + 20 kategori
+  }, [categories]);
+
   return (
     <div style={styles.filterBar}>
       <div style={styles.filterGroup}>
@@ -35,7 +41,7 @@ const FilterBar = ({
           onChange={(e) => handleCategoryChange(e.target.value)}
           style={styles.filterSelect}
         >
-          {categories.map(cat => (
+          {limitedCategories.map(cat => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>

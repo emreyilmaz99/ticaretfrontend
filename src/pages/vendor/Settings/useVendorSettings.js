@@ -107,7 +107,16 @@ const useVendorSettings = () => {
       setIsSaving(false);
     },
     onError: (err) => {
-      toast.error('Hata', err.response?.data?.message || 'Güncelleme başarısız.');
+      // Detailed error logging for debugging
+      console.error('Profile update error:', {
+        status: err.response?.status,
+        message: err.response?.data?.message,
+        errors: err.response?.data?.errors,
+        fullError: err
+      });
+      
+      const errorMsg = err.response?.data?.message || err.message || 'Güncelleme başarısız.';
+      toast.error('Hata', errorMsg);
       setIsSaving(false);
     }
   });

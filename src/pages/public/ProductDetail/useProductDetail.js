@@ -1,5 +1,5 @@
 // src/pages/public/ProductDetail/useProductDetail.js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProduct, getRelatedProducts } from '../../../api/publicApi';
@@ -71,8 +71,11 @@ export const useProductDetail = () => {
   }, [slug]);
 
   // Save current product to recently viewed
-  useEffect(() => {
-    if (product) {
+  // PERFORMANCE: useCallback to prevent re-creating function
+  const saveToRecentlyViewed = useCallback((product) => {
+    if (!product) return;
+    
+    try {
       const stored = localStorage.getItem('recentlyViewed');
       let items = stored ? JSON.parse(stored) : [];
       items = items.filter(p => p.slug !== product.slug);
@@ -85,8 +88,14 @@ export const useProductDetail = () => {
       });
       items = items.slice(0, 10);
       localStorage.setItem('recentlyViewed', JSON.stringify(items));
+    } catch (error) {
+      // Silent fail - localStorage might be disabled
     }
-  }, [product]);
+  }, []);
+
+  useEffect(() => {
+    saveToRecentlyViewed(product);
+  }, [product, saveToRecentlyViewed]);
 
   // Keyboard navigation for lightbox
   useEffect(() => {

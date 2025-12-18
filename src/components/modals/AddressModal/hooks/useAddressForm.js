@@ -1,6 +1,6 @@
 // src/components/modals/AddressModal/hooks/useAddressForm.js
 import { useState, useCallback, useEffect } from 'react';
-import { cityPlateCodes } from '../../../../data/turkeyData';
+import { cityPlateCodes } from '../../../../data/turkeyDataUtils';
 
 export const useAddressForm = (initialAddress, user) => {
   const [formData, setFormData] = useState({

@@ -54,8 +54,6 @@ export const useVendorReviews = () => {
     queryKey: ['vendorReviews', buildQueryParams()],
     queryFn: async () => {
       const response = await vendorReviewService.getAllReviews(buildQueryParams());
-      console.log('Vendor Reviews API Response:', response);
-      console.log('Response data:', response.data);
       return response;
     },
     staleTime: 30000,

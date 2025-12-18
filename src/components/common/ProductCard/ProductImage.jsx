@@ -18,6 +18,7 @@ const ProductImage = React.memo(({ product, productUrl, styles, isMobile }) => {
           alt={product.name}
           style={styles.cardImage}
           loading="lazy"
+          decoding="async"
           onError={handleImageError}
         />
       </div>

@@ -21,8 +21,7 @@ const DashboardHeader = () => {
   };
 
   const handleNotifications = () => {
-    // Bildirimler modalı veya sayfası (şimdilik konsola log)
-    console.log('Bildirimler açılıyor...');
+    // Bildirimler modalı veya sayfası (yakında eklenecek)
     alert('Bildirimler özelliği yakında eklenecek!');
   };
 
@@ -34,7 +33,6 @@ const DashboardHeader = () => {
     setSelectedPeriod(period);
     setShowDateFilter(false);
     // Burada period'a göre dashboard verilerini filtreleme yapılabilir
-    console.log('Seçilen dönem:', period);
   };
 
   // On mobile, the title is in the top navbar, so we can hide it or simplify it

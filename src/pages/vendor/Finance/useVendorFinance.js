@@ -3,8 +3,12 @@
  */
 
 import { useState, useMemo } from 'react';
+import { useToast } from '../../../components/common/Toast';
 
 export const useVendorFinance = () => {
+  const toast = useToast();
+  const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false);
+
   // Mock data - gerçek uygulamada API'den gelecek
   const [transactions] = useState([
     { 
@@ -50,14 +54,24 @@ export const useVendorFinance = () => {
   }), []);
 
   const handleWithdraw = () => {
-    // Para çekme işlemi
-    console.log('Para çekme işlemi başlatıldı');
-    // API call yapılacak
+    // Para çekme işlemi - API call yapılacak
   };
 
   const handleSettings = () => {
-    // Hesap ayarları
-    console.log('Hesap ayarları açılıyor');
+    console.log('handleSettings clicked!');
+    setIsAccountSettingsOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setIsAccountSettingsOpen(false);
+  };
+
+  const handleSaveSettings = (formData) => {
+    // API call yapılacak - örnek:
+    // await updateVendorBankDetails(formData);
+    console.log('Saving settings:', formData);
+    toast.success('Kaydedildi', 'Hesap ayarlarınız başarıyla güncellendi!');
+    setIsAccountSettingsOpen(false);
   };
 
   return {
@@ -65,6 +79,9 @@ export const useVendorFinance = () => {
     walletData,
     handleWithdraw,
     handleSettings,
+    isAccountSettingsOpen,
+    handleCloseSettings,
+    handleSaveSettings,
   };
 };
 

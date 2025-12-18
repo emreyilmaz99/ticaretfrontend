@@ -4,7 +4,7 @@ import React from 'react';
 /**
  * Fullscreen image lightbox modal
  */
-const Lightbox = ({ 
+const Lightbox = React.memo(({
   product, 
   selectedImage, 
   setSelectedImage, 
@@ -84,6 +84,8 @@ const Lightbox = ({
       </div>
     </div>
   );
-};
+});
+
+Lightbox.displayName = 'Lightbox';
 
 export default Lightbox;

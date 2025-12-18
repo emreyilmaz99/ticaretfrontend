@@ -50,6 +50,9 @@ const DealFormModal = ({
     background_color: '#10b981',
     badge_text: 'ÖZEL FIRSAT',
     badge_color: '#ef4444',
+    price_color: '#34d399',
+    add_to_cart_button_color: '#34d399',
+    view_button_color: '#ffffff',
     starts_at: '',
     ends_at: '',
     is_active: true,
@@ -76,6 +79,9 @@ const DealFormModal = ({
         background_color: deal.background_color || '#10b981',
         badge_text: deal.badge_text || 'ÖZEL FIRSAT',
         badge_color: deal.badge_color || '#ef4444',
+        price_color: deal.price_color || '#34d399',
+        add_to_cart_button_color: deal.add_to_cart_button_color || '#34d399',
+        view_button_color: deal.view_button_color || '#ffffff',
         starts_at: deal.starts_at ? deal.starts_at.slice(0, 16) : '',
         ends_at: deal.ends_at ? deal.ends_at.slice(0, 16) : '',
         is_active: deal.is_active,
@@ -106,6 +112,9 @@ const DealFormModal = ({
         background_color: '#10b981',
         badge_text: 'ÖZEL FIRSAT',
         badge_color: '#ef4444',
+        price_color: '#34d399',
+        add_to_cart_button_color: '#34d399',
+        view_button_color: '#ffffff',
         starts_at: '',
         ends_at: '',
         is_active: true,
@@ -438,6 +447,67 @@ const DealFormModal = ({
               </div>
             </div>
             
+            <div style={modalStyles.colorGrid}>
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label}>Fiyat Rengi</label>
+                <div style={modalStyles.colorInputWrapper}>
+                  <input
+                    type="color"
+                    name="price_color"
+                    value={formData.price_color}
+                    onChange={handleChange}
+                    style={modalStyles.colorPicker}
+                  />
+                  <input
+                    type="text"
+                    value={formData.price_color}
+                    onChange={(e) => setFormData({...formData, price_color: e.target.value})}
+                    style={modalStyles.colorText}
+                  />
+                </div>
+              </div>
+              
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label}>Sepete Ekle Butonu Rengi</label>
+                <div style={modalStyles.colorInputWrapper}>
+                  <input
+                    type="color"
+                    name="add_to_cart_button_color"
+                    value={formData.add_to_cart_button_color}
+                    onChange={handleChange}
+                    style={modalStyles.colorPicker}
+                  />
+                  <input
+                    type="text"
+                    value={formData.add_to_cart_button_color}
+                    onChange={(e) => setFormData({...formData, add_to_cart_button_color: e.target.value})}
+                    style={modalStyles.colorText}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div style={modalStyles.colorGrid}>
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label}>İncele Butonu Rengi</label>
+                <div style={modalStyles.colorInputWrapper}>
+                  <input
+                    type="color"
+                    name="view_button_color"
+                    value={formData.view_button_color}
+                    onChange={handleChange}
+                    style={modalStyles.colorPicker}
+                  />
+                  <input
+                    type="text"
+                    value={formData.view_button_color}
+                    onChange={(e) => setFormData({...formData, view_button_color: e.target.value})}
+                    style={modalStyles.colorText}
+                  />
+                </div>
+              </div>
+            </div>
+            
             <div style={modalStyles.inputGroup}>
               <label style={modalStyles.label}>Badge Yazısı</label>
               <input
@@ -517,7 +587,7 @@ const DealFormModal = ({
                       <div style={{ 
                         fontSize: '14px', 
                         fontWeight: '700', 
-                        color: '#34d399' 
+                        color: formData.price_color || '#34d399' 
                       }}>
                         {formData.deal_price ? parseFloat(formData.deal_price).toLocaleString('tr-TR') : '0'} TL
                       </div>
@@ -548,7 +618,7 @@ const DealFormModal = ({
                       gap: '6px',
                     }}>
                       <div style={{ 
-                        backgroundColor: '#34d399', 
+                        backgroundColor: formData.add_to_cart_button_color || '#34d399', 
                         color: '#0f172a', 
                         padding: '5px 10px',
                         borderRadius: '6px',
@@ -561,8 +631,8 @@ const DealFormModal = ({
                         🛒 Sepete Ekle
                       </div>
                       <div style={{ 
-                        backgroundColor: 'rgba(255,255,255,0.2)', 
-                        color: 'white',
+                        backgroundColor: formData.view_button_color || 'rgba(255,255,255,0.2)', 
+                        color: formData.view_button_color === '#ffffff' || formData.view_button_color?.toLowerCase().includes('fff') ? '#0f172a' : 'white',
                         padding: '5px 10px',
                         borderRadius: '6px',
                         fontSize: '8px',

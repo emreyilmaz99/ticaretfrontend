@@ -13,7 +13,7 @@ import { formatPrice } from '../styles';
 /**
  * Product information section
  */
-const ProductInfo = ({
+const ProductInfo = React.memo(({
   product,
   selectedVariant,
   setSelectedVariant,
@@ -284,6 +284,8 @@ const ProductInfo = ({
       )}
     </div>
   );
-};
+});
+
+ProductInfo.displayName = 'ProductInfo';
 
 export default ProductInfo;

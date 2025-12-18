@@ -7,7 +7,7 @@ import ReviewsSection from './ReviewsSection';
 /**
  * Product tabs for description, specs, and reviews
  */
-const ProductTabs = ({ 
+const ProductTabs = React.memo(({
   product, 
   selectedVariant, 
   activeTab, 
@@ -104,6 +104,8 @@ const ProductTabs = ({
       </div>
     </div>
   );
-};
+});
+
+ProductTabs.displayName = 'ProductTabs';
 
 export default ProductTabs;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FinanceHeader, WalletCard, SecondaryStatsCards, TransactionTable } from './components';
+import { FinanceHeader, WalletCard, SecondaryStatsCards, TransactionTable, AccountSettingsModal } from './components';
 import useVendorFinance from './useVendorFinance';
 import { getStyles } from './styles';
 
@@ -9,7 +9,15 @@ import { getStyles } from './styles';
  */
 const VendorFinance = () => {
   const styles = getStyles();
-  const { transactions, walletData, handleWithdraw, handleSettings } = useVendorFinance();
+  const { 
+    transactions, 
+    walletData, 
+    handleWithdraw, 
+    handleSettings,
+    isAccountSettingsOpen,
+    handleCloseSettings,
+    handleSaveSettings,
+  } = useVendorFinance();
 
   return (
     <div style={styles.container}>
@@ -28,6 +36,13 @@ const VendorFinance = () => {
 
       {/* Transaction History */}
       <TransactionTable transactions={transactions} styles={styles} />
+
+      {/* Account Settings Modal */}
+      <AccountSettingsModal
+        isOpen={isAccountSettingsOpen}
+        onClose={handleCloseSettings}
+        onSave={handleSaveSettings}
+      />
     </div>
   );
 };

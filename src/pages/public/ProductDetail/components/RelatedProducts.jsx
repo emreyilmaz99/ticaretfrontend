@@ -7,7 +7,7 @@ import { formatPrice } from '../styles';
 /**
  * Related products grid
  */
-const RelatedProducts = ({ 
+const RelatedProducts = React.memo(({
   products, 
   title = 'Benzer Ürünler', 
   icon = null,
@@ -33,6 +33,8 @@ const RelatedProducts = ({
                 src={item.image} 
                 alt={item.name}
                 style={styles.productCardImage}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
             ) : (
@@ -54,6 +56,8 @@ const RelatedProducts = ({
       </div>
     </div>
   );
-};
+});
+
+RelatedProducts.displayName = 'RelatedProducts';
 
 export default RelatedProducts;

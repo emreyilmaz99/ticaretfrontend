@@ -1,5 +1,5 @@
 // src/pages/public/ProductDetail/index.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FaClock } from 'react-icons/fa';
 
@@ -60,7 +60,8 @@ const ProductDetail = () => {
     handleToggleFavorite,
   } = useProductDetail();
 
-  const styles = getStyles(isMobile);
+  // PERFORMANCE: Memoize styles to prevent recalculation on every render
+  const styles = useMemo(() => getStyles(isMobile), [isMobile]);
 
   // Loading state
   if (isLoading) {

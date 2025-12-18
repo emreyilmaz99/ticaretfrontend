@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../../../components/common/Toast';
+import { useDebounce } from '../../../hooks/useDebounce';
 import apiClient from '@lib/apiClient';
 
 export const useVendorOrders = () => {
@@ -11,12 +12,15 @@ export const useVendorOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [minAmount, setMinAmount] = useState('');
-  const [maxAmount, setMaxAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState(''); // Fixed: Re-add setMaxAmount
+  
+  // PERFORMANCE: Debounce search to prevent API call on every keystroke
+  const debouncedSearch = useDebounce(searchTerm, 500); // 500ms delay
 
   // Build query params
   const buildQueryParams = () => {
     const params = new URLSearchParams();
-    if (searchTerm) params.append('search', searchTerm);
+    if (debouncedSearch) params.append('search', debouncedSearch); // Use debounced value
     if (statusFilter !== 'all') params.append('status', statusFilter);
     if (minAmount) params.append('min_amount', minAmount);
     if (maxAmount) params.append('max_amount', maxAmount);
@@ -30,12 +34,12 @@ export const useVendorOrders = () => {
     error: ordersError,
     refetch: refetchOrders
   } = useQuery({
-    queryKey: ['vendorOrders', searchTerm, statusFilter, minAmount, maxAmount],
+    queryKey: ['vendorOrders', debouncedSearch, statusFilter, minAmount, maxAmount], // Use debounced value
     queryFn: async () => {
       const token = localStorage.getItem('vendor_token');
       const queryString = buildQueryParams();
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/vendor/orders${queryString ? '?' + queryString : ''}`,
+        `/v1/vendor/orders${queryString ? '?' + queryString : ''}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data.data;
@@ -50,7 +54,7 @@ export const useVendorOrders = () => {
     queryKey: ['vendorOrderStats'],
     queryFn: async () => {
       const token = localStorage.getItem('vendor_token');
-      const response = await apiClient.get(`${BACKEND_URL}/api/v1/vendor/orders/stats`, {
+      const response = await apiClient.get('/v1/vendor/orders/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.data;
@@ -62,7 +66,7 @@ export const useVendorOrders = () => {
     mutationFn: async ({ orderId, status }) => {
       const token = localStorage.getItem('vendor_token');
       const response = await apiClient.put(
-        `${BACKEND_URL}/api/v1/vendor/orders/${orderId}/status`,
+        `/v1/vendor/orders/${orderId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +87,7 @@ export const useVendorOrders = () => {
     mutationFn: async (orderId) => {
       const token = localStorage.getItem('vendor_token');
       const response = await apiClient.post(
-        `${BACKEND_URL}/api/v1/vendor/orders/${orderId}/cancel`,
+        `/v1/vendor/orders/${orderId}/cancel`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

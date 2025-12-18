@@ -1,7 +1,7 @@
 // src/pages/user/UserAddresses/components/AddressForm.jsx
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { FaTimes, FaUser, FaPhone, FaCity, FaHome, FaIdCard, FaSearch, FaChevronDown } from 'react-icons/fa';
-import { cities, getDistricts } from '../../../../data/turkeyData';
+import { cities, getDistricts } from '../../../../data/turkeyDataUtils';
 
 const ADDRESS_LABELS = ['Ev', 'İş', 'Diğer'];
 

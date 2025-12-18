@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import FormField from './FormField';
-import { cities, getDistricts, getNeighborhoods } from '../../../../data/turkeyData';
+import { cities, getDistricts, getNeighborhoods } from '../../../../data/turkeyDataUtils';
 import { styles } from '../styles';
 
 const AddressFormFields = React.memo(({

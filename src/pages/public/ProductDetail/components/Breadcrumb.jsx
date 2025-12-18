@@ -6,7 +6,7 @@ import { FaChevronRight } from 'react-icons/fa';
 /**
  * Breadcrumb navigation
  */
-const Breadcrumb = ({ product, styles }) => {
+const Breadcrumb = React.memo(({ product, styles }) => {
   return (
     <nav style={styles.breadcrumb}>
       <Link to="/" style={styles.breadcrumbLink}>Ana Sayfa</Link>
@@ -24,6 +24,8 @@ const Breadcrumb = ({ product, styles }) => {
       <span style={{ color: '#0f172a' }}>{product.name}</span>
     </nav>
   );
-};
+});
+
+Breadcrumb.displayName = 'Breadcrumb';
 
 export default Breadcrumb;

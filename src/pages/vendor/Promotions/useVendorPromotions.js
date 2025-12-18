@@ -40,12 +40,16 @@ const useVendorPromotions = () => {
     }
   });
 
+  // PERFORMANCE: Lazy load products only when needed (Campaign tab active)
+  // Prevents loading 1000 products on initial page load
   const { data: productsData } = useQuery({
     queryKey: ['vendor', 'products-for-campaign'],
     queryFn: async () => {
       const res = await apiClient.get('/v1/vendor/products?per_page=1000');
       return res.data;
-    }
+    },
+    enabled: activeTab === 'campaigns', // Only fetch when Campaigns tab is active
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Derived data

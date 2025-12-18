@@ -1,5 +1,5 @@
 // src/pages/public/Home/components/ProductGrid.jsx
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import ProductCard from '../../../../components/common/ProductCard';
 import Skeleton from '../../../../components/ui/Skeleton';
@@ -7,7 +7,7 @@ import Skeleton from '../../../../components/ui/Skeleton';
 /**
  * Product grid with loading, error, and empty states
  */
-const ProductGrid = ({ 
+const ProductGrid = React.memo(({ 
   products, 
   isLoading, 
   error, 
@@ -119,9 +119,42 @@ const ProductGrid = ({
     );
   }
 
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATION: Progressive Rendering
+  // İlk 4 ürünü hemen render et, kalanını setTimeout ile ekle
+  // Bu sayede sayfa daha hızlı interaktif hale gelir
+  // ============================================================================
+  const [visibleCount, setVisibleCount] = useState(4);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    // Cleanup previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // İlk 4 ürünü göster
+    setVisibleCount(4);
+
+    // Kalanları progressive olarak ekle
+    if (products.length > 4) {
+      timeoutRef.current = setTimeout(() => {
+        setVisibleCount(products.length);
+      }, 100); // 100ms sonra kalan ürünleri render et
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [products]);
+
+  const visibleProducts = products.slice(0, visibleCount);
+
   return (
     <div style={styles.grid}>
-      {products.map(product => (
+      {visibleProducts.map(product => (
         <ProductCard 
           key={product.id} 
           product={{
@@ -136,6 +169,8 @@ const ProductGrid = ({
       ))}
     </div>
   );
-};
+});
+
+ProductGrid.displayName = 'ProductGrid';
 
 export default ProductGrid;

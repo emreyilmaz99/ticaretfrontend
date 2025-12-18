@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaMapMarkerAlt, FaCity, FaMailBulk } from 'react-icons/fa';
 import FormField from './FormField';
-import { cities, cityPlateCodes } from '../../../../data/turkeyData';
+import { cities, cityPlateCodes } from '../../../../data/turkeyDataUtils';
 import { styles } from '../styles';
 
 /**

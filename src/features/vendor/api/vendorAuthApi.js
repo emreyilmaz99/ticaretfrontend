@@ -29,13 +29,11 @@ export const submitFullApplication = async (id, payload) => {
 
 // Update vendor profile. If `data` contains File objects (logo/cover), send as FormData.
 export const updateVendorProfile = async (data) => {
-  let config = {};
   let body = data;
 
-  // detect files
+  // detect files - FormData için Content-Type manuel set edilMEMELİ (axios otomatik boundary ekler)
   if (data instanceof FormData) {
     body = data;
-    config.headers = { 'Content-Type': 'multipart/form-data' };
   } else if (data.logo || data.cover) {
     const fd = new FormData();
     Object.keys(data).forEach(key => {
@@ -45,10 +43,9 @@ export const updateVendorProfile = async (data) => {
       }
     });
     body = fd;
-    config.headers = { 'Content-Type': 'multipart/form-data' };
   }
 
-  const response = await apiClient.put('/v1/vendor/profile', body, config);
+  const response = await apiClient.put('/v1/vendor/profile', body);
   return response.data;
 };
 
