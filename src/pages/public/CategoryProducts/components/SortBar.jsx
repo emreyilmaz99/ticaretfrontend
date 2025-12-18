@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaThLarge, FaList, FaChevronDown } from 'react-icons/fa';
 // styles.js dosyasını düzelttiğimiz için artık bu import sorunsuz çalışır
 import { styles } from '../styles'; 
@@ -16,21 +16,78 @@ export const SortBar = ({
   isMobile,
   onOpenMobileFilter
 }) => {
+  const [isReallyMobile, setIsReallyMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsReallyMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const mobileStyles = {
+    toolbar: {
+      ...styles.toolbar,
+      flexDirection: isReallyMobile ? 'column' : 'row',
+      padding: isReallyMobile ? '16px' : '18px 32px',
+      gap: isReallyMobile ? '12px' : '0',
+      minHeight: isReallyMobile ? 'auto' : '72px',
+      alignItems: isReallyMobile ? 'stretch' : 'center',
+    },
+    resultCount: {
+      ...styles.resultCount,
+      fontSize: isReallyMobile ? '14px' : '15px',
+      textAlign: isReallyMobile ? 'center' : 'left',
+      flex: isReallyMobile ? 'none' : 1,
+    },
+    controlsRight: {
+      ...styles.controlsRight,
+      flexDirection: isReallyMobile ? 'row' : 'row',
+      gap: isReallyMobile ? '8px' : '16px',
+      marginLeft: isReallyMobile ? '0' : 'auto',
+      justifyContent: 'space-between',
+      flex: isReallyMobile ? 1 : 'none',
+    },
+    sortWrapper: {
+      ...styles.sortWrapper,
+      minWidth: isReallyMobile ? 'auto' : '180px',
+      flex: isReallyMobile ? 1 : 'none',
+    },
+    sortSelect: {
+      ...styles.sortSelect,
+      fontSize: isReallyMobile ? '13px' : '14px',
+      padding: isReallyMobile ? '10px 36px 10px 12px' : '12px 40px 12px 16px',
+    },
+    viewToggle: {
+      ...styles.viewToggle,
+      padding: isReallyMobile ? '3px' : '4px',
+    },
+    viewBtn: {
+      ...styles.viewBtn,
+      width: isReallyMobile ? '32px' : '36px',
+      height: isReallyMobile ? '32px' : '36px',
+    },
+    viewBtnActive: {
+      ...styles.viewBtnActive,
+      width: isReallyMobile ? '32px' : '36px',
+      height: isReallyMobile ? '32px' : '36px',
+    },
+  };
+
   return (
-    <div style={styles.toolbar}>
+    <div style={mobileStyles.toolbar}>
       
       {/* Sol Taraf: Ürün Sayısı */}
-      <div style={styles.resultCount}>
+      <div style={mobileStyles.resultCount}>
         Toplam <span style={styles.resultNumber}>{productCount}</span> ürün bulundu
       </div>
 
       {/* Sağ Taraf: Kontroller */}
-      <div style={styles.controlsRight}>
+      <div style={mobileStyles.controlsRight}>
         
         {/* Sıralama Seçimi */}
-        <div style={styles.sortWrapper}>
+        <div style={mobileStyles.sortWrapper}>
           <select 
-            style={styles.sortSelect} 
+            style={mobileStyles.sortSelect} 
             value={sortBy || 'featured'} 
             onChange={(e) => {
               console.log('Sort değişti:', e.target.value);
@@ -47,10 +104,10 @@ export const SortBar = ({
           <FaChevronDown style={styles.sortIcon} />
         </div>
 
-        {/* Görünüm Değiştirme (Izgara / Liste) */}
-        <div style={styles.viewToggle}>
+        {/* Görünüm Değiştirme (Izgara / Liste) - Hide list view on mobile */}
+        <div style={mobileStyles.viewToggle}>
           <button 
-            style={viewMode === 'grid' ? styles.viewBtnActive : styles.viewBtn} 
+            style={viewMode === 'grid' ? mobileStyles.viewBtnActive : mobileStyles.viewBtn} 
             onClick={() => {
               console.log('Grid görünüm seçildi');
               if (setViewMode) {
@@ -59,20 +116,22 @@ export const SortBar = ({
             }}
             title="Izgara Görünüm"
           >
-            <FaThLarge size={16} />
+            <FaThLarge size={isReallyMobile ? 14 : 16} />
           </button>
-          <button 
-            style={viewMode === 'list' ? styles.viewBtnActive : styles.viewBtn} 
-            onClick={() => {
-              console.log('List görünüm seçildi');
-              if (setViewMode) {
-                setViewMode('list');
-              }
-            }}
-            title="Liste Görünüm"
-          >
-            <FaList size={16} />
-          </button>
+          {!isReallyMobile && (
+            <button 
+              style={viewMode === 'list' ? mobileStyles.viewBtnActive : mobileStyles.viewBtn} 
+              onClick={() => {
+                console.log('List görünüm seçildi');
+                if (setViewMode) {
+                  setViewMode('list');
+                }
+              }}
+              title="Liste Görünüm"
+            >
+              <FaList size={16} />
+            </button>
+          )}
         </div>
 
       </div>

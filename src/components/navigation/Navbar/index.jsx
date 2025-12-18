@@ -1,6 +1,6 @@
 // src/components/Navbar/index.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   FaUser, 
   FaShoppingBag, 
@@ -8,7 +8,8 @@ import {
   FaSignOutAlt, 
   FaBars,      // Hamburger menü için
   FaSearch,    // Mobil arama butonu için
-  FaMapMarkerAlt // Adres ikonu için
+  FaMapMarkerAlt, // Adres ikonu için
+  FaArrowLeft  // Geri butonu için
 } from 'react-icons/fa';
 
 import AddressModal from '../../modals/AddressModal';
@@ -33,6 +34,13 @@ import useNavbar from './useNavbar';
  * Ana Navbar Bileşeni - Mobile First & Senior Refactor
  */
 const Navbar = () => {
+  // Location ve Navigate
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Ana sayfa kontrolü
+  const isHomePage = location.pathname === '/';
+  
   // 1. EKRAN GENİŞLİĞİ KONTROLÜ (Responsive Logic)
   const [width, setWidth] = useState(window.innerWidth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -112,42 +120,64 @@ const Navbar = () => {
         <div style={styles.container}>
           <div style={styles.headerContent}>
             
-            {/* SOL KISIM: Hamburger + Logo */}
+            {/* SOL KISIM: Hamburger/Geri + Logo */}
             <div style={styles.leftSection}>
-              {/* Hamburger Menu (Sadece Mobilde Görünür) */}
-              <button style={styles.menuBtn} onClick={toggleMobileMenu}>
-                <FaBars />
-              </button>
+              {/* Mobilde: Ana sayfada hamburger, diğer sayfalarda geri butonu */}
+              {isMobile ? (
+                isHomePage ? (
+                  <button style={styles.menuBtn} onClick={toggleMobileMenu}>
+                    <FaBars />
+                  </button>
+                ) : (
+                  <button style={styles.menuBtn} onClick={() => navigate(-1)}>
+                    <FaArrowLeft />
+                  </button>
+                )
+              ) : (
+                <button style={styles.menuBtn} onClick={toggleMobileMenu}>
+                  <FaBars />
+                </button>
+              )}
 
-              <Link to="/" style={styles.logo}>
-                ticaret<span style={{ color: '#334155' }}>.com</span>
-              </Link>
+              {/* Logo - Mobilde ana sayfa dışında gizle */}
+              {(!isMobile || isHomePage) && (
+                <Link to="/" style={styles.logo}>
+                  ticaret<span style={{ color: '#334155' }}>.com</span>
+                </Link>
+              )}
             </div>
 
             {/* ORTA KISIM: Arama Çubuğu */}
             <div style={styles.searchContainer}>
-              <SearchBar 
-                searchTerm={searchTerm} 
-                setSearchTerm={setSearchTerm} 
-                handleSearch={handleSearch}
-                styles={styles}  // <-- YENİ EKLENEN KISIM: Stili prop olarak gönderiyoruz
-              />
+              {/* Desktop: her zaman göster, Mobile: ana sayfa dışında göster */}
+              {(!isMobile || !isHomePage) && (
+                <SearchBar 
+                  searchTerm={searchTerm} 
+                  setSearchTerm={setSearchTerm} 
+                  handleSearch={handleSearch}
+                  styles={styles}
+                />
+              )}
             </div>
 
             {/* SAĞ KISIM: İkonlar */}
             <div style={styles.actions}>
               
-              {/* Mobil Arama Butonu (Sadece Mobilde Görünür) */}
-              <button style={styles.mobileSearchBtn} onClick={() => setIsSearchOverlayOpen(true)}>
-                <FaSearch />
-              </button>
+              {/* Mobil Arama Butonu (Sadece Ana Sayfada Görünür) */}
+              {isMobile && isHomePage && (
+                <button style={styles.mobileSearchBtn} onClick={() => setIsSearchOverlayOpen(true)}>
+                  <FaSearch />
+                </button>
+              )}
 
               {!user ? (
-                // MİSAFİR KULLANICI
-                <Link to="/login" style={styles.actionItem}>
-                  <div style={styles.iconBox}><FaUser /></div>
-                  <span style={styles.actionText}>Giriş Yap</span>
-                </Link>
+                // MİSAFİR KULLANICI - Mobilde ana sayfa dışında gizle
+                !isMobile && (
+                  <Link to="/login" style={styles.actionItem}>
+                    <div style={styles.iconBox}><FaUser /></div>
+                    <span style={styles.actionText}>Giriş Yap</span>
+                  </Link>
+                )
               ) : (
                 // GİRİŞ YAPMIŞ KULLANICI
                 <>
@@ -159,8 +189,8 @@ const Navbar = () => {
                     </div>
                   )}
 
-                  {/* Favoriler (Mobilde Gizle -> Hamburgere taşıyabilirsin) */}
-                  {!isMobile && (
+                  {/* Favoriler - Mobilde ana sayfa dışında göster */}
+                  {(isMobile ? !isHomePage : true) && (
                     <Link to="/favorites" style={styles.actionItem}>
                       <div style={styles.iconBox}>
                         <FaHeart />
@@ -168,37 +198,39 @@ const Navbar = () => {
                           <span style={styles.badge}>{favoriteCount || favorites?.length}</span>
                         )}
                       </div>
-                      <span style={styles.actionText}>Favoriler</span>
+                      {!isMobile && <span style={styles.actionText}>Favoriler</span>}
                     </Link>
                   )}
 
-                  {/* Sepet Kutusu (Her zaman görünür) */}
-                  <div 
-                    style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
-                    onMouseEnter={!isMobile ? openCart : undefined}
-                    onMouseLeave={!isMobile ? closeCart : undefined}
-                  >
-                    <Link to="/cart" style={styles.actionItem}>
-                      <div style={styles.iconBox}>
-                        <FaShoppingBag />
-                        {(itemCount > 0 || cartItems?.length > 0) && (
-                          <span style={styles.badge}>{itemCount || cartItems?.length}</span>
-                        )}
-                      </div>
-                      <span style={styles.actionText}>Sepetim</span>
-                    </Link>
+                  {/* Sepet - Mobilde ana sayfa dışında göster */}
+                  {(isMobile ? !isHomePage : true) && (
+                    <div 
+                      style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
+                      onMouseEnter={!isMobile ? openCart : undefined}
+                      onMouseLeave={!isMobile ? closeCart : undefined}
+                    >
+                      <Link to="/cart" style={styles.actionItem}>
+                        <div style={styles.iconBox}>
+                          <FaShoppingBag />
+                          {(itemCount > 0 || cartItems?.length > 0) && (
+                            <span style={styles.badge}>{itemCount || cartItems?.length}</span>
+                          )}
+                        </div>
+                        {!isMobile && <span style={styles.actionText}>Sepetim</span>}
+                      </Link>
 
-                    {/* MiniCart Hover (Sadece Masaüstü) */}
-                    {!isMobile && isCartOpen && cartItems?.length > 0 && (
-                      <MiniCart cartItems={cartItems} totals={totals} />
-                    )}
-                  </div>
+                      {/* MiniCart Hover (Sadece Masaüstü) */}
+                      {!isMobile && isCartOpen && cartItems?.length > 0 && (
+                        <MiniCart cartItems={cartItems} totals={totals} />
+                      )}
+                    </div>
+                  )}
 
-                  {/* Hesabım (Masaüstü) */}
-                  {!isMobile && (
+                  {/* Hesabım - Mobilde ana sayfa dışında göster */}
+                  {(isMobile ? !isHomePage : true) && (
                     <Link to="/account/profile" style={styles.actionItem}>
                       <div style={styles.iconBox}><FaUser /></div>
-                      <span style={styles.actionText}>Hesabım</span>
+                      {!isMobile && <span style={styles.actionText}>Hesabım</span>}
                     </Link>
                   )}
                 </>

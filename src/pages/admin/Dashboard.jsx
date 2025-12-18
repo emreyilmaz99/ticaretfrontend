@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { DashboardStats } from '../../features/admin/components/DashboardStats';
-import { DashboardChart } from '../../features/admin/components/DashboardChart';
-import { RecentOrders } from '../../features/admin/components/RecentOrders';
-import { TopProducts } from '../../features/admin/components/TopProducts';
-import { ActivityTimeline } from '../../features/admin/components/ActivityTimeline';
-import { PendingApprovals } from '../../features/admin/components/PendingApprovals';
+
+// Chart ve ağır componentler lazy load
+const DashboardChart = lazy(() => import('../../features/admin/components/DashboardChart').then(m => ({ default: m.DashboardChart })));
+const RecentOrders = lazy(() => import('../../features/admin/components/RecentOrders').then(m => ({ default: m.RecentOrders })));
+const TopProducts = lazy(() => import('../../features/admin/components/TopProducts').then(m => ({ default: m.TopProducts })));
+const ActivityTimeline = lazy(() => import('../../features/admin/components/ActivityTimeline').then(m => ({ default: m.ActivityTimeline })));
+const PendingApprovals = lazy(() => import('../../features/admin/components/PendingApprovals').then(m => ({ default: m.PendingApprovals })));
+
+// Skeleton loading component
+const ChartSkeleton = () => (
+  <div style={{
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    padding: '24px',
+    height: '300px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#94a3b8'
+  }}>
+    <div style={{
+      width: '40px',
+      height: '40px',
+      border: '3px solid #e2e8f0',
+      borderTopColor: '#059669',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }}></div>
+  </div>
+);
 
 const Dashboard = () => {
   return (
@@ -19,20 +44,36 @@ const Dashboard = () => {
       {/* 1. İstatistik Kartları */}
       <DashboardStats />
       
-      {/* 2. Grafikler (Satış & Ziyaretçi) */}
-      <DashboardChart />
+      {/* 2. Grafikler (Satış & Ziyaretçi) - LAZY LOADED */}
+      <Suspense fallback={<ChartSkeleton />}>
+        <DashboardChart />
+      </Suspense>
       
-      {/* 3. Orta Bölüm: Siparişler ve Ürünler */}
+      {/* 3. Orta Bölüm: Siparişler ve Ürünler - LAZY LOADED */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        <RecentOrders />
-        <TopProducts />
+        <Suspense fallback={<ChartSkeleton />}>
+          <RecentOrders />
+        </Suspense>
+        <Suspense fallback={<ChartSkeleton />}>
+          <TopProducts />
+        </Suspense>
       </div>
 
-      {/* 4. Alt Bölüm: Aktiviteler ve Onaylar */}
+      {/* 4. Alt Bölüm: Aktiviteler ve Onaylar - LAZY LOADED */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-        <ActivityTimeline />
-        <PendingApprovals />
+        <Suspense fallback={<ChartSkeleton />}>
+          <ActivityTimeline />
+        </Suspense>
+        <Suspense fallback={<ChartSkeleton />}>
+          <PendingApprovals />
+        </Suspense>
       </div>
+      
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

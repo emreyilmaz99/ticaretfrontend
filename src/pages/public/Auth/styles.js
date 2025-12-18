@@ -154,7 +154,8 @@ export const getStyles = (isMobile) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',
-    margin: isMobile ? '16px 0' : '24px 0',
+    marginTop: isMobile ? '16px' : '24px',
+    marginBottom: isMobile ? '16px' : '24px',
     color: '#94a3b8',
     fontSize: isMobile ? '12px' : '14px',
   },

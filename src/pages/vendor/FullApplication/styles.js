@@ -48,7 +48,10 @@ export const INITIAL_FORM_STATE = {
 /**
  * Generates all styles for the full application page
  */
-export const getStyles = () => ({
+export const getStyles = () => {
+  const isMobile = window.innerWidth <= 768;
+  
+  return {
   container: {
     minHeight: '100vh',
     display: 'flex',
@@ -56,36 +59,37 @@ export const getStyles = () => ({
     justifyContent: 'center',
     backgroundColor: '#f0fdf4',
     fontFamily: '"Plus Jakarta Sans", sans-serif',
-    padding: '20px'
+    padding: isMobile ? '10px' : '20px'
   },
   card: {
     width: '100%',
     maxWidth: '600px',
     backgroundColor: 'white',
-    borderRadius: '24px',
+    borderRadius: isMobile ? '16px' : '24px',
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    padding: '48px',
+    padding: isMobile ? '24px 16px' : '48px',
     position: 'relative',
     overflow: 'hidden'
   },
   cardWide: {
-    maxWidth: '700px'
+    maxWidth: isMobile ? '100%' : '700px'
   },
   header: {
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: isMobile ? '24px' : '40px',
+    marginTop: isMobile ? '40px' : '0'
   },
   iconWrapper: {
-    width: '64px',
-    height: '64px',
+    width: isMobile ? '56px' : '64px',
+    height: isMobile ? '56px' : '64px',
     backgroundColor: '#d1fae5',
     color: '#047857',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '24px',
-    margin: '0 auto 24px auto'
+    fontSize: isMobile ? '20px' : '24px',
+    margin: isMobile ? '0 auto 16px auto' : '0 auto 24px auto'
   },
   iconWrapperError: {
     backgroundColor: '#fee2e2',
@@ -97,7 +101,7 @@ export const getStyles = () => ({
   },
   title: {
     fontFamily: '"Playfair Display", serif',
-    fontSize: '32px',
+    fontSize: isMobile ? '24px' : '32px',
     fontWeight: '700',
     color: '#064e3b',
     marginBottom: '8px'
@@ -110,28 +114,35 @@ export const getStyles = () => ({
   },
   subtitle: {
     color: '#64748b',
-    fontSize: '16px',
+    fontSize: isMobile ? '14px' : '16px',
     lineHeight: '1.5'
   },
   backButton: {
     position: 'absolute',
-    top: '24px',
-    left: '24px',
-    background: 'none',
-    border: 'none',
-    color: '#64748b',
+    top: isMobile ? '16px' : '24px',
+    left: isMobile ? '16px' : '24px',
+    background: isMobile ? 'rgba(5, 150, 105, 0.1)' : 'none',
+    border: isMobile ? '1px solid rgba(5, 150, 105, 0.2)' : 'none',
+    borderRadius: isMobile ? '50%' : '0',
+    width: isMobile ? '40px' : 'auto',
+    height: isMobile ? '40px' : 'auto',
+    padding: isMobile ? '0' : 'initial',
+    color: '#047857',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    fontSize: '14px'
+    justifyContent: 'center',
+    gap: isMobile ? '0' : '8px',
+    fontSize: isMobile ? '16px' : '14px',
+    transition: 'all 0.2s',
+    zIndex: 10
   },
   formGroup: {
-    marginBottom: '20px'
+    marginBottom: isMobile ? '16px' : '20px'
   },
   label: {
     display: 'block',
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '600',
     color: '#334155',
     marginBottom: '8px'
@@ -145,14 +156,14 @@ export const getStyles = () => ({
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#94a3b8',
-    fontSize: '16px'
+    fontSize: isMobile ? '14px' : '16px'
   },
   input: {
     width: '100%',
-    padding: '14px 16px 14px 48px',
-    borderRadius: '12px',
+    padding: isMobile ? '12px 14px 12px 42px' : '14px 16px 14px 48px',
+    borderRadius: isMobile ? '10px' : '12px',
     border: '1px solid #e2e8f0',
-    fontSize: '15px',
+    fontSize: isMobile ? '14px' : '15px',
     color: '#1e293b',
     transition: 'all 0.2s',
     outline: 'none',
@@ -165,31 +176,32 @@ export const getStyles = () => ({
   },
   inputHint: {
     color: '#64748b',
-    fontSize: '12px',
+    fontSize: isMobile ? '11px' : '12px',
     marginTop: '4px',
     display: 'block'
   },
   gridTwo: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '16px'
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+    gap: isMobile ? '12px' : '16px'
   },
   gridThree: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
     gap: '12px',
-    marginBottom: '24px'
+    marginBottom: isMobile ? '20px' : '24px'
   },
   sectionTitle: {
     textAlign: 'left',
-    marginTop: '32px',
-    marginBottom: '16px',
+    marginTop: isMobile ? '24px' : '32px',
+    marginBottom: isMobile ? '12px' : '16px',
     fontWeight: '600',
+    fontSize: isMobile ? '16px' : '18px',
     color: '#047857'
   },
   merchantTypeCard: {
-    padding: '16px',
-    borderRadius: '12px',
+    padding: isMobile ? '14px' : '16px',
+    borderRadius: isMobile ? '10px' : '12px',
     cursor: 'pointer',
     transition: 'all 0.2s',
     textAlign: 'center'
@@ -203,51 +215,51 @@ export const getStyles = () => ({
     backgroundColor: '#f8fafc'
   },
   merchantTypeIcon: {
-    fontSize: '24px',
-    marginBottom: '8px'
+    fontSize: isMobile ? '20px' : '24px',
+    marginBottom: isMobile ? '6px' : '8px'
   },
   merchantTypeLabel: {
     fontWeight: '600',
     color: '#1e293b',
-    fontSize: '14px'
+    fontSize: isMobile ? '13px' : '14px'
   },
   merchantTypeDesc: {
-    fontSize: '11px',
+    fontSize: isMobile ? '10px' : '11px',
     color: '#64748b',
     marginTop: '4px'
   },
   warningBox: {
-    marginTop: '24px',
-    marginBottom: '16px',
-    padding: '16px',
+    marginTop: isMobile ? '20px' : '24px',
+    marginBottom: isMobile ? '12px' : '16px',
+    padding: isMobile ? '14px' : '16px',
     backgroundColor: '#fffbeb',
-    borderRadius: '12px',
+    borderRadius: isMobile ? '10px' : '12px',
     border: '1px solid #fde68a'
   },
   warningText: {
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     color: '#92400e',
     lineHeight: '1.6'
   },
   termsBox: {
-    marginBottom: '24px',
+    marginBottom: isMobile ? '20px' : '24px',
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '12px',
-    padding: '16px',
+    gap: isMobile ? '10px' : '12px',
+    padding: isMobile ? '14px' : '16px',
     backgroundColor: '#f0fdf4',
-    borderRadius: '12px',
+    borderRadius: isMobile ? '10px' : '12px',
     border: '1px solid #dcfce7'
   },
   termsCheckbox: {
     marginTop: '4px',
-    width: '18px',
-    height: '18px',
+    width: isMobile ? '16px' : '18px',
+    height: isMobile ? '16px' : '18px',
     accentColor: '#047857',
     cursor: 'pointer'
   },
   termsLabel: {
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     color: '#334155',
     lineHeight: '1.5',
     cursor: 'pointer'
@@ -258,12 +270,12 @@ export const getStyles = () => ({
   },
   buttonPrimary: {
     width: '100%',
-    padding: '16px',
+    padding: isMobile ? '14px' : '16px',
     backgroundColor: '#047857',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
-    fontSize: '16px',
+    borderRadius: isMobile ? '10px' : '12px',
+    fontSize: isMobile ? '15px' : '16px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'background-color 0.2s',
@@ -273,10 +285,11 @@ export const getStyles = () => ({
     gap: '8px'
   },
   buttonCentered: {
-    marginTop: '24px',
-    maxWidth: '200px',
-    margin: '24px auto 0'
+    marginTop: isMobile ? '20px' : '24px',
+    maxWidth: isMobile ? '100%' : '200px',
+    margin: isMobile ? '20px auto 0' : '24px auto 0'
   }
-});
+};
+};
 
 export const styles = getStyles();

@@ -33,9 +33,28 @@ export const getStyles = (isMobile = false) => ({
     position: 'relative',
     overflow: 'hidden'
   },
+  backButton: {
+    position: 'absolute',
+    top: '16px',
+    left: '16px',
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+    border: '1px solid rgba(5, 150, 105, 0.2)',
+    color: '#047857',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'all 0.2s',
+    zIndex: 10
+  },
   header: {
     textAlign: 'center',
-    marginBottom: isMobile ? '24px' : '40px'
+    marginBottom: isMobile ? '24px' : '40px',
+    marginTop: isMobile ? '40px' : '0'
   },
   iconWrapper: {
     width: isMobile ? '56px' : '64px',

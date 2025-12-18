@@ -113,7 +113,13 @@ const ProductCard = React.memo(({
       {product.has_deal && product.deal_badge && (
         <div style={{
           ...styles.discountBadge,
-          backgroundColor: product.deal_badge.color || '#dc2626'
+          backgroundColor: product.deal_badge.color || '#dc2626',
+          ...(viewMode === 'list' && isMobile ? {
+            top: '8px',
+            left: '8px',
+            fontSize: '8px',
+            padding: '3px 6px',
+          } : {})
         }}>
           {product.deal_badge.text || `%${Math.round(discountPercent)} İNDİRİM`}
         </div>
@@ -121,21 +127,31 @@ const ProductCard = React.memo(({
       
       {/* Discount Badge (fallback) */}
       {!product.has_deal && discountPercent > 0 && (
-        <div style={styles.discountBadge}>
+        <div style={{
+          ...styles.discountBadge,
+          ...(viewMode === 'list' && isMobile ? {
+            top: '8px',
+            left: '8px',
+            fontSize: '8px',
+            padding: '3px 6px',
+          } : {})
+        }}>
           %{Math.round(discountPercent)} İNDİRİM
         </div>
       )}
       
-      {/* Action Overlay */}
-      <ProductActions
-        product={product}
-        isFavorite={isFav}
-        isInCompareList={isInCompareList}
-        onToggleFavorite={handleToggleFavorite}
-        onQuickView={handleQuickView}
-        onToggleCompare={onToggleCompare ? handleToggleCompare : null}
-        styles={styles}
-      />
+      {/* Action Overlay - Hide in mobile list view */}
+      {!(viewMode === 'list' && isMobile) && (
+        <ProductActions
+          product={product}
+          isFavorite={isFav}
+          isInCompareList={isInCompareList}
+          onToggleFavorite={handleToggleFavorite}
+          onQuickView={handleQuickView}
+          onToggleCompare={onToggleCompare ? handleToggleCompare : null}
+          styles={styles}
+        />
+      )}
 
       {/* Product Image */}
       <ProductImage
@@ -157,6 +173,7 @@ const ProductCard = React.memo(({
         productUrl={productUrl}
         styles={styles}
         isMobile={isMobile}
+        viewMode={viewMode}
         onBuyNow={handleBuyNow}
         onAddToCart={handleAddToCart}
       />

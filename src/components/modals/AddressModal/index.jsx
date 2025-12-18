@@ -401,6 +401,8 @@ const AddressModal = React.memo(({
 
   if (!isOpen) return null;
 
+  const isMobile = window.innerWidth <= 768;
+
   const modalStyles = {
     overlay: {
       position: 'fixed',
@@ -411,17 +413,17 @@ const AddressModal = React.memo(({
       backgroundColor: 'rgba(0, 0, 0, 0.6)',
       backdropFilter: 'blur(4px)',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: isMobile ? 'flex-end' : 'center',
       justifyContent: 'center',
       zIndex: 9999,
-      padding: '20px',
+      padding: isMobile ? '0' : '20px',
     },
     modal: {
       backgroundColor: '#fff',
-      borderRadius: '20px',
+      borderRadius: isMobile ? '20px 20px 0 0' : '20px',
       width: '100%',
-      maxWidth: '1000px',
-      maxHeight: '90vh',
+      maxWidth: isMobile ? '100%' : '1000px',
+      maxHeight: isMobile ? '95vh' : '90vh',
       overflow: 'hidden',
       boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       display: 'flex',
@@ -431,35 +433,36 @@ const AddressModal = React.memo(({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '20px 24px',
+      padding: isMobile ? '16px' : '20px 24px',
       borderBottom: '1px solid #e5e7eb',
       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
     },
     headerTitle: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
+      gap: isMobile ? '8px' : '12px',
       color: '#fff',
     },
     headerIcon: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '12px',
+      width: isMobile ? '32px' : '40px',
+      height: isMobile ? '32px' : '40px',
+      borderRadius: isMobile ? '10px' : '12px',
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
     },
     title: {
-      fontSize: '20px',
+      fontSize: isMobile ? '16px' : '20px',
       fontWeight: '700',
       margin: 0,
     },
     subtitle: {
-      fontSize: '13px',
+      fontSize: isMobile ? '11px' : '13px',
       opacity: 0.8,
       margin: 0,
+      display: isMobile ? 'none' : 'block',
     },
     closeBtn: {
       width: '36px',
@@ -476,18 +479,19 @@ const AddressModal = React.memo(({
     },
     content: {
       display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
       flex: 1,
       overflow: 'hidden',
     },
     leftPanel: {
       flex: 1,
-      padding: '24px',
+      padding: isMobile ? '16px' : '24px',
       overflowY: 'auto',
-      borderRight: '1px solid #e5e7eb',
+      borderRight: isMobile ? 'none' : '1px solid #e5e7eb',
     },
     rightPanel: {
-      width: '400px',
-      display: 'flex',
+      width: isMobile ? '100%' : '400px',
+      display: isMobile ? 'none' : 'flex',
       flexDirection: 'column',
       backgroundColor: '#f9fafb',
     },
@@ -528,9 +532,9 @@ const AddressModal = React.memo(({
     },
     formGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '16px',
-      marginBottom: '16px',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+      gap: isMobile ? '12px' : '16px',
+      marginBottom: isMobile ? '12px' : '16px',
     },
     singleColumn: {
       gridColumn: '1 / -1',
@@ -585,30 +589,32 @@ const AddressModal = React.memo(({
     footer: {
       display: 'flex',
       gap: '12px',
-      padding: '16px',
+      padding: isMobile ? '12px 16px' : '16px',
       borderTop: '1px solid #e5e7eb',
       backgroundColor: '#fff',
+      position: isMobile ? 'sticky' : 'relative',
+      bottom: 0,
     },
     cancelBtn: {
       flex: 1,
-      padding: '14px 24px',
+      padding: isMobile ? '12px 20px' : '14px 24px',
       borderRadius: '10px',
       border: '1px solid #e5e7eb',
       backgroundColor: '#fff',
       color: '#374151',
-      fontSize: '15px',
+      fontSize: isMobile ? '14px' : '15px',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
     },
     saveBtn: {
       flex: 2,
-      padding: '14px 24px',
+      padding: isMobile ? '12px 20px' : '14px 24px',
       borderRadius: '10px',
       border: 'none',
       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
       color: '#fff',
-      fontSize: '15px',
+      fontSize: isMobile ? '14px' : '15px',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
@@ -708,7 +714,7 @@ const AddressModal = React.memo(({
                   />
                 </div>
 
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
                   <FormInput
                     label="TC Kimlik No"
                     value={formData.identityNumber}
@@ -762,7 +768,7 @@ const AddressModal = React.memo(({
                   />
                 </div>
 
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
                   <FormInput
                     label="Adres Etiketi"
                     value={formData.addressLabel}
@@ -840,27 +846,27 @@ const AddressModal = React.memo(({
                 )}
               </div>
             </div>
-            
-            {/* Footer inside right panel */}
-            <div style={modalStyles.footer}>
-              <button
-                style={modalStyles.cancelBtn}
-                onClick={onClose}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#fff'}
-              >
-                İptal
-              </button>
-              <button
-                style={modalStyles.saveBtn}
-                onClick={handleSave}
-                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-              >
-                Adresi Kaydet
-              </button>
-            </div>
           </div>
+        </div>
+
+        {/* Footer - Mobilde modal dışında */}
+        <div style={modalStyles.footer}>
+          <button
+            style={modalStyles.cancelBtn}
+            onClick={onClose}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#fff'}
+          >
+            İptal
+          </button>
+          <button
+            style={modalStyles.saveBtn}
+            onClick={handleSave}
+            onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+            onMouseLeave={(e) => e.target.style.opacity = '1'}
+          >
+            Adresi Kaydet
+          </button>
         </div>
       </div>
     </div>

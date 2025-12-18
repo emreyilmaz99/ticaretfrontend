@@ -139,6 +139,13 @@ const useProductsPage = () => {
       toast.warning('Uyarı', 'Lütfen en az bir ürün seçin');
       return;
     }
+    
+    // 50'den fazla ürün varsa uyarı ver
+    if (selectedProducts.length > 50) {
+      toast.warning('Uyarı', `Toplu işlem maksimum 50 ürün ile yapılabilir. (Seçili: ${selectedProducts.length})`);
+      return;
+    }
+    
     if (status === 'rejected') {
       setRejectModal({ 
         isOpen: true, 
@@ -147,6 +154,14 @@ const useProductsPage = () => {
         isBulk: true 
       });
     } else {
+      // Batch processing: 10'ar 10'ar gönder
+      const batchSize = 10;
+      const batches = [];
+      for (let i = 0; i < selectedProducts.length; i += batchSize) {
+        batches.push(selectedProducts.slice(i, i + batchSize));
+      }
+      
+      toast.info('İşleniyor', `${batches.length} parti halinde güncelleniyor...`);
       bulkStatusMutation.mutate({ productIds: selectedProducts, status });
     }
   }, [selectedProducts, bulkStatusMutation, toast]);

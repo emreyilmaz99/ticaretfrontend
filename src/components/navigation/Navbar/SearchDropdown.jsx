@@ -155,6 +155,8 @@ const SearchDropdown = ({
                   src={product.main_image || '/placeholder.png'} 
                   alt={product.name}
                   style={styles.productImage}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => e.target.src = '/placeholder.png'}
                 />
                 <div style={styles.productInfo}>

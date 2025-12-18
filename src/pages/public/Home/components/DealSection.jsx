@@ -18,6 +18,10 @@ const DealSection = ({ styles, isMobile }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  
+  // Touch/Swipe states for mobile
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   // Fetch featured deals from API
   useEffect(() => {
@@ -83,6 +87,34 @@ const DealSection = ({ styles, isMobile }) => {
     const interval = setInterval(goToNext, 5000);
     return () => clearInterval(interval);
   }, [deals.length, goToNext]);
+  
+  // Mobile swipe handlers
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50; // Minimum swipe distance in pixels
+    
+    if (distance > minSwipeDistance) {
+      // Swiped left - next
+      goToNext();
+    } else if (distance < -minSwipeDistance) {
+      // Swiped right - previous
+      goToPrevious();
+    }
+    
+    // Reset
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   // Track click
   const handleClick = async () => {
@@ -165,11 +197,16 @@ const DealSection = ({ styles, isMobile }) => {
   const bgColor = currentDeal.background_color || '#0f172a';
 
   return (
-    <div style={{
-      ...styles.dealSection,
-      background: `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 20)} 100%)`,
-      position: 'relative',
-    }}>
+    <div 
+      style={{
+        ...styles.dealSection,
+        background: `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 20)} 100%)`,
+        position: 'relative',
+      }}
+      onTouchStart={isMobile && deals.length > 1 ? handleTouchStart : undefined}
+      onTouchMove={isMobile && deals.length > 1 ? handleTouchMove : undefined}
+      onTouchEnd={isMobile && deals.length > 1 ? handleTouchEnd : undefined}
+    >
       {/* Navigation Arrows */}
       {deals.length > 1 && !isMobile && (
         <>
@@ -222,6 +259,62 @@ const DealSection = ({ styles, isMobile }) => {
             }}
             onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+          >
+            <FaChevronRight />
+          </button>
+        </>
+      )}
+      
+      {/* Mobile Navigation Arrows */}
+      {deals.length > 1 && isMobile && (
+        <>
+          <button
+            onClick={goToPrevious}
+            style={{
+              position: 'absolute',
+              left: '8px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '16px',
+              transition: 'all 0.3s',
+            }}
+          >
+            <FaChevronLeft />
+          </button>
+          <button
+            onClick={goToNext}
+            style={{
+              position: 'absolute',
+              right: '8px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '16px',
+              transition: 'all 0.3s',
+            }}
           >
             <FaChevronRight />
           </button>

@@ -4,10 +4,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   FaHome, FaBox, FaUsers, FaSignOutAlt, FaStore, 
   FaUserShield, FaPercentage, FaLeaf, FaLayerGroup, FaShoppingBag, FaReceipt, FaStar, FaCommentAlt,
-  FaChevronDown, FaChevronRight, FaUserCheck, FaUserClock, FaTags
+  FaChevronDown, FaChevronRight, FaUserCheck, FaUserClock, FaTags, FaTimes
 } from 'react-icons/fa';
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ isMobile = false, isOpen = false, onClose = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedGroups, setExpandedGroups] = useState([]);
@@ -23,6 +23,13 @@ const AdminSidebar = () => {
         ? prev.filter(key => key !== groupKey)
         : [...prev, groupKey] 
     );
+  };
+
+  const handleLinkClick = () => {
+    // Mobilde link tıklandığında sidebar'ı kapat
+    if (isMobile && onClose) {
+      onClose();
+    }
   };
 
   // Kategorize edilmiş menü yapısı
@@ -90,7 +97,8 @@ const AdminSidebar = () => {
     
     return (
       <Link 
-        to={item.path} 
+        to={item.path}
+        onClick={handleLinkClick}
         style={{
           color: isActive ? 'white' : '#94a3b8',
           backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
@@ -183,7 +191,7 @@ const AdminSidebar = () => {
 
   return (
     <div style={{
-      width: '260px',
+      width: isMobile ? '280px' : '260px',
       height: '100vh',
       background: 'linear-gradient(180deg, #052e16 0%, #064e3b 100%)',
       color: 'white',
@@ -191,11 +199,49 @@ const AdminSidebar = () => {
       flexDirection: 'column',
       padding: '24px',
       position: 'fixed',
-      left: 0,
+      left: isMobile ? (isOpen ? '0' : '-280px') : '0',
       top: 0,
-      boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+      boxShadow: isMobile ? '4px 0 24px rgba(0,0,0,0.3)' : '4px 0 24px rgba(0,0,0,0.15)',
       zIndex: 1000,
+      transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflowY: 'auto',
     }}>
+      
+      {/* Mobile Close Button */}
+      {isMobile && (
+        <button 
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            color: '#cbd5e1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '16px',
+            transition: 'all 0.2s',
+            zIndex: 10,
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.transform = 'scale(0.95)';
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          <FaTimes />
+        </button>
+      )}
+      
       {/* LOGO ALANI */}
       <div style={{ marginBottom: '32px', paddingLeft: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -21,7 +21,7 @@ const MiniCart = ({ cartItems, totals }) => {
       {cartItems.slice(0, 3).map((item, index) => (
         <div key={item.id || index} style={styles.miniCartItem}>
           {item.product?.image ? (
-            <img src={item.product.image} alt={item.product?.name} style={styles.miniCartImg} />
+            <img src={item.product.image} alt={item.product?.name} style={styles.miniCartImg} loading="lazy" decoding="async" />
           ) : (
             <div style={{ ...styles.miniCartImg, backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <FaShoppingBag size={16} color="#cbd5e1" />

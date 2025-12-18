@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaStore, FaPlus, FaFileExcel, FaPrint } from 'react-icons/fa';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ActiveVendorList from '../../features/vendor/components/ActiveVendorList';
 import { getVendors } from '../../features/vendor/api/vendorApi';
 import { useToast } from '../../components/common/Toast';
@@ -8,27 +8,53 @@ import AddVendorModal from '../../features/vendor/components/AddVendorModal';
 
 const ActiveVendorsPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const toast = useToast();
+  const queryClient = useQueryClient();
 
-  // Tüm satıcıları excel/print için çek
-  const { data: allVendorsData } = useQuery({
+  // Export için tüm aktif satıcıları çeken query - daha küçük per_page ile
+  const { refetch: fetchAllVendors } = useQuery({
     queryKey: ['all-active-vendors-export'],
     queryFn: async () => {
-      const response = await getVendors({ status: 'active', per_page: 1000 });
-      return response.data;
+      // Tüm sayfaları çekmek için önce ilk sayfayı al
+      const firstPage = await getVendors({ status: 'active', per_page: 50, page: 1 });
+      const totalPages = firstPage.data?.meta?.last_page || 1;
+      
+      let allVendors = firstPage.data?.data || [];
+      
+      // Eğer birden fazla sayfa varsa, diğerlerini de çek
+      if (totalPages > 1) {
+        const promises = [];
+        for (let page = 2; page <= Math.min(totalPages, 20); page++) { // Max 20 sayfa (1000 satıcı)
+          promises.push(getVendors({ status: 'active', per_page: 50, page }));
+        }
+        const results = await Promise.all(promises);
+        results.forEach(res => {
+          allVendors = [...allVendors, ...(res.data?.data || [])];
+        });
+      }
+      
+      return allVendors;
     },
-    enabled: false, // Manuel olarak tetiklenecek
+    enabled: false,
+    retry: 1,
   });
 
   const handleDownloadExcel = async () => {
+    if (isExporting) return;
+    
     try {
+      setIsExporting(true);
       toast.info('Excel hazırlanıyor...', 'Lütfen bekleyin.');
       
-      // Satıcı verilerini çek
-      const response = await getVendors({ status: 'active', per_page: 1000 });
-      const vendors = response.data?.data || [];
+      // API'den veri çek
+      const result = await fetchAllVendors();
+      const vendors = result.data || [];
+      
+      console.log('Excel - API Result:', result);
+      console.log('Excel - Vendors:', vendors);
 
-      if (vendors.length === 0) {
+      if (!vendors || vendors.length === 0) {
         toast.warning('Veri Yok', 'Aktif satıcı bulunamadı.');
         return;
       }
@@ -39,8 +65,8 @@ const ActiveVendorsPage = () => {
         headers.join(','),
         ...vendors.map(v => [
           v.id,
-          `"${v.store_name || ''}"`,
-          `"${v.full_name || v.owner || ''}"`,
+          `"${(v.store_name || '').replace(/"/g, '""')}"`,
+          `"${(v.full_name || v.owner || '').replace(/"/g, '""')}"`,
           v.email || '',
           v.phone || '',
           v.status || '',
@@ -60,23 +86,32 @@ const ActiveVendorsPage = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
       toast.success('İndirildi', 'Excel dosyası başarıyla indirildi.');
     } catch (error) {
       console.error('Excel download error:', error);
       toast.error('Hata', 'Excel indirilemedi. Lütfen tekrar deneyin.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
   const handlePrint = async () => {
+    if (isExporting) return;
+    
     try {
+      setIsExporting(true);
       toast.info('Yazdırma hazırlanıyor...', 'Lütfen bekleyin.');
       
-      // Satıcı verilerini çek
-      const response = await getVendors({ status: 'active', per_page: 1000 });
-      const vendors = response.data?.data || [];
+      // API'den veri çek
+      const result = await fetchAllVendors();
+      const vendors = result.data || [];
+      
+      console.log('Print - API Result:', result);
+      console.log('Print - Vendors:', vendors);
 
-      if (vendors.length === 0) {
+      if (!vendors || vendors.length === 0) {
         toast.warning('Veri Yok', 'Aktif satıcı bulunamadı.');
         return;
       }
@@ -196,6 +231,8 @@ const ActiveVendorsPage = () => {
     } catch (error) {
       console.error('Print error:', error);
       toast.error('Hata', 'Yazdırma işlemi başarısız. Lütfen tekrar deneyin.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -208,11 +245,19 @@ const ActiveVendorsPage = () => {
           <p style={styles.subtitle}>Platformdaki aktif mağazaları buradan yönetebilirsiniz.</p>
         </div>
         <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
-            <FaPrint /> Rapor Yazdır
+          <button 
+            style={{...styles.exportBtn, opacity: isExporting ? 0.6 : 1, cursor: isExporting ? 'wait' : 'pointer'}} 
+            onClick={handlePrint}
+            disabled={isExporting}
+          >
+            <FaPrint /> {isExporting ? 'Hazırlanıyor...' : 'Rapor Yazdır'}
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
-            <FaFileExcel /> Excel İndir
+          <button 
+            style={{...styles.exportBtn, opacity: isExporting ? 0.6 : 1, cursor: isExporting ? 'wait' : 'pointer'}} 
+            onClick={handleDownloadExcel}
+            disabled={isExporting}
+          >
+            <FaFileExcel /> {isExporting ? 'Hazırlanıyor...' : 'Excel İndir'}
           </button>
           <button style={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
             <FaPlus /> Yeni Satıcı Ekle

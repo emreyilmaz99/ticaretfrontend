@@ -1,7 +1,7 @@
 // src/components/modals/shared/styles/modalBase.js
 import { modalColors } from './colors';
 
-export const getModalBaseStyles = (isMobile = false) => ({
+export const getModalBaseStyles = (isMobile = false, alignItems = 'center') => ({
   overlay: {
     position: 'fixed',
     top: 0,
@@ -11,7 +11,7 @@ export const getModalBaseStyles = (isMobile = false) => ({
     backgroundColor: modalColors.overlayBg,
     backdropFilter: 'blur(4px)',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: alignItems,
     justifyContent: 'center',
     zIndex: 9999,
     padding: isMobile ? '0' : '20px',

@@ -10,6 +10,7 @@ import { compareAttributes } from './config';
 const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) => {
   const navigate = useNavigate();
   const imageUrl = useProductImage(product);
+  const isMobile = window.innerWidth <= 768;
   
   const {
     isHovered: isRemoveBtnHovered,
@@ -34,10 +35,10 @@ const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) 
 
   const removeBtnStyle = {
     position: 'absolute',
-    top: '12px',
-    right: '12px',
-    width: '32px',
-    height: '32px',
+    top: isMobile ? '10px' : '12px',
+    right: isMobile ? '10px' : '12px',
+    width: isMobile ? '30px' : '32px',
+    height: isMobile ? '30px' : '32px',
     backgroundColor: isRemoveBtnHovered ? '#DC2626' : '#FFFFFF',
     color: isRemoveBtnHovered ? '#FFFFFF' : '#DC2626',
     border: '1px solid #E5E7EB',
@@ -46,7 +47,7 @@ const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) 
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: isMobile ? '12px' : '14px',
     zIndex: 10,
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
@@ -55,19 +56,19 @@ const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) 
 
   const actionBtnStyle = {
     width: '100%',
-    padding: '12px',
+    padding: isMobile ? '10px' : '12px',
     backgroundColor: isActionBtnHovered ? '#047857' : '#059669',
     color: '#FFFFFF',
     border: 'none',
-    borderRadius: '10px',
-    fontSize: '14px',
+    borderRadius: isMobile ? '8px' : '10px',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '700',
     cursor: 'pointer',
-    marginTop: '16px',
+    marginTop: isMobile ? '12px' : '16px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
+    gap: isMobile ? '6px' : '8px',
     transition: 'all 0.2s ease',
     fontFamily: '"Inter", sans-serif',
     transform: isActionBtnHovered ? 'translateY(-2px)' : 'translateY(0)',
@@ -91,18 +92,20 @@ const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) 
       <div
         style={{
           width: '100%',
-          height: isSingleProduct ? '250px' : '200px',
+          height: isMobile ? '180px' : (isSingleProduct ? '250px' : '200px'),
           backgroundColor: '#F9FAFB',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px',
+          padding: isMobile ? '16px' : '20px',
           borderBottom: '1px solid #E5E7EB',
         }}
       >
         <img
           src={imageUrl}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
@@ -111,15 +114,15 @@ const CompareCard = React.memo(({ product, onRemove, isSingleProduct = false }) 
         />
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: isMobile ? '16px' : '20px' }}>
         <h3
           style={{
-            fontSize: '15px',
+            fontSize: isMobile ? '14px' : '15px',
             fontWeight: '700',
             color: '#111827',
-            marginBottom: '16px',
+            marginBottom: isMobile ? '12px' : '16px',
             lineHeight: '1.4',
-            minHeight: '42px',
+            minHeight: isMobile ? 'auto' : '42px',
             fontFamily: '"Inter", sans-serif',
           }}
         >

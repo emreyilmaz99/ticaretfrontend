@@ -114,7 +114,6 @@ const usePreApplications = () => {
 
   // Handlers
   const openDetailModal = useCallback((vendor) => {
-    console.log('openDetailModal called with:', vendor);
     setSelectedVendor(vendor);
     setAdminNote(vendor.admin_notes || vendor.adminNotes || '');
     setActiveTab('general');

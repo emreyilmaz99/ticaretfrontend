@@ -2,7 +2,7 @@
 export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFavorite = false) => ({
   card: {
     backgroundColor: 'white',
-    borderRadius: isMobile ? '20px' : '24px',
+    borderRadius: viewMode === 'list' && isMobile ? '12px' : (isMobile ? '20px' : '24px'),
     overflow: 'hidden',
     borderWidth: '1px',
     borderStyle: 'solid',
@@ -12,11 +12,12 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     position: 'relative',
     cursor: 'pointer',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: viewMode === 'list' ? 'row' : 'column',
     textDecoration: 'none',
     color: 'inherit',
-    height: '100%',
-    ...(viewMode === 'list' && !isMobile ? { flexDirection: 'row', maxHeight: '280px' } : {}),
+    height: viewMode === 'list' && isMobile ? 'auto' : '100%',
+    minHeight: viewMode === 'list' && isMobile ? '100px' : 'auto',
+    ...(viewMode === 'list' && !isMobile ? { maxHeight: '280px' } : {}),
   },
   
   cardHover: {
@@ -25,8 +26,9 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   imageContainer: {
-    width: viewMode === 'list' && !isMobile ? '280px' : '100%',
-    height: viewMode === 'list' && !isMobile ? '100%' : isMobile ? '220px' : '280px',
+    width: viewMode === 'list' ? (isMobile ? '100px' : '280px') : '100%',
+    height: viewMode === 'list' ? (isMobile ? '100px' : '100%') : (isMobile ? '220px' : '280px'),
+    minWidth: viewMode === 'list' && isMobile ? '100px' : 'auto',
     backgroundColor: '#fafafa',
     display: 'flex',
     alignItems: 'center',
@@ -48,31 +50,31 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   cardBody: {
-    padding: isMobile ? '14px' : '18px',
+    padding: viewMode === 'list' && isMobile ? '12px' : (isMobile ? '14px' : '18px'),
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: viewMode === 'list' && isMobile ? '6px' : '10px',
   },
   
   cardCategory: {
-    fontSize: '10px',
+    fontSize: viewMode === 'list' && isMobile ? '9px' : '10px',
     color: '#059669',
     textTransform: 'uppercase',
     fontWeight: '800',
     letterSpacing: '1px',
-    marginBottom: '2px',
+    marginBottom: viewMode === 'list' && isMobile ? '2px' : '2px',
   },
   
   cardTitle: {
-    fontSize: isMobile ? '13px' : '14px',
+    fontSize: viewMode === 'list' && isMobile ? '12px' : (isMobile ? '13px' : '14px'),
     fontWeight: '600',
     color: '#0f172a',
     lineHeight: '1.3',
-    height: isMobile ? '34px' : '36px',
+    height: viewMode === 'list' && isMobile ? 'auto' : (isMobile ? '34px' : '36px'),
     overflow: 'hidden',
     display: '-webkit-box',
-    WebkitLineClamp: 2,
+    WebkitLineClamp: viewMode === 'list' && isMobile ? 2 : 2,
     WebkitBoxOrient: 'vertical',
     marginBottom: '4px',
   },
@@ -83,12 +85,12 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     gap: '4px',
     fontSize: '11px',
     color: '#f59e0b',
-    marginBottom: '6px',
+    marginBottom: viewMode === 'list' && isMobile ? '4px' : '6px',
   },
   
   priceSection: {
-    marginTop: 'auto',
-    paddingTop: '8px',
+    marginTop: viewMode === 'list' && isMobile ? '4px' : 'auto',
+    paddingTop: viewMode === 'list' && isMobile ? '6px' : '8px',
     borderTop: '1px solid #f1f5f9',
   },
   
@@ -107,7 +109,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   price: { 
-    fontSize: isMobile ? '17px' : '20px', 
+    fontSize: viewMode === 'list' && isMobile ? '15px' : (isMobile ? '17px' : '20px'), 
     fontWeight: '800', 
     color: '#0f172a',
     letterSpacing: '-0.5px',
@@ -128,7 +130,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   
   buyNowBtn: {
     flex: 1,
-    height: '38px',
+    height: viewMode === 'list' && isMobile ? '34px' : '38px',
     borderRadius: '10px',
     backgroundColor: '#059669',
     color: 'white',
@@ -137,7 +139,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     alignItems: 'center',
     justifyContent: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: viewMode === 'list' && isMobile ? '11px' : '12px',
     fontWeight: '700',
     cursor: 'pointer',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -151,8 +153,8 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   addToCartBtn: {
-    width: '38px',
-    height: '38px',
+    width: viewMode === 'list' && isMobile ? '34px' : '38px',
+    height: viewMode === 'list' && isMobile ? '34px' : '38px',
     borderRadius: '10px',
     backgroundColor: '#f0fdf4',
     color: '#059669',

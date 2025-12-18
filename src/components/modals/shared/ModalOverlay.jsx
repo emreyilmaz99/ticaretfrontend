@@ -3,7 +3,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { getModalBaseStyles } from './styles/modalBase';
 import './styles/animations.css';
 
-const ModalOverlay = React.memo(({ isOpen, onClose, children, closeOnClickOutside = true }) => {
+const ModalOverlay = React.memo(({ isOpen, onClose, children, closeOnClickOutside = true, alignItems }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
   useEffect(() => {
@@ -37,7 +37,7 @@ const ModalOverlay = React.memo(({ isOpen, onClose, children, closeOnClickOutsid
     }
   }, [closeOnClickOutside, onClose]);
 
-  const styles = getModalBaseStyles(isMobile);
+  const styles = getModalBaseStyles(isMobile, alignItems);
 
   return (
     <div style={styles.overlay} onClick={handleOverlayClick}>

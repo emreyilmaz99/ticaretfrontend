@@ -11,6 +11,7 @@ import { useReviewsPage } from './useReviewsPage';
 import ReviewDetailModal from './ReviewDetailModal';
 import RejectReviewModal from './RejectReviewModal';
 import BannedWordsTab from './BannedWordsTab';
+import Pagination from '../../../components/ui/Pagination';
 import { getStyles } from './styles';
 import { useToast } from '../../../components/common/Toast';
 
@@ -22,6 +23,7 @@ const ReviewsPage = () => {
   const {
     // Data
     reviews,
+    pagination,
     stats,
     isLoading,
     isLoadingStats,
@@ -33,6 +35,8 @@ const ReviewsPage = () => {
     setStatusFilter,
     ratingFilter,
     setRatingFilter,
+    currentPage,
+    setCurrentPage,
     
     // Selection
     selectedReviews,
@@ -427,6 +431,17 @@ const ReviewsPage = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {pagination && pagination.last_page > 1 && (
+            <div style={{ marginTop: '24px' }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={pagination.last_page}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </>
       ) : (
         <BannedWordsTab styles={styles} />

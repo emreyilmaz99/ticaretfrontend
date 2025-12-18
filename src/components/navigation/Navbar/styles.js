@@ -74,27 +74,26 @@ export const getStyles = (isMobile) => ({
   searchContainer: {
     flex: 1,
     position: 'relative',
-    maxWidth: '500px',
-    // Mobilde arama çubuğunu gizleyip sadece ikon gösterebiliriz
-    // Veya küçük bir bar yapabiliriz. Şimdilik gizleyip sağa ikon koyacağız.
-    display: isMobile ? 'none' : 'block', 
+    maxWidth: isMobile ? 'none' : '500px',
+    display: 'block', // Her zaman göster, Navbar içinde kontrol edilecek
   },
   searchInput: {
     width: '100%',
-    padding: '12px 24px 12px 52px',
-    borderRadius: '24px',
+    padding: isMobile ? '10px 20px 10px 44px' : '12px 24px 12px 52px',
+    borderRadius: isMobile ? '20px' : '24px',
     border: '1px solid #e2e8f0',
     backgroundColor: '#f8fafc',
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     outline: 'none',
     transition: 'all 0.3s ease',
   },
   searchIcon: {
     position: 'absolute',
-    left: '20px',
+    left: isMobile ? '16px' : '20px',
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#94a3b8',
+    fontSize: isMobile ? '16px' : '18px',
   },
 
   // --- SAĞ İKONLAR (ACTIONS) ---

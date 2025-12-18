@@ -88,7 +88,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         <div style={styles.popularList}>
           {popularProducts.map((product) => (
             <div key={product.id} style={styles.popularItem} onClick={() => handleTagClick(product.name)}>
-              <img src={product.image} alt={product.name} style={styles.popularItemImage} />
+              <img src={product.image} alt={product.name} style={styles.popularItemImage} loading="lazy" decoding="async" />
               <div style={styles.popularItemInfo}>
                 <div style={styles.popularItemName}>{product.name}</div>
                 <div style={styles.popularItemPrice}>{product.price}</div>

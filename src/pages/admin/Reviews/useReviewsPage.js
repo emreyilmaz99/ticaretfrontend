@@ -12,6 +12,8 @@ export const useReviewsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [ratingFilter, setRatingFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 20; // Sayfa başına 20 yorum
 
   // Selection
   const [selectedReviews, setSelectedReviews] = useState([]);
@@ -21,19 +23,21 @@ export const useReviewsPage = () => {
   const [rejectModal, setRejectModal] = useState({ isOpen: false, reviewId: null, isBulk: false });
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // Fetch reviews
+  // Fetch reviews - PAGINATION EKLENDI
   const { data: reviewsData, isLoading } = useQuery({
-    queryKey: ['adminReviews', statusFilter, ratingFilter, searchTerm],
+    queryKey: ['adminReviews', statusFilter, ratingFilter, searchTerm, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
       if (ratingFilter) params.append('rating', ratingFilter);
       if (searchTerm) params.append('search', searchTerm);
-      params.append('per_page', '100');
+      params.append('page', currentPage);
+      params.append('per_page', perPage);
 
       const response = await apiClient.get(`/v1/admin/reviews?${params}`);
       return response.data;
     },
+    keepPreviousData: true, // Sayfa geçişlerinde smooth UX
   });
 
   // Fetch stats
@@ -46,6 +50,7 @@ export const useReviewsPage = () => {
   });
 
   const reviews = reviewsData?.data?.data || [];
+  const pagination = reviewsData?.data?.meta || null;
   const stats = statsData?.data || { pending: 0, approved: 0, rejected: 0, total: 0 };
 
   // Approve mutation
@@ -176,6 +181,7 @@ export const useReviewsPage = () => {
   return {
     // Data
     reviews,
+    pagination,
     stats,
     isLoading,
     isLoadingStats,
@@ -187,6 +193,8 @@ export const useReviewsPage = () => {
     setStatusFilter,
     ratingFilter,
     setRatingFilter,
+    currentPage,
+    setCurrentPage,
 
     // Selection
     selectedReviews,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaStore, FaArrowLeft } from 'react-icons/fa';
 import { styles } from '../styles';
 
@@ -6,11 +6,19 @@ import { styles } from '../styles';
  * Form header with back button and title
  */
 const FormHeader = ({ vendorName, onGoBack }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <>
       {/* Back Button */}
       <button onClick={onGoBack} style={styles.backButton}>
-        <FaArrowLeft /> Duruma Dön
+        <FaArrowLeft /> {isMobile ? '' : 'Duruma Dön'}
       </button>
 
       <div style={styles.header}>

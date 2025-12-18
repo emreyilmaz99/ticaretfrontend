@@ -24,6 +24,9 @@ const QuickViewModal = React.memo(({
   const [plusHovered, setPlusHovered] = useState(false);
   const [localFavorite, setLocalFavorite] = useState(isFavorite);
   const toast = useToast();
+  
+  // Mobil kontrol
+  const isMobile = window.innerWidth <= 768;
 
   const handleAddToCart = useCallback(() => {
     if (product && product.stock > 0) {
@@ -126,7 +129,7 @@ const QuickViewModal = React.memo(({
   `;
 
   return (
-    <ModalOverlay isOpen={isOpen} onClose={onClose}>
+    <ModalOverlay isOpen={isOpen} onClose={onClose} alignItems={isMobile ? 'flex-end' : 'center'}>
       <style>{hideSpinnerCSS}</style>
       <div style={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
         <div style={styles.content}>

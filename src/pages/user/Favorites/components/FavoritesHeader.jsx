@@ -1,5 +1,5 @@
 // src/pages/user/Favorites/components/FavoritesHeader.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTrash, FaShoppingCart, FaSortAmountDown } from 'react-icons/fa';
 
 export const FavoritesHeader = ({ 
@@ -10,6 +10,14 @@ export const FavoritesHeader = ({
   onClearAll, 
   styles 
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={styles.header}>
       <div style={styles.titleGroup}>
@@ -24,26 +32,29 @@ export const FavoritesHeader = ({
           style={{
             ...styles.actionBtn,
             outline: 'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            minWidth: isMobile ? '80px' : 'auto',
           }}
         >
-          <option value="date">Eklenme Tarihi</option>
-          <option value="price-asc">Fiyat (Artan)</option>
-          <option value="price-desc">Fiyat (Azalan)</option>
+          <option value="date">{isMobile ? 'Tarih' : 'Eklenme Tarihi'}</option>
+          <option value="price-asc">{isMobile ? 'Fiyat ↑' : 'Fiyat (Artan)'}</option>
+          <option value="price-desc">{isMobile ? 'Fiyat ↓' : 'Fiyat (Azalan)'}</option>
         </select>
 
         <button 
           onClick={onMoveAllToCart}
           style={{...styles.actionBtn, ...styles.primaryBtn}}
         >
-          <FaShoppingCart /> Tümünü Sepete Ekle
+          <FaShoppingCart size={isMobile ? 12 : 14} /> 
+          <span>{isMobile ? 'Sepete Ekle' : 'Tümünü Sepete Ekle'}</span>
         </button>
 
         <button 
           onClick={onClearAll}
           style={{...styles.actionBtn, color: '#ef4444', border: '1px solid #fee2e2'}}
         >
-          <FaTrash /> Tümünü Sil
+          <FaTrash size={isMobile ? 12 : 14} /> 
+          <span>{isMobile ? 'Sil' : 'Tümünü Sil'}</span>
         </button>
       </div>
     </div>

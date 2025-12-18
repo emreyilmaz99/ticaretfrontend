@@ -50,7 +50,7 @@ const ImageGallery = React.memo(({
             alt={product.name}
             style={styles.mainImageImg}
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
             decoding="async"
           />
         ) : (

@@ -16,18 +16,48 @@ export const useCategoryProducts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get('category');
   const subcategoryName = searchParams.get('subcategory');
+  const urlSearchQuery = searchParams.get('q'); // URL'den arama sorgusu
 
   // Responsive state
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
-  // UI State
+  // UI State - Force grid mode on mobile
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('featured');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery || '');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [selectedCategories, setSelectedCategories] = useState(categoryId ? [categoryId] : []);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // URL'deki arama sorgusunu state'e senkronize et
+  useEffect(() => {
+    if (urlSearchQuery) {
+      setSearchQuery(urlSearchQuery);
+    }
+  }, [urlSearchQuery]);
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      // Force grid mode on mobile
+      if (mobile && viewMode === 'list') {
+        setViewMode('grid');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
+
+  // Prevent list view on mobile
+  const handleViewModeChange = useCallback((mode) => {
+    if (isMobile && mode === 'list') {
+      return; // Don't allow list view on mobile
+    }
+    setViewMode(mode);
+  }, [isMobile]);
   
   // Comparison State
   const [compareList, setCompareList] = useState([]);
@@ -303,7 +333,7 @@ export const useCategoryProducts = () => {
     loadMoreRef,
 
     // Setters
-    setViewMode,
+    setViewMode: handleViewModeChange,
     setSortBy,
     setPriceRange,
     setSearchQuery,

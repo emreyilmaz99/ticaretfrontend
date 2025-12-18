@@ -1,4 +1,6 @@
 // src/components/modals/CompareModal/styles.js
+const isMobile = window.innerWidth <= 768;
+
 export const getCompareModalStyles = (compareCount) => ({
   overlay: {
     position: 'fixed',
@@ -9,18 +11,18 @@ export const getCompareModalStyles = (compareCount) => ({
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     backdropFilter: 'blur(4px)',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: isMobile ? 'flex-end' : 'center',
     justifyContent: 'center',
     zIndex: 2000,
-    padding: '20px',
+    padding: isMobile ? '0' : '20px',
   },
   
   container: {
     backgroundColor: '#FFFFFF',
-    borderRadius: '24px',
+    borderRadius: isMobile ? '20px 20px 0 0' : '24px',
     width: '100%',
-    maxWidth: '1100px',
-    maxHeight: '90vh',
+    maxWidth: isMobile ? '100%' : '1100px',
+    maxHeight: isMobile ? '85vh' : '90vh',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -28,16 +30,17 @@ export const getCompareModalStyles = (compareCount) => ({
   },
   
   header: {
-    padding: '28px 32px',
+    padding: isMobile ? '20px 16px' : '28px 32px',
     borderBottom: '1px solid #E5E7EB',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#F9FAFB',
+    flexShrink: 0,
   },
   
   title: {
-    fontSize: '24px',
+    fontSize: isMobile ? '18px' : '24px',
     fontWeight: '700',
     color: '#111827',
     margin: 0,
@@ -48,14 +51,15 @@ export const getCompareModalStyles = (compareCount) => ({
   scrollContent: {
     flex: 1,
     overflowY: 'auto',
-    overflowX: 'hidden',
-    padding: compareCount === 1 ? '32px 120px' : '32px',
+    overflowX: isMobile ? 'hidden' : 'hidden',
+    padding: isMobile ? '16px' : (compareCount === 1 ? '32px 120px' : '32px'),
   },
   
   grid: {
-    display: 'grid',
-    gridTemplateColumns: compareCount === 1 ? '1fr' : `repeat(${compareCount}, 1fr)`,
-    gap: '20px',
+    display: isMobile ? 'flex' : 'grid',
+    flexDirection: isMobile ? 'column' : undefined,
+    gridTemplateColumns: isMobile ? undefined : (compareCount === 1 ? '1fr' : `repeat(${compareCount}, 1fr)`),
+    gap: isMobile ? '16px' : '20px',
     maxWidth: compareCount === 1 ? '500px' : '100%',
     margin: compareCount === 1 ? '0 auto' : '0',
   },

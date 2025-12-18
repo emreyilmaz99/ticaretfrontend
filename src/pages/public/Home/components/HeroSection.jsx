@@ -85,6 +85,14 @@ const HeroSection = ({ styles, isMobile }) => {
     }
   };
 
+  const goToNextSlide = () => {
+    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
+
+  const goToPrevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
   const slide = slides[currentSlide];
 
   return (
@@ -133,6 +141,25 @@ const HeroSection = ({ styles, isMobile }) => {
         )}
       </div>
 
+      {/* Navigation Arrows */}
+      <button 
+        onClick={goToPrevSlide}
+        style={navigationButtonStyle.left}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+      >
+        <FaChevronLeft size={24} />
+      </button>
+
+      <button 
+        onClick={goToNextSlide}
+        style={navigationButtonStyle.right}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+      >
+        <FaChevronRight size={24} />
+      </button>
+
       {/* Indicators */}
       <div style={{
         position: 'absolute',
@@ -175,6 +202,49 @@ const HeroSection = ({ styles, isMobile }) => {
       </style>
     </div>
   );
+};
+
+const navigationButtonStyle = {
+  left: {
+    position: 'absolute',
+    top: '50%',
+    left: '20px',
+    transform: 'translateY(-50%)',
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    border: 'none',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backdropFilter: 'blur(10px)',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    zIndex: 10,
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+  },
+  right: {
+    position: 'absolute',
+    top: '50%',
+    right: '20px',
+    transform: 'translateY(-50%)',
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    border: 'none',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backdropFilter: 'blur(10px)',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    zIndex: 10,
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+  }
 };
 
 export default HeroSection;

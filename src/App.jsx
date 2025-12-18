@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/common/Toast';
 import { FavoritesProvider } from './context/FavoritesContext';
@@ -22,49 +23,80 @@ import VendorStore from './pages/public/VendorStore'; // Satıcı Mağaza Sayfas
 import { Login, Register } from './pages/public/Auth'; // Modüler Auth
 import Favorites from './pages/user/Favorites'; // Favorilerim Sayfası
 import Cart from './pages/user/Cart'; // Sepet Sayfası
-import UserProfile from './pages/user/UserProfile'; // Kullanıcı Profil
-import UserAddresses from './pages/user/UserAddresses'; // Kullanıcı Adresleri
 import PaymentSuccess from './pages/user/PaymentSuccess'; // Ödeme Başarılı
 import PaymentFailed from './pages/user/PaymentFailed'; // Ödeme Başarısız
-import UserOrders from './pages/user/UserOrders'; // Kullanıcı Siparişleri
-import UserOrderDetail from './pages/user/UserOrderDetail'; // Sipariş Detayı
 import Invoice from './pages/user/Invoice'; // Fatura
 
-// 2. Admin Sayfaları
-import AdminLogin from './pages/admin/AdminLogin'; // Admin Girişi
-import Dashboard from './pages/admin/Dashboard';   // Admin Paneli
-import ActiveVendorsPage from './pages/admin/ActiveVendorsPage'; // Aktif Satıcılar
-import AdminsPage from './pages/admin/AdminsPage'; // Yönetici Yönetimi
-import UsersPage from './pages/admin/UsersPage'; // Kullanıcı Yönetimi
+// 2. Admin Sayfaları - LAZY LOADED (Code Split)
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const ActiveVendorsPage = lazy(() => import('./pages/admin/ActiveVendorsPage'));
+const AdminsPage = lazy(() => import('./pages/admin/AdminsPage'));
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
+const FullApplicationsPage = lazy(() => import('./pages/admin/Applications').then(m => ({ default: m.FullApplicationsPage })));
+const VendorApplicationsPage = lazy(() => import('./pages/admin/Applications').then(m => ({ default: m.VendorApplicationsPage })));
+const CommissionPlans = lazy(() => import('./pages/admin/CommissionPlans'));
+const TaxClasses = lazy(() => import('./pages/admin/TaxClasses'));
+const ProductsPage = lazy(() => import('./pages/admin/Products'));
+const CategoriesPage = lazy(() => import('./pages/admin/Categories'));
+const AdminOrders = lazy(() => import('./pages/admin/Orders'));
+const FeaturedDealsPage = lazy(() => import('./pages/admin/FeaturedDeals'));
+const ReviewsPage = lazy(() => import('./pages/admin/Reviews'));
 
-// Modüler Admin Sayfaları
-import { FullApplicationsPage, VendorApplicationsPage } from './pages/admin/Applications';
-import CommissionPlans from './pages/admin/CommissionPlans';
-import TaxClasses from './pages/admin/TaxClasses';
-import ProductsPage from './pages/admin/Products';
-import CategoriesPage from './pages/admin/Categories';
-// YENİ EKLENEN: Admin Siparişler Sayfası
-import AdminOrders from './pages/admin/Orders';
-import FeaturedDealsPage from './pages/admin/FeaturedDeals'; 
-import ReviewsPage from './pages/admin/Reviews';
+// 3. Satıcı Sayfaları - LAZY LOADED (Code Split)
+const VendorLogin = lazy(() => import('./pages/vendor/Auth/Login'));
+const VendorRegister = lazy(() => import('./pages/vendor/Register'));
+const VendorFullApplication = lazy(() => import('./pages/vendor/FullApplication'));
+const VendorStatusPage = lazy(() => import('./pages/vendor/StatusPage'));
+const VendorDashboard = lazy(() => import('./pages/vendor/Dashboard'));
+const VendorOnboarding = lazy(() => import('./pages/vendor/Auth/Onboarding'));
+const VendorProducts = lazy(() => import('./pages/vendor/Products'));
+const VendorOrders = lazy(() => import('./pages/vendor/Orders'));
+const VendorFinance = lazy(() => import('./pages/vendor/Finance'));
+const VendorSettings = lazy(() => import('./pages/vendor/Settings'));
+const VendorShipping = lazy(() => import('./pages/vendor/Shipping'));
+const VendorPromotions = lazy(() => import('./pages/vendor/Promotions'));
+const VendorReviews = lazy(() => import('./pages/vendor/Reviews'));
+const VendorCategories = lazy(() => import('./pages/vendor/Categories'));
 
-// 3. Satıcı Sayfaları
-import VendorLogin from './pages/vendor/Auth/Login';
-import VendorRegister from './pages/vendor/Register';
-import VendorFullApplication from './pages/vendor/FullApplication';
-import VendorStatusPage from './pages/vendor/StatusPage';
-import VendorDashboard from './pages/vendor/Dashboard';
-import VendorOnboarding from './pages/vendor/Auth/Onboarding';
-import VendorProducts from './pages/vendor/Products';
-import VendorOrders from './pages/vendor/Orders'; 
-import VendorFinance from './pages/vendor/Finance';
-import VendorSettings from './pages/vendor/Settings';
-import VendorShipping from './pages/vendor/Shipping';
-import VendorPromotions from './pages/vendor/Promotions';
-import VendorReviews from './pages/vendor/Reviews';
+// 4. User Sayfaları - LAZY LOADED (Code Split)
+const UserProfile = lazy(() => import('./pages/user/UserProfile'));
+const UserAddresses = lazy(() => import('./pages/user/UserAddresses'));
+const UserOrders = lazy(() => import('./pages/user/UserOrders'));
+const UserOrderDetail = lazy(() => import('./pages/user/UserOrderDetail'));
+
 import VendorLayout from './components/layouts/VendorLayout';
-import VendorCategories from './pages/vendor/Categories';
 import useCartInitializer from './hooks/useCartInitializer';
+
+// Loading Component - Reusable
+const PageLoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '400px',
+    flexDirection: 'column',
+    gap: '16px'
+  }}>
+    <div style={{
+      width: '48px',
+      height: '48px',
+      border: '4px solid #e2e8f0',
+      borderTopColor: '#059669',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }}></div>
+    <p style={{ color: '#64748b', fontSize: '14px' }}>Yükleniyor...</p>
+    <style>{`
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `}</style>
+  </div>
+);
+
+// Compact alias
+const AdminLoadingFallback = PageLoadingFallback;
 
 function App() {
   // Sepet store'unu başlat
@@ -84,8 +116,11 @@ function App() {
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/auth/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/auth/register" element={<Register />} />
                 <Route path="/products" element={<CategoryProducts />} />
+                <Route path="/search" element={<CategoryProducts />} />
                 <Route path="/product/:slug" element={<ProductDetail />} />
                 <Route path="/store/:slug" element={<VendorStore />} />
                 <Route path="/favorites" element={<Favorites />} />
@@ -98,7 +133,11 @@ function App() {
               {/* ======================================= */}
               {/* 2. ADMIN GİRİŞ (Sade Sayfa, Navbar YOK) */}
               {/* ======================================= */}
-              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <AdminLogin />
+                </Suspense>
+              } />
 
 
               {/* ======================================= */}
@@ -111,61 +150,190 @@ function App() {
                 {/* AŞAMA 2: Tasarım Kontrolü (Sidebar gelsin) */}
                 <Route element={<AdminLayout />}>
                   
-                  {/* İçerik: Dashboard */}
-                  <Route path="/admin/dashboard" element={<Dashboard />} />
-                  <Route path="/admin/active-vendors" element={<ActiveVendorsPage />} />
-                  <Route path="/admin/vendors" element={<FullApplicationsPage />} />
-                  <Route path="/admin/vendor-applications" element={<VendorApplicationsPage />} />
-                  <Route path="/admin/commission-plans" element={<CommissionPlans />} />
-                  <Route path="/admin/tax-classes" element={<TaxClasses />} />
-                  <Route path="/admin/products" element={<ProductsPage />} />
-                  <Route path="/admin/categories" element={<CategoriesPage />} />
-                  <Route path="/admin/admins" element={<AdminsPage />} />
-                  <Route path="/admin/users" element={<UsersPage />} />
+                  {/* Tüm admin sayfaları Suspense ile sarılı */}
+                  <Route path="/admin/dashboard" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <Dashboard />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/active-vendors" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <ActiveVendorsPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/vendors" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <FullApplicationsPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/vendor-applications" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <VendorApplicationsPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/commission-plans" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <CommissionPlans />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/tax-classes" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <TaxClasses />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/products" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <ProductsPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/categories" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <CategoriesPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/admins" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <AdminsPage />
+                    </Suspense>
+                  } />
+                  <Route path="/admin/users" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <UsersPage />
+                    </Suspense>
+                  } />
                   
                   {/* YENİ EKLENEN ROTA: SİPARİŞ YÖNETİMİ */}
-                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/orders" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <AdminOrders />
+                    </Suspense>
+                  } />
                   
                   {/* YENİ EKLENEN ROTA: ÖNE ÇIKAN ÜRÜNLER */}
-                  <Route path="/admin/featured-deals" element={<FeaturedDealsPage />} />
+                  <Route path="/admin/featured-deals" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <FeaturedDealsPage />
+                    </Suspense>
+                  } />
                   
                   {/* YENİ EKLENEN ROTA: DEĞERLENDİRME YÖNETİMİ */}
-                  <Route path="/admin/reviews" element={<ReviewsPage />} />
+                  <Route path="/admin/reviews" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <ReviewsPage />
+                    </Suspense>
+                  } />
                   
                 </Route>
 
               </Route>
 
               {/* ======================================= */}
-              {/* 4. SATICI (VENDOR) BÖLÜMÜ               */}
+              {/* 4. SATICI (VENDOR) BÖLÜMÜ - LAZY LOADED */}
               {/* ======================================= */}
-              <Route path="/vendor/login" element={<VendorLogin />} />
-              <Route path="/vendor/register" element={<VendorRegister />} />
-              <Route path="/vendor/application" element={<VendorFullApplication />} />
-              <Route path="/vendor/full-application" element={<VendorFullApplication />} />
-              <Route path="/vendor/status" element={<VendorStatusPage />} />
-              <Route path="/vendor/onboarding" element={<VendorOnboarding />} />
+              <Route path="/vendor/login" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorLogin />
+                </Suspense>
+              } />
+              <Route path="/vendor/register" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorRegister />
+                </Suspense>
+              } />
+              <Route path="/vendor/application" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorFullApplication />
+                </Suspense>
+              } />
+              <Route path="/vendor/full-application" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorFullApplication />
+                </Suspense>
+              } />
+              <Route path="/vendor/status" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorStatusPage />
+                </Suspense>
+              } />
+              <Route path="/vendor/onboarding" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <VendorOnboarding />
+                </Suspense>
+              } />
 
               <Route path="/vendor" element={<VendorLayout />}>
-                 <Route path="dashboard" element={<VendorDashboard />} />
-                 <Route path="products" element={<VendorProducts />} />
-                 <Route path="categories" element={<VendorCategories />} />
-                 <Route path="orders" element={<VendorOrders />} />
-                 <Route path="reviews" element={<VendorReviews />} />
-                 <Route path="finance" element={<VendorFinance />} />
-                 <Route path="shipping" element={<VendorShipping />} />
-                 <Route path="promotions" element={<VendorPromotions />} />
-                 <Route path="settings" element={<VendorSettings />} />
+                 <Route path="dashboard" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorDashboard />
+                   </Suspense>
+                 } />
+                 <Route path="products" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorProducts />
+                   </Suspense>
+                 } />
+                 <Route path="categories" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorCategories />
+                   </Suspense>
+                 } />
+                 <Route path="orders" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorOrders />
+                   </Suspense>
+                 } />
+                 <Route path="reviews" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorReviews />
+                   </Suspense>
+                 } />
+                 <Route path="finance" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorFinance />
+                   </Suspense>
+                 } />
+                 <Route path="shipping" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorShipping />
+                   </Suspense>
+                 } />
+                 <Route path="promotions" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorPromotions />
+                   </Suspense>
+                 } />
+                 <Route path="settings" element={
+                   <Suspense fallback={<PageLoadingFallback />}>
+                     <VendorSettings />
+                   </Suspense>
+                 } />
               </Route>
 
               {/* ======================================= */}
-              {/* 5. KULLANICI HESABI (USER ACCOUNT)      */}
+              {/* 5. KULLANICI HESABI - LAZY LOADED       */}
               {/* ======================================= */}
               <Route path="/account" element={<UserLayout />}>
-                <Route path="profile" element={<UserProfile />} />
-                <Route path="addresses" element={<UserAddresses />} />
-                <Route path="orders" element={<UserOrders />} />
-                <Route path="orders/:orderNumber" element={<UserOrderDetail />} />
+                <Route path="profile" element={
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <UserProfile />
+                  </Suspense>
+                } />
+                <Route path="addresses" element={
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <UserAddresses />
+                  </Suspense>
+                } />
+                <Route path="orders" element={
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <UserOrders />
+                  </Suspense>
+                } />
+                <Route path="orders/:orderNumber" element={
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <UserOrderDetail />
+                  </Suspense>
+                } />
+                <Route path="favorites" element={<Favorites />} />
               </Route>
 
               {/* Fatura Sayfası - Layout dışında tam ekran */}

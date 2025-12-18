@@ -1,0 +1,18 @@
+{
+  "name": "E-Ticaret Platform",
+  "short_name": "E-Ticaret",
+  "description": "Modern çok satıcılı e-ticaret platformu",
+  "theme_color": "#059669",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
