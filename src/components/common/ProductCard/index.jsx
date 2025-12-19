@@ -30,8 +30,8 @@ const ProductCard = React.memo(({
   
   // PERFORMANCE: Memoize favorite check to prevent recalculation on every render
   const isFav = useMemo(() => isFavorite(product.id), [isFavorite, product.id]);
-  // Backend slug yerine ID bekliyor - ID kullan
-  const productUrl = useMemo(() => `/product/${product.id}`, [product.id]);
+  // Backend slug ile çalışıyor - slug kullan, yoksa ID fallback
+  const productUrl = useMemo(() => `/product/${product.slug || product.id}`, [product.slug, product.id]);
   
   // PERFORMANCE: Memoize styles to prevent recalculation
   const styles = useMemo(
