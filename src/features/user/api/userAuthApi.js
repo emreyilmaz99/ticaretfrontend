@@ -46,7 +46,7 @@ export const getUserMe = async () => {
  * Get user profile
  */
 export const getUserProfile = async () => {
-  const response = await apiClient.get('/v1/profile');
+  const response = await apiClient.get('/v1/user/me');
   return response.data;
 };
 

@@ -6,9 +6,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Check for existing token and fetch user data
+    // Check for existing token and fetch user data - SADECE BİR KEZ
+    if (authChecked) return;
+    
     const checkAuth = async () => {
       const token = localStorage.getItem('auth_token');
       const userType = localStorage.getItem('user_type');
@@ -24,15 +27,17 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           // Token expired or invalid
+          console.error('[AuthContext] Token validation failed:', error);
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user_type');
         }
       }
       setLoading(false);
+      setAuthChecked(true);
     };
 
     checkAuth();
-  }, []);
+  }, [authChecked]);
 
   const register = async (userData) => {
     try {

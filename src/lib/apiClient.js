@@ -46,10 +46,10 @@ apiClient.interceptors.request.use(
     const url = config.url || '';
     const isAuthEndpoint = url.includes('/login') || url.includes('/register');
     const isPublicEndpoint = 
-      url.includes('/v1/products') || 
-      url.includes('/v1/categories') || 
-      url.includes('/v1/vendors/') ||
-      url.includes('/v1/public');
+      url.includes('/v1/public') ||
+      url.startsWith('/v1/categories') && config.method === 'get' ||
+      url.startsWith('/v1/vendors/') && config.method === 'get' ||
+      url.includes('/vendor-stores/');
 
     if (!token && !isAuthEndpoint && !isPublicEndpoint) {
       const loginPath = getLoginPath(userType);
@@ -89,15 +89,26 @@ apiClient.interceptors.response.use(
         data: error.response?.data,
       });
       
-      // Token ve user type'ı temizle
-      const userType = localStorage.getItem('user_type');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_type');
+      // Sadece authentication endpoint'lerinde token temizle ve yönlendir
+      // /me, /profile gibi endpoint'lerde 401 alınca logout yap
+      const url = error.config?.url || '';
+      const shouldLogout = 
+        url.includes('/me') || 
+        url.includes('/profile') || 
+        url.includes('/logout') ||
+        error.response?.data?.message?.includes('Unauthenticated');
       
-      // Doğru login sayfasına yönlendir
-      const loginPath = getLoginPath(userType);
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = loginPath;
+      if (shouldLogout) {
+        // Token ve user type'ı temizle
+        const userType = localStorage.getItem('user_type');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_type');
+        
+        // Doğru login sayfasına yönlendir
+        const loginPath = getLoginPath(userType);
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = loginPath;
+        }
       }
     }
 
