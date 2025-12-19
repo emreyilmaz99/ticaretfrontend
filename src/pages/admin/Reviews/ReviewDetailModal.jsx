@@ -1,11 +1,19 @@
 // src/pages/admin/Reviews/ReviewDetailModal.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   FaTimes, FaStar, FaUser, FaBox, FaStore, 
   FaCalendarAlt, FaCheck, FaCheckCircle
 } from 'react-icons/fa';
 
 const ReviewDetailModal = ({ review, onClose, onApprove, onReject, styles }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!review) return null;
 
   const renderStars = (rating) => {
@@ -36,17 +44,46 @@ const ReviewDetailModal = ({ review, onClose, onApprove, onReject, styles }) => 
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+      <div style={{
+        ...styles.modalContent,
+        ...(isMobile ? {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 'auto',
+          maxWidth: '100%',
+          maxHeight: '90vh',
+          borderRadius: '20px 20px 0 0',
+          margin: 0,
+          transform: 'none'
+        } : {})
+      }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={styles.modalHeader}>
-          <h2 style={styles.modalTitle}>Yorum Detayı #{review.id}</h2>
-          <button style={styles.modalCloseBtn} onClick={onClose}>
+        <div style={{
+          ...styles.modalHeader,
+          padding: isMobile ? '16px' : styles.modalHeader.padding
+        }}>
+          <h2 style={{
+            ...styles.modalTitle,
+            fontSize: isMobile ? '18px' : styles.modalTitle.fontSize
+          }}>Yorum Detayı #{review.id}</h2>
+          <button style={{
+            ...styles.modalCloseBtn,
+            minWidth: isMobile ? '44px' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto'
+          }} onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
         {/* Body */}
-        <div style={styles.modalBody}>
+        <div style={{
+          ...styles.modalBody,
+          padding: isMobile ? '16px' : styles.modalBody.padding,
+          maxHeight: isMobile ? 'calc(90vh - 150px)' : 'auto',
+          overflowY: 'auto'
+        }}>
           {/* User & Product Info */}
           <div style={styles.detailSection}>
             <h3 style={styles.detailSectionTitle}>Genel Bilgiler</h3>
@@ -201,17 +238,37 @@ const ReviewDetailModal = ({ review, onClose, onApprove, onReject, styles }) => 
         </div>
 
         {/* Footer */}
-        <div style={styles.modalFooter}>
-          <button style={styles.modalCancelBtn} onClick={onClose}>
+        <div style={{
+          ...styles.modalFooter,
+          flexDirection: isMobile ? 'column-reverse' : styles.modalFooter.flexDirection,
+          gap: isMobile ? '8px' : styles.modalFooter.gap,
+          padding: isMobile ? '16px' : styles.modalFooter.padding
+        }}>
+          <button style={{
+            ...styles.modalCancelBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '15px' : styles.modalCancelBtn.fontSize
+          }} onClick={onClose}>
             Kapat
           </button>
           {review.status !== 'approved' && (
-            <button style={styles.modalApproveBtn} onClick={onApprove}>
+            <button style={{
+              ...styles.modalApproveBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '15px' : styles.modalApproveBtn.fontSize
+            }} onClick={onApprove}>
               <FaCheck /> Onayla
             </button>
           )}
           {review.status !== 'rejected' && (
-            <button style={styles.modalRejectBtn} onClick={onReject}>
+            <button style={{
+              ...styles.modalRejectBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '15px' : styles.modalRejectBtn.fontSize
+            }} onClick={onReject}>
               <FaTimes /> Reddet
             </button>
           )}

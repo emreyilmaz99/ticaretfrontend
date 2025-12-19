@@ -16,6 +16,13 @@ import { useToast } from '../../../components/common/Toast';
 const BannedWordsTab = ({ styles }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Add animation styles
   React.useEffect(() => {
@@ -399,13 +406,18 @@ const BannedWordsTab = ({ styles }) => {
   return (
     <div style={{ padding: '0' }}>
       {/* Stats Cards */}
-      <div style={styles.bannedWordsStats}>
+      <div style={{
+        ...styles.bannedWordsStats,
+        gridTemplateColumns: isMobile ? '1fr' : styles.bannedWordsStats.gridTemplateColumns,
+        gap: isMobile ? '12px' : styles.bannedWordsStats.gap
+      }}>
         <div 
           style={{
             ...styles.bannedWordStatCard,
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             border: filterType === 'all' ? '2px solid #059669' : '1px solid #e5e7eb',
+            padding: isMobile ? '14px' : styles.bannedWordStatCard.padding
           }}
           onClick={() => setFilterType('all')}
           onMouseEnter={(e) => {
@@ -417,8 +429,15 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <div style={{ ...styles.bannedWordStatValue, color: '#059669' }}>{totalWords}</div>
-          <div style={styles.bannedWordStatLabel}>Toplam Kelime</div>
+          <div style={{ 
+            ...styles.bannedWordStatValue, 
+            color: '#059669',
+            fontSize: isMobile ? '24px' : styles.bannedWordStatValue.fontSize
+          }}>{totalWords}</div>
+          <div style={{
+            ...styles.bannedWordStatLabel,
+            fontSize: isMobile ? '12px' : styles.bannedWordStatLabel.fontSize
+          }}>Toplam Kelime</div>
         </div>
         <div 
           style={{
@@ -426,6 +445,7 @@ const BannedWordsTab = ({ styles }) => {
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             border: filterType === 'regex' ? '2px solid #8b5cf6' : '1px solid #e5e7eb',
+            padding: isMobile ? '14px' : styles.bannedWordStatCard.padding
           }}
           onClick={() => setFilterType('regex')}
           onMouseEnter={(e) => {
@@ -437,10 +457,17 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <div style={{ ...styles.bannedWordStatValue, color: '#8b5cf6' }}>
+          <div style={{ 
+            ...styles.bannedWordStatValue, 
+            color: '#8b5cf6',
+            fontSize: isMobile ? '24px' : styles.bannedWordStatValue.fontSize
+          }}>
             {regexCount}
           </div>
-          <div style={styles.bannedWordStatLabel}>Düzenli İfadeler</div>
+          <div style={{
+            ...styles.bannedWordStatLabel,
+            fontSize: isMobile ? '12px' : styles.bannedWordStatLabel.fontSize
+          }}>Düzenli İfadeler</div>
         </div>
         <div 
           style={{
@@ -448,6 +475,7 @@ const BannedWordsTab = ({ styles }) => {
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             border: filterType === 'simple' ? '2px solid #059669' : '1px solid #e5e7eb',
+            padding: isMobile ? '14px' : styles.bannedWordStatCard.padding
           }}
           onClick={() => setFilterType('simple')}
           onMouseEnter={(e) => {
@@ -459,10 +487,17 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <div style={{ ...styles.bannedWordStatValue, color: '#059669' }}>
+          <div style={{ 
+            ...styles.bannedWordStatValue, 
+            color: '#059669',
+            fontSize: isMobile ? '24px' : styles.bannedWordStatValue.fontSize
+          }}>
             {simpleCount}
           </div>
-          <div style={styles.bannedWordStatLabel}>Basit Kelimeler</div>
+          <div style={{
+            ...styles.bannedWordStatLabel,
+            fontSize: isMobile ? '12px' : styles.bannedWordStatLabel.fontSize
+          }}>Basit Kelimeler</div>
         </div>
       </div>
 
@@ -471,10 +506,10 @@ const BannedWordsTab = ({ styles }) => {
         backgroundColor: '#fff',
         borderRadius: '12px',
         border: '1px solid #e5e7eb',
-        padding: '16px 20px',
+        padding: isMobile ? '12px' : '16px 20px',
         marginBottom: '20px',
         display: 'flex',
-        gap: '12px',
+        gap: isMobile ? '8px' : '12px',
         flexWrap: 'wrap',
       }}>
         <button
@@ -482,16 +517,19 @@ const BannedWordsTab = ({ styles }) => {
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            padding: '10px 16px',
+            padding: isMobile ? '12px' : '10px 16px',
             backgroundColor: '#059669',
             color: '#fff',
             border: 'none',
             borderRadius: '10px',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
+            flex: isMobile ? '1' : '0',
+            minHeight: isMobile ? '44px' : 'auto'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#047857';
@@ -511,16 +549,19 @@ const BannedWordsTab = ({ styles }) => {
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            padding: '10px 16px',
+            padding: isMobile ? '12px' : '10px 16px',
             backgroundColor: '#059669',
             color: '#fff',
             border: 'none',
             borderRadius: '10px',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
+            flex: isMobile ? '1' : '0',
+            minHeight: isMobile ? '44px' : 'auto'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#047857';
@@ -533,23 +574,26 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <FaFileExcel /> TXT Olarak İndir
+          <FaFileExcel /> {isMobile ? 'TXT' : 'TXT Olarak İndir'}
         </button>
         <button
           onClick={() => setShowImportModal(true)}
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            padding: '10px 16px',
+            padding: isMobile ? '12px' : '10px 16px',
             backgroundColor: '#059669',
             color: '#fff',
             border: 'none',
             borderRadius: '10px',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
+            flex: isMobile ? '1' : '0',
+            minHeight: isMobile ? '44px' : 'auto'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#047857';
@@ -562,23 +606,26 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <FaUpload /> Dosyadan İçe Aktar
+          <FaUpload /> {isMobile ? 'İçe Aktar' : 'Dosyadan İçe Aktar'}
         </button>
         <button
           onClick={handleCopyAll}
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            padding: '10px 16px',
+            padding: isMobile ? '12px' : '10px 16px',
             backgroundColor: '#059669',
             color: '#fff',
             border: 'none',
             borderRadius: '10px',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
+            flex: isMobile ? '1' : '0',
+            minHeight: isMobile ? '44px' : 'auto'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#047857';
@@ -591,24 +638,39 @@ const BannedWordsTab = ({ styles }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <FaCopy /> Tüm Kelimeleri Kopyala
+          <FaCopy /> {isMobile ? 'Kopyala' : 'Tüm Kelimeleri Kopyala'}
         </button>
       </div>
 
       {/* Add Word Form */}
-      <div style={styles.bannedWordsAddSection}>
-        <h3 style={styles.bannedWordsSectionTitle}>
+      <div style={{
+        ...styles.bannedWordsAddSection,
+        padding: isMobile ? '16px' : styles.bannedWordsAddSection.padding
+      }}>
+        <h3 style={{
+          ...styles.bannedWordsSectionTitle,
+          fontSize: isMobile ? '16px' : styles.bannedWordsSectionTitle.fontSize
+        }}>
           <FaBan style={{ marginRight: '8px' }} />
           Yeni Yasaklı Kelime Ekle
         </h3>
         
-        <form onSubmit={handleAddWord} style={styles.addWordForm}>
+        <form onSubmit={handleAddWord} style={{
+          ...styles.addWordForm,
+          flexDirection: isMobile ? 'column' : styles.addWordForm.flexDirection,
+          gap: isMobile ? '12px' : styles.addWordForm.gap
+        }}>
           <input
             type="text"
             value={newWord}
             onChange={(e) => setNewWord(e.target.value)}
             placeholder="Yasaklanacak kelime veya kalıp..."
-            style={styles.addWordInput}
+            style={{
+              ...styles.addWordInput,
+              fontSize: isMobile ? '16px' : styles.addWordInput.fontSize,
+              minHeight: isMobile ? '44px' : 'auto',
+              width: isMobile ? '100%' : styles.addWordInput.width
+            }}
           />
           
           <div 
@@ -617,17 +679,20 @@ const BannedWordsTab = ({ styles }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '10px 16px',
+              padding: isMobile ? '12px' : '10px 16px',
               backgroundColor: isRegex ? '#059669' : '#f3f4f6',
               color: isRegex ? '#fff' : '#6b7280',
               border: isRegex ? '2px solid #059669' : '2px solid #e5e7eb',
               borderRadius: '10px',
-              fontSize: '14px',
+              fontSize: isMobile ? '13px' : '14px',
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               userSelect: 'none',
               whiteSpace: 'nowrap',
+              minHeight: isMobile ? '44px' : 'auto',
+              width: isMobile ? '100%' : 'auto',
+              justifyContent: isMobile ? 'center' : 'flex-start'
             }}
           >
             <div style={{
@@ -667,6 +732,9 @@ const BannedWordsTab = ({ styles }) => {
               cursor: (addWordMutation.isPending || addWordMutation.isLoading || !newWord.trim()) ? 'not-allowed' : 'pointer',
               transform: 'scale(1)',
               transition: 'all 0.2s ease',
+              minHeight: isMobile ? '44px' : 'auto',
+              width: isMobile ? '100%' : styles.addWordBtn.width,
+              fontSize: isMobile ? '15px' : styles.addWordBtn.fontSize
             }}
             onMouseEnter={(e) => {
               if (!addWordMutation.isPending && !addWordMutation.isLoading && newWord.trim()) {
@@ -771,29 +839,49 @@ const BannedWordsTab = ({ styles }) => {
       </div>
 
       {/* Search & Actions */}
-      <div style={styles.bannedWordsToolbar}>
-        <div style={styles.searchBox}>
+      <div style={{
+        ...styles.bannedWordsToolbar,
+        flexDirection: isMobile ? 'column' : styles.bannedWordsToolbar.flexDirection,
+        gap: isMobile ? '12px' : styles.bannedWordsToolbar.gap,
+        padding: isMobile ? '16px' : styles.bannedWordsToolbar.padding
+      }}>
+        <div style={{
+          ...styles.searchBox,
+          width: isMobile ? '100%' : styles.searchBox.width
+        }}>
           <FaSearch style={styles.searchIcon} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Kelime ara..."
-            style={styles.searchInput}
+            style={{
+              ...styles.searchInput,
+              fontSize: isMobile ? '16px' : styles.searchInput.fontSize,
+              minHeight: isMobile ? '44px' : 'auto'
+            }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: isMobile ? '8px' : '12px', 
+          alignItems: 'center',
+          width: isMobile ? '100%' : 'auto',
+          flexDirection: isMobile ? 'column' : 'row'
+        }}>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
             style={{
-              padding: '10px 16px',
+              padding: isMobile ? '12px 16px' : '10px 16px',
               border: '1px solid #e5e7eb',
               borderRadius: '10px',
-              fontSize: '14px',
+              fontSize: isMobile ? '16px' : '14px',
               backgroundColor: '#fff',
               cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
             }}
           >
             <option value="all">Tüm Kelimeler</option>
@@ -805,12 +893,14 @@ const BannedWordsTab = ({ styles }) => {
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
             style={{
-              padding: '10px 16px',
+              padding: isMobile ? '12px 16px' : '10px 16px',
               border: '1px solid #e5e7eb',
               borderRadius: '10px',
-              fontSize: '14px',
+              fontSize: isMobile ? '16px' : '14px',
               backgroundColor: '#fff',
               cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
             }}
           >
             <option value="newest">En Yeni</option>
@@ -821,12 +911,23 @@ const BannedWordsTab = ({ styles }) => {
         </div>
         
         {selectedWords.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '14px', color: '#6b7280' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: isMobile ? '8px' : '12px',
+            width: isMobile ? '100%' : 'auto',
+            flexDirection: isMobile ? 'column' : 'row'
+          }}>
+            <span style={{ fontSize: isMobile ? '13px' : '14px', color: '#6b7280' }}>
               {selectedWords.length} seçili
             </span>
             <button
-              style={styles.bulkDeleteBtn}
+              style={{
+                ...styles.bulkDeleteBtn,
+                width: isMobile ? '100%' : styles.bulkDeleteBtn.width,
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '14px' : styles.bulkDeleteBtn.fontSize
+              }}
               onClick={() => bulkDeleteMutation.mutate(selectedWords)}
               disabled={bulkDeleteMutation.isPending}
             >
@@ -837,7 +938,10 @@ const BannedWordsTab = ({ styles }) => {
       </div>
 
       {/* Words Grid */}
-      <div style={styles.bannedWordsGrid}>
+      <div style={{
+        ...styles.bannedWordsGrid,
+        padding: isMobile ? '0' : styles.bannedWordsGrid.padding
+      }}>
         {isLoading ? (
           <div style={styles.loadingState}>
             <div style={styles.spinner}></div>
@@ -858,20 +962,31 @@ const BannedWordsTab = ({ styles }) => {
         ) : (
           <>
             {/* Select All Header */}
-            <div style={styles.selectAllRow}>
-              <label style={styles.selectAllLabel}>
+            <div style={{
+              ...styles.selectAllRow,
+              padding: isMobile ? '12px 16px' : styles.selectAllRow.padding
+            }}>
+              <label style={{
+                ...styles.selectAllLabel,
+                fontSize: isMobile ? '14px' : styles.selectAllLabel.fontSize
+              }}>
                 <input
                   type="checkbox"
                   checked={selectedWords.length === filteredWords.length && filteredWords.length > 0}
                   onChange={handleSelectAll}
-                  style={{ marginRight: '8px' }}
+                  style={{ marginRight: '8px', width: isMobile ? '20px' : '16px', height: isMobile ? '20px' : '16px' }}
                 />
                 Tümünü Seç ({filteredWords.length} kelime)
               </label>
             </div>
             
             {/* Words */}
-            <div style={styles.wordsContainer}>
+            <div style={{
+              ...styles.wordsContainer,
+              gridTemplateColumns: isMobile ? '1fr' : styles.wordsContainer.gridTemplateColumns,
+              gap: isMobile ? '12px' : styles.wordsContainer.gap,
+              padding: isMobile ? '0' : styles.wordsContainer.padding
+            }}>
               {filteredWords.map((word) => (
                 <div 
                   key={word.id} 
@@ -889,19 +1004,25 @@ const BannedWordsTab = ({ styles }) => {
                   />
                   
                   <div style={styles.wordContent}>
-                    <span style={styles.wordText}>{word.word}</span>
+                    <span style={{
+                      ...styles.wordText,
+                      fontSize: isMobile ? '14px' : styles.wordText.fontSize
+                    }}>{word.word}</span>
                     {word.is_regex && (
-                      <span style={styles.regexBadge}>
+                      <span style={{
+                        ...styles.regexBadge,
+                        fontSize: isMobile ? '10px' : styles.regexBadge.fontSize
+                      }}>
                         <FaCode size={10} /> Düzenli İfade
                       </span>
                     )}
                   </div>
                   
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: isMobile ? '8px' : '4px' }}>
                     <button
                       style={{
-                        width: '28px',
-                        height: '28px',
+                        width: isMobile ? '40px' : '28px',
+                        height: isMobile ? '40px' : '28px',
                         borderRadius: '6px',
                         backgroundColor: '#059669',
                         color: '#fff',
@@ -918,32 +1039,44 @@ const BannedWordsTab = ({ styles }) => {
                       onClick={() => handleOpenEdit(word)}
                       title="Düzenle"
                     >
-                      <FaEdit size={12} />
+                      <FaEdit size={isMobile ? 14 : 12} />
                     </button>
                     
                     {deleteConfirmId === word.id ? (
                       <>
                         <button
-                          style={styles.confirmYes}
+                          style={{
+                            ...styles.confirmYes,
+                            width: isMobile ? '40px' : styles.confirmYes.width,
+                            height: isMobile ? '40px' : styles.confirmYes.height
+                          }}
                           onClick={() => deleteWordMutation.mutate(word.id)}
                           disabled={deleteWordMutation.isPending}
                         >
-                          <FaCheck />
+                          <FaCheck size={isMobile ? 14 : 12} />
                         </button>
                         <button
-                          style={styles.confirmNo}
+                          style={{
+                            ...styles.confirmNo,
+                            width: isMobile ? '40px' : styles.confirmNo.width,
+                            height: isMobile ? '40px' : styles.confirmNo.height
+                          }}
                           onClick={() => setDeleteConfirmId(null)}
                         >
-                          <FaTimes />
+                          <FaTimes size={isMobile ? 14 : 12} />
                         </button>
                       </>
                     ) : (
                       <button
-                        style={styles.wordDeleteBtn}
+                        style={{
+                          ...styles.wordDeleteBtn,
+                          width: isMobile ? '40px' : styles.wordDeleteBtn.width,
+                          height: isMobile ? '40px' : styles.wordDeleteBtn.height
+                        }}
                         onClick={() => setDeleteConfirmId(word.id)}
                         title="Sil"
                       >
-                        <FaTrash size={12} />
+                        <FaTrash size={isMobile ? 14 : 12} />
                       </button>
                     )}
                   </div>
@@ -964,27 +1097,28 @@ const BannedWordsTab = ({ styles }) => {
           bottom: 0,
           backgroundColor: 'rgba(0,0,0,0.5)',
           display: 'flex',
-          alignItems: 'center',
+          alignItems: isMobile ? 'flex-end' : 'center',
           justifyContent: 'center',
           zIndex: 1000,
         }}>
           <div style={{
             backgroundColor: '#fff',
-            borderRadius: '16px',
-            width: '90%',
-            maxWidth: '500px',
+            borderRadius: isMobile ? '20px 20px 0 0' : '16px',
+            width: isMobile ? '100%' : '90%',
+            maxWidth: isMobile ? '100%' : '500px',
             boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
+            maxHeight: isMobile ? '90vh' : 'auto'
           }}>
             <div style={{
-              padding: '20px 24px',
+              padding: isMobile ? '16px' : '20px 24px',
               borderBottom: '1px solid #e5e7eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: '#0f172a' }}>
                 <FaFileImport style={{ marginRight: '8px', color: '#059669' }} />
-                Dosyadan İçe Aktar
+                {isMobile ? 'İçe Aktar' : 'Dosyadan İçe Aktar'}
               </h3>
               <button
                 onClick={() => {
@@ -992,8 +1126,8 @@ const BannedWordsTab = ({ styles }) => {
                   setImportFile(null);
                 }}
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: isMobile ? '44px' : '32px',
+                  height: isMobile ? '44px' : '32px',
                   borderRadius: '8px',
                   border: 'none',
                   backgroundColor: '#f3f4f6',
@@ -1006,7 +1140,7 @@ const BannedWordsTab = ({ styles }) => {
                 <FaTimes />
               </button>
             </div>
-            <div style={{ padding: '24px' }}>
+            <div style={{ padding: isMobile ? '16px' : '24px' }}>
               <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
                 CSV, JSON veya TXT formatında dosya yükleyebilirsiniz.
               </p>

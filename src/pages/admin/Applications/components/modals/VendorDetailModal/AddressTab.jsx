@@ -8,6 +8,15 @@ import { DetailField, DetailSection } from '../../../shared/components';
  * Address Information Tab for Vendor Detail Modal
  */
 const AddressTab = React.memo(({ vendor }) => {
+  // Adres bilgisini çıkar - birden fazla adres olabilir, ilkini göster
+  const address = vendor?.addresses?.[0] || vendor?.addresses_list?.[0] || null;
+  
+  // Eğer nested address yoksa, vendor objesinin kendi alanlarını kullan
+  const city = address?.city || vendor?.city || '-';
+  const district = address?.district || vendor?.district || '-';
+  const postalCode = address?.postal_code || vendor?.postal_code || '-';
+  const fullAddress = address?.address_line || address?.address || vendor?.address || 'Adres bilgisi girilmemiş';
+  
   return (
     <div style={{ animation: 'fadeInContent 0.3s ease' }}>
       <DetailSection title="Adres Bilgileri" icon={<FaMapMarkerAlt />}>
@@ -19,9 +28,9 @@ const AddressTab = React.memo(({ vendor }) => {
             marginBottom: '20px',
           }}
         >
-          <DetailField label="Şehir" value={vendor.city} />
-          <DetailField label="İlçe" value={vendor.district} />
-          <DetailField label="Posta Kodu" value={vendor.postal_code} />
+          <DetailField label="Şehir" value={city} />
+          <DetailField label="İlçe" value={district} />
+          <DetailField label="Posta Kodu" value={postalCode} />
         </div>
 
         <div>
@@ -51,7 +60,7 @@ const AddressTab = React.memo(({ vendor }) => {
               lineHeight: '1.6',
             }}
           >
-            {vendor.address || 'Adres bilgisi girilmemiş'}
+            {fullAddress}
           </div>
         </div>
       </DetailSection>

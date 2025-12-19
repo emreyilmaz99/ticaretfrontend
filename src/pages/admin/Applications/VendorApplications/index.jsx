@@ -1,5 +1,5 @@
 // src/pages/admin/Applications/VendorApplications/index.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFileExcel, FaPrint } from 'react-icons/fa';
 import useVendorApplications from '../useVendorApplications';
 import { styles } from '../styles';
@@ -22,6 +22,13 @@ import {
  */
 const VendorApplicationsPage = () => {
   const toast = useToast();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const {
     // Tab State
@@ -401,18 +408,39 @@ const VendorApplicationsPage = () => {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: isMobile ? '16px' : '0'
+      }}>
         <div>
           <h1 style={styles.title}>📋 Satıcı Başvuruları</h1>
           <p style={styles.subtitle}>
             Ön başvuruları inceleyin ve onaylayın, aktivasyon bekleyen satıcıları aktifleştirin.
           </p>
         </div>
-        <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
+        <div style={{
+          ...styles.headerActions,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto'
+        }}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: '44px',
+            fontSize: isMobile ? '14px' : '15px',
+            justifyContent: 'center'
+          }} onClick={handlePrint}>
             <FaPrint /> Rapor Yazdır
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: '44px',
+            fontSize: isMobile ? '14px' : '15px',
+            justifyContent: 'center'
+          }} onClick={handleDownloadExcel}>
             <FaFileExcel /> Excel İndir
           </button>
         </div>
@@ -424,6 +452,7 @@ const VendorApplicationsPage = () => {
         onTabChange={handleTabChange}
         preCount={preStats.pending}
         fullCount={vendorStats.total}
+        isMobile={isMobile}
       />
 
       {/* Pre Applications Tab */}
@@ -432,9 +461,9 @@ const VendorApplicationsPage = () => {
           {/* Stats */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
-            gap: '16px', 
-            marginBottom: '24px' 
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', 
+            gap: isMobile ? '12px' : '16px', 
+            marginBottom: isMobile ? '16px' : '24px' 
           }}>
             {preStats?.map((stat, index) => (
               <StatCard
@@ -442,6 +471,7 @@ const VendorApplicationsPage = () => {
                 {...stat}
                 isActive={statusFilter === stat.filter}
                 onClick={() => setStatusFilter(stat.filter)}
+                isMobile={isMobile}
               />
             ))}
           </div>
@@ -451,6 +481,7 @@ const VendorApplicationsPage = () => {
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="İsim, e-posta, şirket veya telefon ara..."
+            isMobile={isMobile}
           />
 
           {/* Table */}
@@ -464,6 +495,7 @@ const VendorApplicationsPage = () => {
             onApprove={handleApprovePreClick}
             onReject={handleRejectPreClick}
             onCopyEmail={handleCopyEmail}
+            isMobile={isMobile}
           />
         </>
       )}
@@ -474,16 +506,16 @@ const VendorApplicationsPage = () => {
           {/* Info */}
           <div style={{ 
             background: '#f0fdf4', 
-            padding: '16px 20px', 
+            padding: isMobile ? '14px 16px' : '16px 20px', 
             borderRadius: '12px', 
-            marginBottom: '24px',
+            marginBottom: isMobile ? '16px' : '24px',
             border: '1px solid #86efac',
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
           }}>
-            <span style={{ fontSize: '20px' }}>⏳</span>
-            <div style={{ fontSize: '14px', color: '#065f46' }}>
+            <span style={{ fontSize: isMobile ? '18px' : '20px' }}>⏳</span>
+            <div style={{ fontSize: isMobile ? '13px' : '14px', color: '#065f46' }}>
               <strong>Toplam {vendorStats.total} satıcı</strong> aktivasyon bekliyor.
             </div>
           </div>
@@ -493,6 +525,7 @@ const VendorApplicationsPage = () => {
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="İsim, e-posta, şirket veya telefon ara..."
+            isMobile={isMobile}
           />
 
           {/* Table */}
@@ -507,6 +540,7 @@ const VendorApplicationsPage = () => {
             onReject={handleRejectVendorClick}
             showMerchantType={true}
             emptyMessage="Aktivasyon bekleyen satıcı yok"
+            isMobile={isMobile}
           />
         </>
       )}
@@ -514,22 +548,46 @@ const VendorApplicationsPage = () => {
       {/* Approve Modal - Pre Application */}
       {activeTab === 'pre' && approveModalOpen && selectedApp && (
         <div style={styles.modalOverlay} onClick={closeApproveModal}>
-          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <div style={styles.modalHeader}>
-              <h2 style={{margin: 0, fontSize: '20px', fontWeight: '700', color: '#064e3b'}}>
+          <div style={{
+            ...styles.modalContent,
+            ...(isMobile && {
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              borderRadius: '20px 20px 0 0',
+              maxHeight: '85vh',
+              margin: 0,
+              width: '100%',
+            })
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              ...styles.modalHeader,
+              ...(isMobile && {
+                padding: '20px',
+                borderBottom: '1px solid #e5e7eb'
+              })
+            }}>
+              <h2 style={{margin: 0, fontSize: isMobile ? '18px' : '20px', fontWeight: '700', color: '#064e3b'}}>
                 ✅ Ön Başvuruyu Onayla
               </h2>
             </div>
-            <div style={styles.modalBody}>
-              <p style={{ marginBottom: '16px', lineHeight: '1.6', color: '#374151' }}>
+            <div style={{
+              ...styles.modalBody,
+              ...(isMobile && {
+                padding: '20px',
+                fontSize: '14px'
+              })
+            }}>
+              <p style={{ marginBottom: '16px', lineHeight: '1.6', color: '#374151', fontSize: isMobile ? '14px' : '15px' }}>
                 <strong>{selectedApp.full_name}</strong> için ön başvuruyu onaylamak üzeresiniz.
               </p>
               <div style={{ 
                 background: '#f0fdf4', 
-                padding: '16px', 
+                padding: isMobile ? '14px' : '16px', 
                 borderRadius: '12px', 
                 border: '1px solid #d1fae5',
-                fontSize: '14px',
+                fontSize: isMobile ? '13px' : '14px',
                 color: '#065f46'
               }}>
                 ✓ Satıcı hesabı oluşturulacak<br />
@@ -537,7 +595,15 @@ const VendorApplicationsPage = () => {
                 ✓ Tam başvuru formu doldurabilecek
               </div>
             </div>
-            <div style={styles.modalFooter}>
+            <div style={{
+              ...styles.modalFooter,
+              ...(isMobile && {
+                flexDirection: 'column-reverse',
+                padding: '20px',
+                gap: '12px',
+                borderTop: '1px solid #e5e7eb'
+              })
+            }}>
               <button 
                 onClick={closeApproveModal} 
                 style={{
@@ -547,8 +613,10 @@ const VendorApplicationsPage = () => {
                   background: 'white', 
                   cursor: 'pointer',
                   fontWeight: '600',
-                  fontSize: '14px',
-                  color: '#6b7280'
+                  fontSize: isMobile ? '15px' : '14px',
+                  color: '#6b7280',
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto'
                 }}
               >
                 İptal
@@ -564,9 +632,14 @@ const VendorApplicationsPage = () => {
                   color: 'white', 
                   cursor: 'pointer',
                   fontWeight: '600',
-                  fontSize: '14px',
+                  fontSize: isMobile ? '15px' : '14px',
                   boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                  opacity: isApprovingPre ? 0.7 : 1
+                  opacity: isApprovingPre ? 0.7 : 1,
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
                 {isApprovingPre ? 'Onaylanıyor...' : 'Onayla'}
@@ -600,6 +673,7 @@ const VendorApplicationsPage = () => {
         onSubmit={activeTab === 'pre' ? submitRejectPre : submitRejectVendor}
         isSubmitting={activeTab === 'pre' ? isRejectingPre : isRejectingVendor}
         minLength={10}
+        isMobile={isMobile}
       />
 
       {/* Detail Modal - Pre Application */}

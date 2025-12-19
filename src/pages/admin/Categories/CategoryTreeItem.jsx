@@ -14,7 +14,8 @@ const CategoryTreeItem = ({
   openCreateModal, 
   openEditModal, 
   confirmDelete,
-  styles 
+  styles,
+  isMobile = false
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -24,7 +25,7 @@ const CategoryTreeItem = ({
   return (
     <div>
       <div 
-        style={styles.categoryItem(level, isHovered)}
+        style={styles.categoryItem(level, isHovered, isMobile)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -52,8 +53,13 @@ const CategoryTreeItem = ({
         </span>
 
         {/* Name & Info */}
-        <div style={{ flex: 1 }}>
-          <div style={styles.categoryName(level)}>
+        <div style={{ 
+          flex: 1, 
+          minWidth: isMobile ? '100%' : 'auto',
+          order: isMobile ? -1 : 0,
+          marginLeft: isMobile ? '32px' : 0
+        }}>
+          <div style={styles.categoryName(level, isMobile)}>
             {category.name}
           </div>
           <div style={styles.categoryMeta}>
@@ -63,32 +69,37 @@ const CategoryTreeItem = ({
         </div>
 
         {/* Status Badge */}
-        <span style={styles.statusBadge(category.is_active)}>
+        <span style={styles.statusBadge(category.is_active, isMobile)}>
           {category.is_active ? 'Aktif' : 'Pasif'}
         </span>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: isMobile ? '6px' : '8px',
+          flexWrap: 'nowrap',
+          marginLeft: isMobile ? 'auto' : 0
+        }}>
           <button
             onClick={() => openCreateModal(category.id)}
             title="Alt kategori ekle"
-            style={styles.actionButton('add')}
+            style={styles.actionButton('add', isMobile)}
           >
-            <FaPlus size={10} /> Alt
+            <FaPlus size={isMobile ? 12 : 10} /> {isMobile ? '' : 'Alt'}
           </button>
           <button
             onClick={() => openEditModal(category)}
             title="Düzenle"
-            style={styles.actionButton('edit')}
+            style={styles.actionButton('edit', isMobile)}
           >
-            <FaEdit size={14} />
+            <FaEdit size={isMobile ? 16 : 14} />
           </button>
           <button
             onClick={() => confirmDelete(category)}
             title="Sil"
-            style={styles.actionButton('delete')}
+            style={styles.actionButton('delete', isMobile)}
           >
-            <FaTrash size={14} />
+            <FaTrash size={isMobile ? 16 : 14} />
           </button>
         </div>
       </div>
@@ -107,6 +118,7 @@ const CategoryTreeItem = ({
               openEditModal={openEditModal}
               confirmDelete={confirmDelete}
               styles={styles}
+              isMobile={isMobile}
             />
           ))}
         </div>

@@ -16,9 +16,16 @@ import { getStyles } from './styles';
 import { useToast } from '../../../components/common/Toast';
 
 const ReviewsPage = () => {
-  const styles = getStyles();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const styles = getStyles(isMobile);
   const toast = useToast();
   const [activeTab, setActiveTab] = useState('reviews'); // 'reviews' or 'banned-words'
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const {
     // Data
@@ -144,103 +151,227 @@ const ReviewsPage = () => {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : styles.header.flexDirection,
+        gap: isMobile ? '16px' : '0'
+      }}>
         <div style={styles.titleGroup}>
-          <h1 style={styles.title}>Değerlendirme & Yorum Yönetimi</h1>
-          <p style={styles.subtitle}>Kullanıcı yorumlarını inceleyin, onaylayın veya reddedin. Yasaklı kelimeleri yönetin.</p>
+          <h1 style={{
+            ...styles.title,
+            fontSize: isMobile ? '24px' : styles.title.fontSize
+          }}>Değerlendirme & Yorum Yönetimi</h1>
+          <p style={{
+            ...styles.subtitle,
+            fontSize: isMobile ? '13px' : styles.subtitle.fontSize
+          }}>Kullanıcı yorumlarını inceleyin, onaylayın veya reddedin. Yasaklı kelimeleri yönetin.</p>
         </div>
-        <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
+        <div style={{
+          ...styles.headerActions,
+          width: isMobile ? '100%' : 'auto'
+        }}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '14px' : styles.exportBtn.fontSize
+          }} onClick={handlePrint}>
             <FaPrint /> Yazdır
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
+      <div style={{
+        ...styles.tabsContainer,
+        gap: isMobile ? '8px' : styles.tabsContainer.gap
+      }}>
         <button
-          style={activeTab === 'reviews' ? styles.tabActive : styles.tab}
+          style={{
+            ...(activeTab === 'reviews' ? styles.tabActive : styles.tab),
+            flex: isMobile ? '1' : 'none',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '14px' : (activeTab === 'reviews' ? styles.tabActive.fontSize : styles.tab.fontSize)
+          }}
           onClick={() => setActiveTab('reviews')}
         >
-          <FaComments /> Yorumlar
+          <FaComments /> {isMobile ? 'Yorumlar' : 'Yorumlar'}
         </button>
         <button
-          style={activeTab === 'banned-words' ? styles.tabActive : styles.tab}
+          style={{
+            ...(activeTab === 'banned-words' ? styles.tabActive : styles.tab),
+            flex: isMobile ? '1' : 'none',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '14px' : (activeTab === 'banned-words' ? styles.tabActive.fontSize : styles.tab.fontSize)
+          }}
           onClick={() => setActiveTab('banned-words')}
         >
-          <FaBan /> Yasaklı Kelimeler
+          <FaBan /> {isMobile ? 'Yasaklı' : 'Yasaklı Kelimeler'}
         </button>
       </div>
 
       {activeTab === 'reviews' ? (
         <>
           {/* Stats Cards */}
-          <div style={styles.statsGrid}>
+          <div style={{
+            ...styles.statsGrid,
+            gridTemplateColumns: isMobile ? '1fr 1fr' : styles.statsGrid.gridTemplateColumns,
+            gap: isMobile ? '12px' : styles.statsGrid.gap
+          }}>
             <div 
-              style={{ ...styles.statCard, cursor: 'pointer', border: statusFilter === '' ? '2px solid #059669' : '1px solid #e5e7eb' }}
+              style={{ 
+                ...styles.statCard, 
+                cursor: 'pointer', 
+                border: statusFilter === '' ? '2px solid #059669' : '1px solid #e5e7eb',
+                padding: isMobile ? '14px' : styles.statCard.padding
+              }}
               onClick={() => setStatusFilter('')}
             >
               <div style={styles.statInfo}>
-                <span style={styles.statLabel}>Toplam Yorum</span>
-                <span style={styles.statValue}>{stats.total || 0}</span>
+                <span style={{
+                  ...styles.statLabel,
+                  fontSize: isMobile ? '11px' : styles.statLabel.fontSize
+                }}>Toplam Yorum</span>
+                <span style={{
+                  ...styles.statValue,
+                  fontSize: isMobile ? '20px' : styles.statValue.fontSize
+                }}>{stats.total || 0}</span>
               </div>
-              <div style={{ ...styles.statIconBox, backgroundColor: '#e0e7ff', color: '#4f46e5' }}>
-                <FaComments size={20} />
+              <div style={{ 
+                ...styles.statIconBox, 
+                backgroundColor: '#e0e7ff', 
+                color: '#4f46e5',
+                width: isMobile ? '40px' : styles.statIconBox.width,
+                height: isMobile ? '40px' : styles.statIconBox.height
+              }}>
+                <FaComments size={isMobile ? 16 : 20} />
               </div>
             </div>
             <div 
-              style={{ ...styles.statCard, cursor: 'pointer', border: statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid #e5e7eb' }}
+              style={{ 
+                ...styles.statCard, 
+                cursor: 'pointer', 
+                border: statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid #e5e7eb',
+                padding: isMobile ? '14px' : styles.statCard.padding
+              }}
               onClick={() => setStatusFilter('pending')}
             >
               <div style={styles.statInfo}>
-                <span style={styles.statLabel}>Bekleyen</span>
-                <span style={styles.statValue}>{stats.pending || 0}</span>
+                <span style={{
+                  ...styles.statLabel,
+                  fontSize: isMobile ? '11px' : styles.statLabel.fontSize
+                }}>Bekleyen</span>
+                <span style={{
+                  ...styles.statValue,
+                  fontSize: isMobile ? '20px' : styles.statValue.fontSize
+                }}>{stats.pending || 0}</span>
               </div>
-              <div style={{ ...styles.statIconBox, backgroundColor: '#fef3c7', color: '#f59e0b' }}>
-                <FaClock size={20} />
+              <div style={{ 
+                ...styles.statIconBox, 
+                backgroundColor: '#fef3c7', 
+                color: '#f59e0b',
+                width: isMobile ? '40px' : styles.statIconBox.width,
+                height: isMobile ? '40px' : styles.statIconBox.height
+              }}>
+                <FaClock size={isMobile ? 16 : 20} />
               </div>
             </div>
             <div 
-              style={{ ...styles.statCard, cursor: 'pointer', border: statusFilter === 'approved' ? '2px solid #10b981' : '1px solid #e5e7eb' }}
+              style={{ 
+                ...styles.statCard, 
+                cursor: 'pointer', 
+                border: statusFilter === 'approved' ? '2px solid #10b981' : '1px solid #e5e7eb',
+                padding: isMobile ? '14px' : styles.statCard.padding
+              }}
               onClick={() => setStatusFilter('approved')}
             >
               <div style={styles.statInfo}>
-                <span style={styles.statLabel}>Onaylanan</span>
-                <span style={styles.statValue}>{stats.approved || 0}</span>
+                <span style={{
+                  ...styles.statLabel,
+                  fontSize: isMobile ? '11px' : styles.statLabel.fontSize
+                }}>Onaylanan</span>
+                <span style={{
+                  ...styles.statValue,
+                  fontSize: isMobile ? '20px' : styles.statValue.fontSize
+                }}>{stats.approved || 0}</span>
               </div>
-              <div style={{ ...styles.statIconBox, backgroundColor: '#d1fae5', color: '#10b981' }}>
-                <FaCheckCircle size={20} />
+              <div style={{ 
+                ...styles.statIconBox, 
+                backgroundColor: '#d1fae5', 
+                color: '#10b981',
+                width: isMobile ? '40px' : styles.statIconBox.width,
+                height: isMobile ? '40px' : styles.statIconBox.height
+              }}>
+                <FaCheckCircle size={isMobile ? 16 : 20} />
               </div>
             </div>
             <div 
-              style={{ ...styles.statCard, cursor: 'pointer', border: statusFilter === 'rejected' ? '2px solid #ef4444' : '1px solid #e5e7eb' }}
+              style={{ 
+                ...styles.statCard, 
+                cursor: 'pointer', 
+                border: statusFilter === 'rejected' ? '2px solid #ef4444' : '1px solid #e5e7eb',
+                padding: isMobile ? '14px' : styles.statCard.padding
+              }}
               onClick={() => setStatusFilter('rejected')}
             >
               <div style={styles.statInfo}>
-                <span style={styles.statLabel}>Reddedilen</span>
-                <span style={styles.statValue}>{stats.rejected || 0}</span>
+                <span style={{
+                  ...styles.statLabel,
+                  fontSize: isMobile ? '11px' : styles.statLabel.fontSize
+                }}>Reddedilen</span>
+                <span style={{
+                  ...styles.statValue,
+                  fontSize: isMobile ? '20px' : styles.statValue.fontSize
+                }}>{stats.rejected || 0}</span>
               </div>
-              <div style={{ ...styles.statIconBox, backgroundColor: '#fee2e2', color: '#ef4444' }}>
-                <FaTimesCircle size={20} />
+              <div style={{ 
+                ...styles.statIconBox, 
+                backgroundColor: '#fee2e2', 
+                color: '#ef4444',
+                width: isMobile ? '40px' : styles.statIconBox.width,
+                height: isMobile ? '40px' : styles.statIconBox.height
+              }}>
+                <FaTimesCircle size={isMobile ? 16 : 20} />
               </div>
             </div>
           </div>
 
           {/* Toolbar */}
-          <div style={styles.toolbar}>
-            <div style={styles.toolbarLeft}>
-              <div style={styles.searchWrapper}>
+          <div style={{
+            ...styles.toolbar,
+            flexDirection: isMobile ? 'column' : styles.toolbar.flexDirection,
+            gap: isMobile ? '12px' : '0'
+          }}>
+            <div style={{
+              ...styles.toolbarLeft,
+              flexDirection: isMobile ? 'column' : styles.toolbarLeft.flexDirection,
+              width: isMobile ? '100%' : 'auto',
+              gap: isMobile ? '12px' : styles.toolbarLeft.gap
+            }}>
+              <div style={{
+                ...styles.searchWrapper,
+                width: isMobile ? '100%' : 'auto'
+              }}>
                 <FaSearch style={styles.searchIcon} />
                 <input
                   type="text"
-                  placeholder="Yorum, kullanıcı veya ürün ara..."
-                  style={styles.searchInput}
+                  placeholder={isMobile ? "Ara..." : "Yorum, kullanıcı veya ürün ara..."}
+                  style={{
+                    ...styles.searchInput,
+                    minHeight: isMobile ? '44px' : 'auto',
+                    fontSize: isMobile ? '16px' : styles.searchInput.fontSize
+                  }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <select
-                style={styles.filterSelect}
+                style={{
+                  ...styles.filterSelect,
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.filterSelect.fontSize
+                }}
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -250,7 +381,12 @@ const ReviewsPage = () => {
                 <option value="rejected">Reddedildi</option>
               </select>
               <select
-                style={styles.filterSelect}
+                style={{
+                  ...styles.filterSelect,
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.filterSelect.fontSize
+                }}
                 value={ratingFilter}
                 onChange={(e) => setRatingFilter(e.target.value)}
               >
@@ -264,17 +400,35 @@ const ReviewsPage = () => {
             </div>
             
             {selectedReviews.length > 0 && (
-              <div style={styles.bulkActions}>
-                <span style={styles.selectedCount}>{selectedReviews.length} seçili</span>
+              <div style={{
+                ...styles.bulkActions,
+                flexDirection: isMobile ? 'column' : styles.bulkActions.flexDirection,
+                width: isMobile ? '100%' : 'auto',
+                gap: isMobile ? '8px' : styles.bulkActions.gap
+              }}>
+                <span style={{
+                  ...styles.selectedCount,
+                  fontSize: isMobile ? '13px' : styles.selectedCount.fontSize
+                }}>{selectedReviews.length} seçili</span>
                 <button
-                  style={styles.bulkApproveBtn}
+                  style={{
+                    ...styles.bulkApproveBtn,
+                    flex: isMobile ? '1' : 'none',
+                    minHeight: isMobile ? '44px' : 'auto',
+                    fontSize: isMobile ? '14px' : styles.bulkApproveBtn.fontSize
+                  }}
                   onClick={handleBulkApprove}
                   disabled={isApproving}
                 >
                   <FaCheck /> Toplu Onayla
                 </button>
                 <button
-                  style={styles.bulkRejectBtn}
+                  style={{
+                    ...styles.bulkRejectBtn,
+                    flex: isMobile ? '1' : 'none',
+                    minHeight: isMobile ? '44px' : 'auto',
+                    fontSize: isMobile ? '14px' : styles.bulkRejectBtn.fontSize
+                  }}
                   onClick={() => setRejectModal({ isOpen: true, isBulk: true })}
                   disabled={isRejecting}
                 >
@@ -285,6 +439,211 @@ const ReviewsPage = () => {
           </div>
 
           {/* Table */}
+          {isMobile ? (
+            // Mobile Card View
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {isLoading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280', backgroundColor: 'white', borderRadius: '12px' }}>
+                  <div style={styles.loader}></div>
+                  Yorumlar yükleniyor...
+                </div>
+              ) : reviews.length === 0 ? (
+                <div style={{ padding: '60px', textAlign: 'center', color: '#6B7280', backgroundColor: 'white', borderRadius: '12px' }}>
+                  <FaComments size={48} style={{ color: '#d1d5db', marginBottom: '16px' }} />
+                  <p>Henüz yorum bulunmuyor.</p>
+                </div>
+              ) : (
+                reviews.map((review) => (
+                  <div 
+                    key={review.id} 
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      border: selectedReviews.includes(review.id) ? '2px solid #059669' : '1px solid #e5e7eb'
+                    }}
+                  >
+                    {/* Header with checkbox and status */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedReviews.includes(review.id)}
+                          onChange={() => toggleSelect(review.id)}
+                          style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          #{review.id}
+                        </span>
+                      </label>
+                      {getStatusBadge(review.status)}
+                    </div>
+
+                    {/* User Info */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#e0e7ff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <FaUser size={18} color="#4f46e5" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827' }}>
+                          {review.is_anonymous ? 'Anonim Kullanıcı' : review.user?.name || 'Bilinmiyor'}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                          {review.user?.email || '-'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Product & Vendor */}
+                    <div style={{ marginBottom: '12px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <FaBox size={12} style={{ color: '#6b7280' }} />
+                        <span style={{ color: '#374151', fontWeight: '500' }}>
+                          {review.product?.name?.substring(0, 40) || '-'}
+                          {review.product?.name?.length > 40 ? '...' : ''}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaStore size={12} style={{ color: '#059669' }} />
+                        <span style={{ color: '#6B7280' }}>
+                          {review.product?.vendor?.name || review.product?.vendor?.company_name || '-'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Rating */}
+                    <div style={{ marginBottom: '12px' }}>
+                      {renderStars(review.rating)}
+                    </div>
+
+                    {/* Comment */}
+                    <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                      <div style={{ fontWeight: '600', fontSize: '13px', color: '#111827', marginBottom: '4px' }}>
+                        {review.title || 'Başlıksız'}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: '1.5' }}>
+                        {review.comment?.substring(0, 100) || '-'}
+                        {review.comment?.length > 100 ? '...' : ''}
+                      </div>
+                      {review.media?.length > 0 && (
+                        <div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
+                          📷 {review.media.length} görsel
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rejection Reason */}
+                    {review.status === 'rejected' && review.rejection_reason && (
+                      <div style={{ 
+                        marginBottom: '12px', 
+                        padding: '8px 12px', 
+                        backgroundColor: '#fee2e2', 
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        color: '#991b1b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <FaExclamationTriangle size={12} />
+                        <span>{review.rejection_reason}</span>
+                      </div>
+                    )}
+
+                    {/* Date */}
+                    <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
+                      {new Date(review.created_at).toLocaleDateString('tr-TR')} {' '}
+                      {new Date(review.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        style={{
+                          flex: 1,
+                          minHeight: '44px',
+                          padding: '0 16px',
+                          backgroundColor: '#059669',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                        onClick={() => setViewReview(review)}
+                      >
+                        <FaEye /> Detay
+                      </button>
+                      {review.status !== 'approved' && (
+                        <button
+                          style={{
+                            flex: 1,
+                            minHeight: '44px',
+                            padding: '0 16px',
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            opacity: isApproving ? 0.6 : 1
+                          }}
+                          onClick={() => handleApprove(review.id)}
+                          disabled={isApproving}
+                        >
+                          <FaCheck /> Onayla
+                        </button>
+                      )}
+                      {review.status !== 'rejected' && (
+                        <button
+                          style={{
+                            flex: 1,
+                            minHeight: '44px',
+                            padding: '0 16px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            opacity: isRejecting ? 0.6 : 1
+                          }}
+                          onClick={() => setRejectModal({ isOpen: true, reviewId: review.id, isBulk: false })}
+                          disabled={isRejecting}
+                        >
+                          <FaTimes /> Reddet
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            // Desktop Table View
           <div style={styles.tableContainer}>
             <table style={styles.table}>
               <thead>
@@ -431,6 +790,7 @@ const ReviewsPage = () => {
               </tbody>
             </table>
           </div>
+          )}
 
           {/* Pagination */}
           {pagination && pagination.last_page > 1 && (

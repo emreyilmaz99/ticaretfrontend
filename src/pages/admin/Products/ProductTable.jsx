@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaStore, FaImage, FaEye, FaCheck, FaTimes } from 'react-icons/fa';
 import { StatusBadge } from '../../../features/admin/shared';
+import SecureImage from '../../../components/common/SecureImage';
 import { toFullUrl } from './styles';
 
 /**
@@ -15,8 +16,166 @@ const ProductTable = ({
   onToggleSelect,
   onView,
   onStatusChange,
-  styles
+  styles,
+  isMobile
 }) => {
+  // Debug logging
+  console.log('ProductTable - products:', products);
+  console.log('ProductTable - products length:', products?.length);
+  console.log('ProductTable - isLoading:', isLoading);
+  
+  // Mobile Card View
+  if (isMobile) {
+    // Debug: İlk ürünü console'a yazdır
+    if (products && products.length > 0) {
+      console.log('First product in table:', products[0]);
+      console.log('Has thumbnail?', products[0].thumbnail);
+      console.log('Has photos?', products[0].photos);
+    }
+    
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {isLoading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', backgroundColor: 'white', borderRadius: '12px' }}>
+            Yükleniyor...
+          </div>
+        ) : products.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', backgroundColor: 'white', borderRadius: '12px' }}>
+            Ürün bulunamadı
+          </div>
+        ) : products.map(product => (
+          <div key={product.id} style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid #e2e8f0',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            {/* Product Header */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <input 
+                type="checkbox" 
+                checked={selectedProducts.includes(product.id)}
+                onChange={() => onToggleSelect(product.id)}
+                style={{ marginTop: '4px', width: '18px', height: '18px' }}
+              />
+              <div style={styles.thumbnail}>
+                {product.image ? (
+                  <SecureImage 
+                    src={product.image} 
+                    alt={product.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <FaImage style={{ color: '#cbd5e1' }} />
+                )}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '14px', marginBottom: '4px' }}>
+                  {product.name}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>SKU: {product.sku || '-'}</div>
+              </div>
+            </div>
+            
+            {/* Product Details */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px' }}>
+              <div>
+                <div style={{ color: '#64748b', fontSize: '11px' }}>Satıcı</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: '500' }}>
+                  <FaStore size={10} style={{ color: '#64748b' }} />
+                  {product.vendor?.store_name || product.vendor?.shop_name || product.vendor?.company_name || '-'}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#64748b', fontSize: '11px' }}>Fiyat</div>
+                <div style={{ color: '#0f172a', fontWeight: '600' }}>₺{product.price}</div>
+              </div>
+              <div>
+                <div style={{ color: '#64748b', fontSize: '11px' }}>Stok</div>
+                <div style={{ color: product.stock > 0 ? '#059669' : '#ef4444', fontWeight: '600' }}>
+                  {product.stock}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#64748b', fontSize: '11px' }}>Durum</div>
+                <StatusBadge status={product.status} />
+              </div>
+            </div>
+            
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '8px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+              <button 
+                onClick={() => onView(product)}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#059669',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  minHeight: '44px'
+                }}
+              >
+                <FaEye size={12} /> Detay
+              </button>
+              {product.status === 'pending' && (
+                <>
+                  <button 
+                    onClick={() => onStatusChange(product.id, 'active')}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#dcfce7',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: '#166534',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      minWidth: '44px'
+                    }}
+                    title="Onayla"
+                  >
+                    <FaCheck />
+                  </button>
+                  <button 
+                    onClick={() => onStatusChange(product.id, 'rejected')}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#fee2e2',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: '#991b1b',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      minWidth: '44px'
+                    }}
+                    title="Reddet"
+                  >
+                    <FaTimes />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop Table View
   return (
     <table style={styles.table}>
       <thead>
@@ -62,12 +221,11 @@ const ProductTable = ({
             <td style={styles.td}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={styles.thumbnail}>
-                  {product.thumbnail ? (
+                  {product.image ? (
                     <img 
-                      src={toFullUrl(product.thumbnail)} 
+                      src={product.image} 
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => { e.target.style.display = 'none'; }}
                     />
                   ) : (
                     <FaImage style={{ color: '#cbd5e1' }} />

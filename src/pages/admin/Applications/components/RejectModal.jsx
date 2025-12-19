@@ -16,6 +16,14 @@ const RejectModal = ({
   isSubmitting,
   minLength = 10
 }) => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!isOpen || !vendor) return null;
 
   const isValid = reason.length >= minLength;
@@ -38,24 +46,31 @@ const RejectModal = ({
 
   const contentStyle = {
     backgroundColor: 'white',
-    borderRadius: '20px',
+    borderRadius: isMobile ? '20px 20px 0 0' : '20px',
     width: '100%',
-    maxWidth: '580px',
+    maxWidth: isMobile ? '100%' : '580px',
     boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
     animation: 'slideUp 0.3s ease',
     overflow: 'hidden',
+    ...(isMobile ? {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      maxHeight: '95vh'
+    } : {})
   };
 
   const headerStyle = {
     background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-    padding: '32px',
+    padding: isMobile ? '24px 16px' : '32px',
     borderBottom: '1px solid #fecaca',
     position: 'relative',
   };
 
   const iconContainerStyle = {
-    width: '64px',
-    height: '64px',
+    width: isMobile ? '56px' : '64px',
+    height: isMobile ? '56px' : '64px',
     borderRadius: '16px',
     background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
     display: 'flex',
@@ -67,12 +82,12 @@ const RejectModal = ({
 
   const closeButtonStyle = {
     position: 'absolute',
-    top: '20px',
-    right: '20px',
+    top: isMobile ? '16px' : '20px',
+    right: isMobile ? '16px' : '20px',
     background: 'white',
     border: 'none',
-    width: '36px',
-    height: '36px',
+    width: isMobile ? '44px' : '36px',
+    height: isMobile ? '44px' : '36px',
     borderRadius: '10px',
     cursor: 'pointer',
     display: 'flex',
@@ -84,16 +99,16 @@ const RejectModal = ({
   };
 
   const bodyStyle = {
-    padding: '32px',
+    padding: isMobile ? '20px 16px' : '32px',
   };
 
   const textareaStyle = {
     width: '100%',
-    minHeight: '140px',
-    padding: '16px',
+    minHeight: isMobile ? '120px' : '140px',
+    padding: isMobile ? '14px' : '16px',
     border: `2px solid ${reason.length > 0 && !isValid ? '#fca5a5' : '#e5e7eb'}`,
     borderRadius: '12px',
-    fontSize: '14px',
+    fontSize: isMobile ? '16px' : '14px',
     fontFamily: 'inherit',
     resize: 'vertical',
     outline: 'none',
@@ -103,28 +118,31 @@ const RejectModal = ({
   };
 
   const footerStyle = {
-    padding: '24px 32px',
+    padding: isMobile ? '16px' : '24px 32px',
     background: '#f9fafb',
     display: 'flex',
     justifyContent: 'flex-end',
-    gap: '12px',
+    gap: isMobile ? '10px' : '12px',
     borderTop: '1px solid #e5e7eb',
+    flexDirection: isMobile ? 'column-reverse' : 'row'
   };
 
   const cancelButtonStyle = {
-    padding: '12px 28px',
+    padding: isMobile ? '14px 24px' : '12px 28px',
     borderRadius: '12px',
     border: '2px solid #e5e7eb',
     background: 'white',
     cursor: 'pointer',
     fontWeight: '600',
-    fontSize: '14px',
+    fontSize: isMobile ? '15px' : '14px',
     color: '#6b7280',
     transition: 'all 0.2s',
+    width: isMobile ? '100%' : 'auto',
+    minHeight: isMobile ? '44px' : 'auto'
   };
 
   const rejectButtonStyle = {
-    padding: '12px 28px',
+    padding: isMobile ? '14px 24px' : '12px 28px',
     borderRadius: '12px',
     border: 'none',
     background: !isValid
@@ -133,6 +151,9 @@ const RejectModal = ({
     color: 'white',
     cursor: !isValid ? 'not-allowed' : 'pointer',
     fontWeight: '700',
+    fontSize: isMobile ? '15px' : '14px',
+    width: isMobile ? '100%' : 'auto',
+    minHeight: isMobile ? '44px' : 'auto',
     fontSize: '14px',
     boxShadow: isValid ? '0 6px 20px rgba(239, 68, 68, 0.4)' : 'none',
     transition: 'all 0.2s',

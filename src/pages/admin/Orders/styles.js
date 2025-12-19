@@ -24,9 +24,9 @@ const COLORS = {
   shadowMd: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
 };
 
-export const getStyles = () => ({
+export const getStyles = (isMobile = false) => ({
   container: {
-    padding: '32px',
+    padding: isMobile ? '16px' : '32px',
     backgroundColor: COLORS.bgBody,
     minHeight: '100vh',
     fontFamily: '"Plus Jakarta Sans", "Inter", sans-serif',
@@ -36,27 +36,31 @@ export const getStyles = () => ({
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '32px',
+    alignItems: isMobile ? 'flex-start' : 'center',
+    marginBottom: isMobile ? '16px' : '32px',
     background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-    padding: '28px 32px',
+    padding: isMobile ? '20px 16px' : '28px 32px',
     borderRadius: '16px',
-    border: '1px solid #e2e8f0'
+    border: '1px solid #e2e8f0',
+    flexDirection: isMobile ? 'column' : 'row',
+    gap: isMobile ? '16px' : '0'
   },
   title: {
-    fontSize: '26px',
+    fontSize: isMobile ? '20px' : '26px',
     fontWeight: '800',
     color: '#0f172a',
     letterSpacing: '-0.02em',
   },
   subtitle: {
-    fontSize: '15px',
+    fontSize: isMobile ? '13px' : '15px',
     color: '#64748b',
     marginTop: '6px',
   },
   headerActions: {
     display: 'flex',
     gap: '12px',
+    width: isMobile ? '100%' : 'auto',
+    flexDirection: isMobile ? 'column' : 'row'
   },
   exportBtn: {
     display: 'flex',
@@ -72,18 +76,20 @@ export const getStyles = () => ({
     cursor: 'pointer',
     transition: 'all 0.2s',
     boxShadow: COLORS.shadowSm,
+    justifyContent: isMobile ? 'center' : 'flex-start',
+    minHeight: isMobile ? '44px' : 'auto'
   },
 
   // --- KPI KARTLARI ---
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '24px',
-    marginBottom: '32px',
+    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: isMobile ? '12px' : '24px',
+    marginBottom: isMobile ? '16px' : '32px',
   },
   statCard: {
     backgroundColor: COLORS.bgCard,
-    padding: '24px',
+    padding: isMobile ? '16px' : '24px',
     borderRadius: '16px',
     border: `1px solid ${COLORS.border}`,
     boxShadow: COLORS.shadowSm,
@@ -94,10 +100,10 @@ export const getStyles = () => ({
   statInfo: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: isMobile ? '4px' : '8px',
   },
   statLabel: {
-    fontSize: '13px',
+    fontSize: isMobile ? '11px' : '13px',
     fontWeight: '600',
     color: COLORS.textMuted,
     textTransform: 'uppercase',

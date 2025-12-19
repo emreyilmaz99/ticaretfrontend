@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes, FaUserShield, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createAdmin } from '../api/adminApi';
 import { useToast } from '../../../components/common/Toast';
 
 const AddAdminModal = ({ isOpen, onClose }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const queryClient = useQueryClient();
   const toast = useToast();
   
@@ -98,27 +106,73 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
   return (
     <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={e => e.stopPropagation()}>
+      <div 
+        style={{
+          ...styles.modal,
+          width: isMobile ? '100%' : styles.modal.width,
+          maxWidth: isMobile ? '100%' : styles.modal.maxWidth,
+          maxHeight: isMobile ? '90vh' : styles.modal.maxHeight,
+          borderRadius: isMobile ? '20px 20px 0 0' : styles.modal.borderRadius,
+          position: isMobile ? 'fixed' : 'relative',
+          bottom: isMobile ? '0' : 'auto',
+          left: isMobile ? '0' : 'auto',
+          right: isMobile ? '0' : 'auto'
+        }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.iconContainer}>
-            <FaUserShield size={28} color="white" />
+        <div style={{
+          ...styles.header,
+          padding: isMobile ? '24px 16px' : styles.header.padding
+        }}>
+          <div style={{
+            ...styles.iconContainer,
+            width: isMobile ? '56px' : styles.iconContainer.width,
+            height: isMobile ? '56px' : styles.iconContainer.height
+          }}>
+            <FaUserShield size={isMobile ? 24 : 28} color="white" />
           </div>
-          <button style={styles.closeButton} onClick={onClose}>
+          <button 
+            style={{
+              ...styles.closeButton,
+              minHeight: isMobile ? '44px' : styles.closeButton.height,
+              minWidth: isMobile ? '44px' : styles.closeButton.width
+            }} 
+            onClick={onClose}
+          >
             <FaTimes size={18} />
           </button>
-          <h2 style={styles.title}>Yeni Yönetici Ekle</h2>
-          <p style={styles.subtitle}>
+          <h2 style={{
+            ...styles.title,
+            fontSize: isMobile ? '20px' : styles.title.fontSize
+          }}>
+            Yeni Yönetici Ekle
+          </h2>
+          <p style={{
+            ...styles.subtitle,
+            fontSize: isMobile ? '13px' : styles.subtitle.fontSize
+          }}>
             Sisteme yeni bir yönetici ekleyin
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGrid}>
+        <form onSubmit={handleSubmit} style={{
+          ...styles.form,
+          padding: isMobile ? '20px 16px' : styles.form.padding,
+          maxHeight: isMobile ? 'calc(90vh - 180px)' : 'auto',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            ...styles.formGrid,
+            gridTemplateColumns: isMobile ? '1fr' : styles.formGrid.gridTemplateColumns
+          }}>
             {/* Name */}
-            <div style={{...styles.formGroup, gridColumn: '1 / -1'}}>
-              <label style={styles.label}>
+            <div style={{...styles.formGroup, gridColumn: isMobile ? 'auto' : '1 / -1'}}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '13px' : styles.label.fontSize
+              }}>
                 <FaUser style={styles.labelIcon} />
                 Ad Soyad <span style={styles.required}>*</span>
               </label>
@@ -127,7 +181,12 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.name ? styles.inputError : {})}}
+                style={{
+                  ...styles.input, 
+                  ...(errors.name ? styles.inputError : {}),
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.input.fontSize
+                }}
                 placeholder="Örn: Ahmet Yılmaz"
               />
               {errors.name && <span style={styles.errorText}>{errors.name}</span>}
@@ -135,7 +194,10 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
             {/* Email */}
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '13px' : styles.label.fontSize
+              }}>
                 <FaEnvelope style={styles.labelIcon} />
                 E-posta <span style={styles.required}>*</span>
               </label>
@@ -144,7 +206,12 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.email ? styles.inputError : {})}}
+                style={{
+                  ...styles.input, 
+                  ...(errors.email ? styles.inputError : {}),
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.input.fontSize
+                }}
                 placeholder="ornek@email.com"
               />
               {errors.email && <span style={styles.errorText}>{errors.email}</span>}
@@ -152,7 +219,10 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
             {/* Role */}
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '13px' : styles.label.fontSize
+              }}>
                 <FaUserShield style={styles.labelIcon} />
                 Rol <span style={styles.required}>*</span>
               </label>
@@ -160,7 +230,11 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.input.fontSize
+                }}
               >
                 <option value="admin">Yönetici</option>
                 <option value="super-admin">Süper Yönetici</option>
@@ -171,7 +245,10 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
             {/* Password */}
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '13px' : styles.label.fontSize
+              }}>
                 <FaLock style={styles.labelIcon} />
                 Şifre <span style={styles.required}>*</span>
               </label>
@@ -180,7 +257,12 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.password ? styles.inputError : {})}}
+                style={{
+                  ...styles.input, 
+                  ...(errors.password ? styles.inputError : {}),
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.input.fontSize
+                }}
                 placeholder="En az 8 karakter"
               />
               {errors.password && <span style={styles.errorText}>{errors.password}</span>}
@@ -188,7 +270,10 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
             {/* Password Confirmation */}
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '13px' : styles.label.fontSize
+              }}>
                 <FaLock style={styles.labelIcon} />
                 Şifre Tekrar <span style={styles.required}>*</span>
               </label>
@@ -197,7 +282,12 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 name="password_confirmation"
                 value={formData.password_confirmation}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.password_confirmation ? styles.inputError : {})}}
+                style={{
+                  ...styles.input, 
+                  ...(errors.password_confirmation ? styles.inputError : {}),
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '16px' : styles.input.fontSize
+                }}
                 placeholder="Şifrenizi tekrar girin"
               />
               {errors.password_confirmation && <span style={styles.errorText}>{errors.password_confirmation}</span>}
@@ -205,33 +295,60 @@ const AddAdminModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Active Status */}
-          <div style={{marginTop: '16px'}}>
+          <div style={{
+            marginTop: '16px',
+            padding: isMobile ? '12px' : '0',
+            backgroundColor: isMobile ? '#f8fafc' : 'transparent',
+            borderRadius: isMobile ? '8px' : '0'
+          }}>
             <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'}}>
               <input
                 type="checkbox"
                 name="is_active"
                 checked={formData.is_active}
                 onChange={handleChange}
-                style={{width: '18px', height: '18px', cursor: 'pointer'}}
+                style={{
+                  width: isMobile ? '20px' : '18px', 
+                  height: isMobile ? '20px' : '18px', 
+                  cursor: 'pointer'
+                }}
               />
-              <span style={{fontSize: '14px', fontWeight: '600', color: '#374151'}}>
+              <span style={{
+                fontSize: isMobile ? '15px' : '14px', 
+                fontWeight: '600', 
+                color: '#374151'
+              }}>
                 Yöneticiyi aktif olarak oluştur
               </span>
             </label>
           </div>
 
           {/* Footer */}
-          <div style={styles.footer}>
+          <div style={{
+            ...styles.footer,
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: isMobile ? '12px' : styles.footer.gap
+          }}>
             <button
               type="button"
               onClick={onClose}
-              style={styles.cancelButton}
+              style={{
+                ...styles.cancelButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : styles.cancelButton.fontSize
+              }}
             >
               İptal
             </button>
             <button
               type="submit"
-              style={styles.submitButton}
+              style={{
+                ...styles.submitButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : styles.submitButton.fontSize
+              }}
               disabled={createMutation.isLoading}
             >
               {createMutation.isLoading ? '✓ Oluşturuluyor...' : '✓ Yönetici Ekle'}

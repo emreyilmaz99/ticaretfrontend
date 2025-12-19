@@ -40,6 +40,8 @@ const DealFormModal = ({
   products, 
   isSubmitting 
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
   const [formData, setFormData] = useState({
     product_id: '',
     variant_id: '',
@@ -66,6 +68,12 @@ const DealFormModal = ({
   const [priceError, setPriceError] = useState('');
   const [sortOrderError, setSortOrderError] = useState('');
   const [dateError, setDateError] = useState('');
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (mode === 'edit' && deal) {
@@ -251,28 +259,62 @@ const DealFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div style={modalStyles.overlay}>
-      <div style={modalStyles.container}>
+    <div style={modalStyles.overlay} onClick={onClose}>
+      <div style={{
+        ...modalStyles.container,
+        ...(isMobile ? {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 'auto',
+          maxWidth: '100%',
+          maxHeight: '95vh',
+          borderRadius: '20px 20px 0 0',
+          margin: 0
+        } : {})
+      }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={modalStyles.header}>
-          <div>
-            <h2 style={modalStyles.title}>
+        <div style={{
+          ...modalStyles.header,
+          padding: isMobile ? '20px 16px' : '28px 32px'
+        }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{
+              ...modalStyles.title,
+              fontSize: isMobile ? '18px' : '22px'
+            }}>
               {mode === 'create' ? '✨ Yeni Kampanya Oluştur' : '✏️ Kampanyayı Düzenle'}
             </h2>
-            <p style={modalStyles.subtitle}>
+            <p style={{
+              ...modalStyles.subtitle,
+              fontSize: isMobile ? '13px' : '14px'
+            }}>
               Anasayfa carousel'inde gösterilecek öne çıkan ürünü ayarlayın
             </p>
           </div>
-          <button onClick={onClose} style={modalStyles.closeBtn}>
-            <FaTimes size={20} />
+          <button onClick={onClose} style={{
+            ...modalStyles.closeBtn,
+            minWidth: isMobile ? '44px' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto',
+            padding: isMobile ? '12px' : '10px'
+          }}>
+            <FaTimes size={isMobile ? 18 : 20} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={modalStyles.form}>
+        <form onSubmit={handleSubmit} style={{
+          ...modalStyles.form,
+          padding: isMobile ? '16px' : '24px 32px 32px',
+          maxHeight: isMobile ? 'calc(95vh - 120px)' : 'auto'
+        }}>
           
           {/* Section: Ürün Seçimi */}
-          <div style={modalStyles.section}>
+          <div style={{
+            ...modalStyles.section,
+            padding: isMobile ? '16px' : '20px'
+          }}>
             <div style={modalStyles.sectionHeader}>
               <FaTag style={{ color: '#6366f1' }} />
               <span>Ürün Bilgileri</span>
@@ -308,13 +350,20 @@ const DealFormModal = ({
           </div>
 
           {/* Section: Fiyatlandırma */}
-          <div style={modalStyles.section}>
+          <div style={{
+            ...modalStyles.section,
+            padding: isMobile ? '16px' : '20px'
+          }}>
             <div style={modalStyles.sectionHeader}>
               <FaPercentage style={{ color: '#10b981' }} />
               <span>Fiyatlandırma</span>
             </div>
             
-            <div style={modalStyles.priceGrid}>
+            <div style={{
+              ...modalStyles.priceGrid,
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr auto',
+              gap: isMobile ? '12px' : '16px'
+            }}>
               <div style={modalStyles.inputGroup}>
                 <label style={modalStyles.label}>Orijinal Fiyat *</label>
                 <div style={modalStyles.priceInputWrapper}>
@@ -377,7 +426,10 @@ const DealFormModal = ({
           </div>
 
           {/* Section: Kampanya Detayları */}
-          <div style={modalStyles.section}>
+          <div style={{
+            ...modalStyles.section,
+            padding: isMobile ? '16px' : '20px'
+          }}>
             <div style={modalStyles.sectionHeader}>
               <FaPalette style={{ color: '#f59e0b' }} />
               <span>Kampanya Detayları</span>
@@ -694,13 +746,20 @@ const DealFormModal = ({
           </div>
 
           {/* Section: Zamanlama */}
-          <div style={modalStyles.section}>
+          <div style={{
+            ...modalStyles.section,
+            padding: isMobile ? '16px' : '20px'
+          }}>
             <div style={modalStyles.sectionHeader}>
               <FaCalendarAlt style={{ color: '#8b5cf6' }} />
               <span>Zamanlama</span>
             </div>
             
-            <div style={modalStyles.dateGrid}>
+            <div style={{
+              ...modalStyles.dateGrid,
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: isMobile ? '12px' : '16px'
+            }}>
               <div style={modalStyles.inputGroup}>
                 <label style={modalStyles.label}>Başlangıç Tarihi</label>
                 <input
@@ -793,12 +852,23 @@ const DealFormModal = ({
           </div>
 
           {/* Actions */}
-          <div style={modalStyles.actions}>
+          <div style={{
+            ...modalStyles.actions,
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: isMobile ? '12px' : '14px',
+            paddingTop: isMobile ? '16px' : '20px'
+          }}>
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              style={modalStyles.cancelBtn}
+              style={{
+                ...modalStyles.cancelBtn,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : '15px',
+                padding: isMobile ? '12px 24px' : '14px 28px'
+              }}
             >
               İptal
             </button>
@@ -807,11 +877,15 @@ const DealFormModal = ({
               disabled={isSubmitting || !!priceError || !!sortOrderError || !!dateError}
               style={{
                 ...modalStyles.submitBtn,
-                opacity: (isSubmitting || priceError || sortOrderError || dateError) ? 0.6 : 1,
-                cursor: (isSubmitting || priceError || sortOrderError || dateError) ? 'not-allowed' : 'pointer',
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : '15px',
+                padding: isMobile ? '12px 24px' : '14px 32px',
+                opacity: (isSubmitting || !!priceError || !!sortOrderError || !!dateError) ? 0.5 : 1,
+                cursor: (isSubmitting || !!priceError || !!sortOrderError || !!dateError) ? 'not-allowed' : 'pointer'
               }}
             >
-              {isSubmitting ? '⏳ Kaydediliyor...' : mode === 'create' ? '✨ Oluştur' : '💾 Güncelle'}
+              {isSubmitting ? '⏳ Kaydediliyor...' : (mode === 'create' ? '✨ Oluştur' : '💾 Güncelle')}
             </button>
           </div>
         </form>

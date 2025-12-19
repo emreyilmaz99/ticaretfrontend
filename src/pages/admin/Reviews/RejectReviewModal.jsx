@@ -5,6 +5,13 @@ import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) => {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSubmit = () => {
     if (!reason.trim()) {
@@ -25,8 +32,18 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
       <div 
         style={{ 
           ...styles.modalContent, 
-          maxWidth: '500px',
-          maxHeight: '400px'
+          maxWidth: isMobile ? '100%' : '500px',
+          maxHeight: isMobile ? '90vh' : '400px',
+          ...(isMobile ? {
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 'auto',
+            borderRadius: '20px 20px 0 0',
+            margin: 0,
+            transform: 'none'
+          } : {})
         }} 
         onClick={(e) => e.stopPropagation()}
       >
@@ -34,19 +51,33 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
         <div style={{ 
           ...styles.modalHeader, 
           backgroundColor: '#fef2f2', 
-          borderBottom: '1px solid #fecaca' 
+          borderBottom: '1px solid #fecaca',
+          padding: isMobile ? '16px' : styles.modalHeader.padding
         }}>
-          <h2 style={{ ...styles.modalTitle, color: '#991b1b' }}>
+          <h2 style={{ 
+            ...styles.modalTitle, 
+            color: '#991b1b',
+            fontSize: isMobile ? '18px' : styles.modalTitle.fontSize
+          }}>
             <FaExclamationTriangle style={{ marginRight: '8px' }} />
             Yorumu Reddet
           </h2>
-          <button style={styles.modalCloseBtn} onClick={onClose}>
+          <button style={{
+            ...styles.modalCloseBtn,
+            minWidth: isMobile ? '44px' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto'
+          }} onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
         {/* Body */}
-        <div style={styles.modalBody}>
+        <div style={{
+          ...styles.modalBody,
+          padding: isMobile ? '16px' : styles.modalBody.padding,
+          maxHeight: isMobile ? 'calc(90vh - 150px)' : 'auto',
+          overflowY: 'auto'
+        }}>
           <div style={{ marginBottom: '16px' }}>
             <p style={{ fontSize: '14px', color: '#374151', marginBottom: '12px' }}>
               <strong>Yorum #{review.id}</strong> reddedilecek. Lütfen ret nedenini yazınız:
@@ -97,9 +128,9 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
               placeholder="Bu yorum neden reddediliyor? (örn: uygunsuz içerik, spam vb.)"
               style={{
                 width: '100%',
-                minHeight: '120px',
+                minHeight: isMobile ? '100px' : '120px',
                 padding: '12px',
-                fontSize: '14px',
+                fontSize: isMobile ? '16px' : '14px',
                 border: error ? '1px solid #ef4444' : '1px solid #d1d5db',
                 borderRadius: '8px',
                 resize: 'vertical',
@@ -170,9 +201,19 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
         </div>
 
         {/* Footer */}
-        <div style={styles.modalFooter}>
+        <div style={{
+          ...styles.modalFooter,
+          flexDirection: isMobile ? 'column-reverse' : styles.modalFooter.flexDirection,
+          gap: isMobile ? '8px' : styles.modalFooter.gap,
+          padding: isMobile ? '16px' : styles.modalFooter.padding
+        }}>
           <button 
-            style={styles.modalCancelBtn} 
+            style={{
+              ...styles.modalCancelBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '15px' : styles.modalCancelBtn.fontSize
+            }} 
             onClick={onClose}
             disabled={isLoading}
           >
@@ -181,6 +222,9 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
           <button 
             style={{
               ...styles.modalRejectBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '15px' : styles.modalRejectBtn.fontSize,
               opacity: isLoading ? 0.7 : 1,
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}

@@ -1,5 +1,5 @@
 // src/pages/admin/Applications/FullApplications/index.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFileExcel, FaPrint } from 'react-icons/fa';
 import useFullApplications from '../useFullApplications';
 import { styles } from '../styles';
@@ -19,6 +19,13 @@ import {
  */
 const FullApplicationsPage = () => {
   const toast = useToast();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const {
     // Data
@@ -180,7 +187,12 @@ const FullApplicationsPage = () => {
   return (
     <div style={styles.container}>
       {/* Header - Siparişler sayfasındaki gibi */}
-      <div style={styles.header}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: isMobile ? '16px' : '0'
+      }}>
         <div>
           <h1 style={styles.title}>Aktivasyon Bekleyen Satıcılar</h1>
           <p style={styles.subtitle}>
@@ -188,24 +200,41 @@ const FullApplicationsPage = () => {
             Onaylanan satıcılar iyzico'ya kaydedilecek ve aktifleştirilecek.
           </p>
         </div>
-        <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
+        <div style={{
+          ...styles.headerActions,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto'
+        }}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: '44px',
+            fontSize: isMobile ? '14px' : '15px',
+            justifyContent: 'center'
+          }} onClick={handlePrint}>
             <FaPrint /> Rapor Yazdır
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: '44px',
+            fontSize: isMobile ? '14px' : '15px',
+            justifyContent: 'center'
+          }} onClick={handleDownloadExcel}>
             <FaFileExcel /> Excel İndir
           </button>
         </div>
       </div>
 
       {/* Info Box */}
-      <InfoBox count={totalVendors} message="aktivasyon bekliyor." />
+      <InfoBox count={totalVendors} message="aktivasyon bekliyor." isMobile={isMobile} />
 
       {/* Search Bar */}
       <SearchBar 
         value={searchTerm}
         onChange={setSearchTerm}
         placeholder="İsim, e-posta, şirket veya vergi no ara..."
+        isMobile={isMobile}
       />
 
       {/* Table */}
@@ -220,6 +249,7 @@ const FullApplicationsPage = () => {
         onReject={handleRejectClick}
         showMerchantType={true}
         emptyMessage="Aktivasyon bekleyen satıcı yok"
+        isMobile={isMobile}
       />
 
       {/* Approve Modal - Komisyon Planı Seçimi */}
@@ -256,6 +286,7 @@ const FullApplicationsPage = () => {
         onSubmit={submitReject}
         isSubmitting={isRejecting}
         minLength={10}
+        isMobile={isMobile}
       />
     </div>
   );

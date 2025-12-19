@@ -10,6 +10,14 @@ import apiClient from '@lib/apiClient';
 import { printInvoice } from './invoiceService';
 
 const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!isOpen || !order) return null;
 
   // --- STATE YÖNETİMİ ---
@@ -153,50 +161,106 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+      <div style={{
+        ...styles.modalContent,
+        ...(isMobile ? {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 'auto',
+          maxWidth: '100%',
+          maxHeight: '90vh',
+          borderRadius: '20px 20px 0 0',
+          margin: 0,
+          transform: 'none'
+        } : {})
+      }} onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div style={styles.modalHeader}>
-          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            <h2 style={{margin:0, fontSize:'20px'}}>Sipariş #{order.id}</h2>
-            {/* Durum Rozeti */}
-            {renderStatusBadge()}
+        <div style={{
+          ...styles.modalHeader,
+          padding: isMobile ? '16px' : styles.modalHeader.padding,
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '12px' : '0',
+          alignItems: isMobile ? 'flex-start' : 'center'
+        }}>
+          <div style={{display:'flex', alignItems:'center', gap:'12px', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-start'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+              <h2 style={{margin:0, fontSize: isMobile ? '18px' : '20px'}}>Sipariş #{order.id}</h2>
+              {/* Durum Rozeti */}
+              {renderStatusBadge()}
+            </div>
+            <button onClick={onClose} style={{background:'none', border:'none', cursor:'pointer', fontSize:'20px', color:'#64748B', minWidth: isMobile ? '44px' : 'auto', minHeight: isMobile ? '44px' : 'auto'}}>
+              <FaTimes />
+            </button>
           </div>
-          <button onClick={onClose} style={{background:'none', border:'none', cursor:'pointer', fontSize:'20px', color:'#64748B'}}>
-            <FaTimes />
-          </button>
         </div>
 
         {/* --- TABS (SEKMELER) --- */}
-        <div style={styles.tabHeader}>
+        <div style={{
+          ...styles.tabHeader,
+          overflowX: isMobile ? 'auto' : 'visible',
+          gap: isMobile ? '8px' : styles.tabHeader?.gap,
+          padding: isMobile ? '0 16px' : styles.tabHeader?.padding
+        }}>
           <button 
-            style={styles.tabBtn(activeTab === 'details')} 
+            style={{
+              ...styles.tabBtn(activeTab === 'details'),
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '13px' : styles.tabBtn(activeTab === 'details').fontSize,
+              whiteSpace: 'nowrap',
+              padding: isMobile ? '0 12px' : styles.tabBtn(activeTab === 'details').padding
+            }} 
             onClick={() => setActiveTab('details')}
           >
-            Sipariş Detayları
+            Detaylar
           </button>
           <button 
-            style={styles.tabBtn(activeTab === 'history')} 
+            style={{
+              ...styles.tabBtn(activeTab === 'history'),
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '13px' : styles.tabBtn(activeTab === 'history').fontSize,
+              whiteSpace: 'nowrap',
+              padding: isMobile ? '0 12px' : styles.tabBtn(activeTab === 'history').padding
+            }} 
             onClick={() => setActiveTab('history')}
           >
-            Geçmiş & İşlemler
+            Geçmiş
           </button>
           <button 
-            style={styles.tabBtn(activeTab === 'notes')} 
+            style={{
+              ...styles.tabBtn(activeTab === 'notes'),
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '13px' : styles.tabBtn(activeTab === 'notes').fontSize,
+              whiteSpace: 'nowrap',
+              padding: isMobile ? '0 12px' : styles.tabBtn(activeTab === 'notes').padding
+            }} 
             onClick={() => setActiveTab('notes')}
           >
-            Sipariş Notları {orderNotes.length > 0 && `(${orderNotes.length})`}
+            Notlar {orderNotes.length > 0 && `(${orderNotes.length})`}
           </button>
           <button 
-            style={styles.tabBtn(activeTab === 'user-orders')} 
+            style={{
+              ...styles.tabBtn(activeTab === 'user-orders'),
+              minHeight: isMobile ? '44px' : 'auto',
+              fontSize: isMobile ? '13px' : styles.tabBtn(activeTab === 'user-orders').fontSize,
+              whiteSpace: 'nowrap',
+              padding: isMobile ? '0 12px' : styles.tabBtn(activeTab === 'user-orders').padding
+            }} 
             onClick={() => setActiveTab('user-orders')}
           >
-            Kullanıcı Siparişleri {userOrders.length > 0 && `(${userOrders.length})`}
+            Kullanıcı {userOrders.length > 0 && `(${userOrders.length})`}
           </button>
         </div>
 
         {/* --- BODY --- */}
-        <div style={styles.modalBody}>
+        <div style={{
+          ...styles.modalBody,
+          padding: isMobile ? '16px' : styles.modalBody.padding,
+          maxHeight: isMobile ? 'calc(90vh - 200px)' : 'auto',
+          overflowY: 'auto'
+        }}>
           
           {/* TAB 1: DETAYLAR */}
           {activeTab === 'details' && (

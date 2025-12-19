@@ -18,7 +18,14 @@ import {
  * pre_pending durumundaki satıcıları listeler
  */
 const PreApplicationsPage = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const toast = useToast();
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const {
     // Data
@@ -192,34 +199,72 @@ const PreApplicationsPage = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      padding: isMobile ? '16px' : styles.container.padding
+    }}>
       {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>📋 Ön Başvurular</h1>
-          <p style={styles.subtitle}>
-            Satıcı olmak için ön başvuru yapan kişileri inceleyin.<br />
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? '16px' : '24px',
+        padding: isMobile ? '20px 16px' : styles.header.padding
+      }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <h1 style={{
+            ...styles.title,
+            fontSize: isMobile ? '20px' : styles.title.fontSize
+          }}>📋 Ön Başvurular</h1>
+          <p style={{
+            ...styles.subtitle,
+            fontSize: isMobile ? '13px' : styles.subtitle.fontSize
+          }}>
+            Satıcı olmak için ön başvuru yapan kişileri inceleyin.
+            {!isMobile && <br />}
             Onaylanan başvurular tam başvuru formunu doldurmaya yönlendirilir.
           </p>
         </div>
-        <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
+        <div style={{
+          ...styles.headerActions,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto',
+          gap: isMobile ? '8px' : '12px'
+        }}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '14px' : styles.exportBtn.fontSize,
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }} onClick={handlePrint}>
             <FaPrint /> Rapor Yazdır
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
+          <button style={{
+            ...styles.exportBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: isMobile ? '44px' : 'auto',
+            fontSize: isMobile ? '14px' : styles.exportBtn.fontSize,
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }} onClick={handleDownloadExcel}>
             <FaFileExcel /> Excel İndir
           </button>
         </div>
       </div>
 
       {/* Info Box */}
-      <InfoBox count={(allVendors || []).length} message="ön başvuru bekliyor." />
+      <InfoBox 
+        count={(allVendors || []).length} 
+        message="ön başvuru bekliyor." 
+        isMobile={isMobile}
+      />
 
       {/* Search Bar */}
       <SearchBar 
         value={searchTerm}
         onChange={setSearchTerm}
         placeholder="Mağaza adı, yetkili veya e-posta ara..."
+        isMobile={isMobile}
       />
 
       {/* Table */}
@@ -234,6 +279,7 @@ const PreApplicationsPage = () => {
         onReject={handleRejectClick}
         showMerchantType={false}
         emptyMessage="Ön başvuru bekleyen satıcı yok"
+        isMobile={isMobile}
       />
 
       {/* Pagination */}

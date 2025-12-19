@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaTimes, FaStore, FaImage, FaCheck, FaTimesCircle } from 'react-icons/fa';
 import { StatusBadge } from '../../../features/admin/shared';
+import SecureImage from '../../../components/common/SecureImage';
 import { toFullUrl } from './styles';
 
 /**
@@ -18,7 +19,7 @@ const ProductDetailModal = ({
 }) => {
   if (!product) return null;
 
-  const mainImage = selectedImage || toFullUrl(product.thumbnail) || (product.photos?.[0] && toFullUrl(product.photos[0].url));
+  const mainImage = selectedImage || product.image;
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
@@ -57,7 +58,7 @@ const ProductDetailModal = ({
                 onClick={() => mainImage && onOpenLightbox(mainImage)}
               >
                 {mainImage ? (
-                  <img 
+                  <SecureImage 
                     src={mainImage} 
                     alt={product.name} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
@@ -71,11 +72,10 @@ const ProductDetailModal = ({
               </div>
               
               {/* Diğer Görseller */}
-              {product.photos && product.photos.length > 0 && (
+              {product.images && product.images.length > 1 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                  {product.photos.map((photo, i) => {
-                    const photoUrl = toFullUrl(photo.url);
-                    const isSelected = selectedImage === photoUrl;
+                  {product.images.map((imageUrl, i) => {
+                    const isSelected = selectedImage === imageUrl;
                     return (
                       <div 
                         key={i} 
@@ -89,9 +89,13 @@ const ProductDetailModal = ({
                           transition: 'all 0.2s',
                           opacity: isSelected ? 1 : 0.8
                         }}
-                        onClick={() => onSelectImage(photoUrl)}
+                        onClick={() => onSelectImage(imageUrl)}
                       >
-                        <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <SecureImage 
+                          src={imageUrl} 
+                          alt={product.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
                       </div>
                     );
                   })}
@@ -106,9 +110,13 @@ const ProductDetailModal = ({
                     <FaStore size={18} color="white" />
                   </div>
                   <div>
-                    <div style={{ fontWeight: '600', color: '#0f172a' }}>{product.vendor?.company_name || '-'}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{product.vendor?.full_name}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{product.vendor?.email}</div>
+                    <div style={{ fontWeight: '600', color: '#0f172a' }}>
+                      {product.vendor?.store_name || product.vendor?.shop_name || product.vendor?.company_name || '-'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                      {product.vendor?.full_name || product.vendor?.owner || product.vendor?.name || '-'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>{product.vendor?.email || '-'}</div>
                   </div>
                 </div>
               </div>

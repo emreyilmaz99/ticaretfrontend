@@ -14,7 +14,8 @@ const CategoryTree = ({
   openCreateModal,
   openEditModal,
   confirmDelete,
-  styles 
+  styles,
+  isMobile = false
 }) => {
   if (loading) {
     return (
@@ -46,6 +47,7 @@ const CategoryTree = ({
           openEditModal={openEditModal}
           confirmDelete={confirmDelete}
           styles={styles}
+          isMobile={isMobile}
         />
       ))}
     </div>

@@ -17,21 +17,28 @@ const data = [
 ];
 
 export const DashboardChart = () => {
+  const isMobile = window.innerWidth <= 768;
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginTop: '24px' }}>
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', 
+      gap: isMobile ? '16px' : '24px', 
+      marginTop: isMobile ? '0' : '24px' 
+    }}>
       
       {/* Sol: Satış Grafiği */}
       <div style={{ 
         backgroundColor: 'var(--bg-card)', 
-        padding: '24px', 
+        padding: isMobile ? '16px' : '24px', 
         borderRadius: 'var(--radius)', 
         boxShadow: 'var(--shadow-sm)',
         border: '1px solid #e2e8f0',
-        height: '400px',
+        height: isMobile ? '300px' : '400px',
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '24px' }}>Yıllık Satış Analizi</h3>
+        <h3 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: isMobile ? '16px' : '24px' }}>Yıllık Satış Analizi</h3>
         <div style={{ flex: 1, minHeight: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -57,15 +64,15 @@ export const DashboardChart = () => {
       {/* Sağ: Ziyaretçi Grafiği */}
       <div style={{ 
         backgroundColor: 'var(--bg-card)', 
-        padding: '24px', 
+        padding: isMobile ? '16px' : '24px', 
         borderRadius: 'var(--radius)', 
         boxShadow: 'var(--shadow-sm)',
         border: '1px solid #e2e8f0',
-        height: '400px',
+        height: isMobile ? '300px' : '400px',
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '24px' }}>Ziyaretçi İstatistiği</h3>
+        <h3 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: isMobile ? '16px' : '24px' }}>Ziyaretçi İstatistiği</h3>
         <div style={{ flex: 1, minHeight: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>

@@ -3,6 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 const TaxClassModal = ({ isOpen, taxClass, onClose, onSubmit }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     rate: '',
@@ -51,21 +59,59 @@ const TaxClassModal = ({ isOpen, taxClass, onClose, onSubmit }) => {
 
   return (
     <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div 
+        style={{
+          ...styles.modal,
+          width: isMobile ? '100%' : styles.modal.width,
+          maxWidth: isMobile ? '100%' : styles.modal.maxWidth,
+          margin: isMobile ? '0' : 'auto',
+          borderRadius: isMobile ? '20px 20px 0 0' : styles.modal.borderRadius,
+          maxHeight: isMobile ? '90vh' : styles.modal.maxHeight,
+          position: isMobile ? 'fixed' : 'relative',
+          bottom: isMobile ? '0' : 'auto',
+          left: isMobile ? '0' : 'auto',
+          right: isMobile ? '0' : 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div style={styles.header}>
-          <h2 style={styles.title}>
+        <div style={{
+          ...styles.header,
+          padding: isMobile ? '20px 16px' : styles.header.padding
+        }}>
+          <h2 style={{
+            ...styles.title,
+            fontSize: isMobile ? '18px' : styles.title.fontSize
+          }}>
             {taxClass ? 'Vergi Sınıfını Düzenle' : 'Yeni Vergi Sınıfı Ekle'}
           </h2>
-          <button style={styles.closeBtn} onClick={onClose}>
+          <button 
+            style={{
+              ...styles.closeBtn,
+              minHeight: isMobile ? '44px' : 'auto',
+              minWidth: isMobile ? '44px' : 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }} 
+            onClick={onClose}
+          >
             <FaTimes />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} style={{
+          ...styles.form,
+          padding: isMobile ? '16px' : styles.form.padding,
+          maxHeight: isMobile ? 'calc(90vh - 180px)' : 'auto',
+          overflowY: isMobile ? 'auto' : 'visible'
+        }}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>
+            <label style={{
+              ...styles.label,
+              fontSize: isMobile ? '13px' : styles.label.fontSize
+            }}>
               Ad <span style={styles.required}>*</span>
             </label>
             <input
@@ -75,12 +121,19 @@ const TaxClassModal = ({ isOpen, taxClass, onClose, onSubmit }) => {
               onChange={handleChange}
               placeholder="Örn: KDV %20"
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '16px' : styles.input.fontSize
+              }}
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>
+            <label style={{
+              ...styles.label,
+              fontSize: isMobile ? '13px' : styles.label.fontSize
+            }}>
               Oran (%) <span style={styles.required}>*</span>
             </label>
             <input
@@ -93,68 +146,131 @@ const TaxClassModal = ({ isOpen, taxClass, onClose, onSubmit }) => {
               max="100"
               step="0.01"
               required
-              style={styles.input}
+              style={{
+                ...styles.input,
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '16px' : styles.input.fontSize
+              }}
             />
             <span style={styles.hint}>0 ile 100 arasında bir değer girin</span>
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Açıklama</label>
+            <label style={{
+              ...styles.label,
+              fontSize: isMobile ? '13px' : styles.label.fontSize
+            }}>Açıklama</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               placeholder="Opsiyonel açıklama"
               rows="3"
-              style={styles.textarea}
+              style={{
+                ...styles.textarea,
+                minHeight: isMobile ? '100px' : 'auto',
+                fontSize: isMobile ? '16px' : styles.textarea.fontSize
+              }}
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Sıra</label>
+            <label style={{
+              ...styles.label,
+              fontSize: isMobile ? '13px' : styles.label.fontSize
+            }}>Sıra</label>
             <input
               type="number"
               name="sort_order"
               value={formData.sort_order}
               onChange={handleChange}
               min="0"
-              style={styles.input}
+              style={{
+                ...styles.input,
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '16px' : styles.input.fontSize
+              }}
             />
             <span style={styles.hint}>Listede görünme sırası (küçükten büyüğe)</span>
           </div>
 
-          <div style={styles.checkboxGroup}>
-            <label style={styles.checkboxLabel}>
+          <div style={{
+            ...styles.checkboxGroup,
+            padding: isMobile ? '12px' : '0',
+            backgroundColor: isMobile ? '#f8fafc' : 'transparent',
+            borderRadius: isMobile ? '8px' : '0'
+          }}>
+            <label style={{
+              ...styles.checkboxLabel,
+              fontSize: isMobile ? '15px' : styles.checkboxLabel.fontSize
+            }}>
               <input
                 type="checkbox"
                 name="is_default"
                 checked={formData.is_default}
                 onChange={handleChange}
-                style={styles.checkbox}
+                style={{
+                  ...styles.checkbox,
+                  width: isMobile ? '20px' : styles.checkbox.width,
+                  height: isMobile ? '20px' : styles.checkbox.height
+                }}
               />
               <span>Varsayılan olarak ayarla</span>
             </label>
           </div>
 
-          <div style={styles.checkboxGroup}>
-            <label style={styles.checkboxLabel}>
+          <div style={{
+            ...styles.checkboxGroup,
+            padding: isMobile ? '12px' : '0',
+            backgroundColor: isMobile ? '#f8fafc' : 'transparent',
+            borderRadius: isMobile ? '8px' : '0'
+          }}>
+            <label style={{
+              ...styles.checkboxLabel,
+              fontSize: isMobile ? '15px' : styles.checkboxLabel.fontSize
+            }}>
               <input
                 type="checkbox"
                 name="is_active"
                 checked={formData.is_active}
                 onChange={handleChange}
-                style={styles.checkbox}
+                style={{
+                  ...styles.checkbox,
+                  width: isMobile ? '20px' : styles.checkbox.width,
+                  height: isMobile ? '20px' : styles.checkbox.height
+                }}
               />
               <span>Aktif</span>
             </label>
           </div>
 
           {/* Footer */}
-          <div style={styles.footer}>
-            <button type="button" style={styles.cancelBtn} onClick={onClose}>
+          <div style={{
+            ...styles.footer,
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: isMobile ? '12px' : styles.footer.gap
+          }}>
+            <button 
+              type="button" 
+              style={{
+                ...styles.cancelBtn,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : styles.cancelBtn.fontSize
+              }} 
+              onClick={onClose}
+            >
               İptal
             </button>
-            <button type="submit" style={styles.submitBtn}>
+            <button 
+              type="submit" 
+              style={{
+                ...styles.submitBtn,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: isMobile ? '44px' : 'auto',
+                fontSize: isMobile ? '15px' : styles.submitBtn.fontSize
+              }}
+            >
               {taxClass ? 'Güncelle' : 'Oluştur'}
             </button>
           </div>

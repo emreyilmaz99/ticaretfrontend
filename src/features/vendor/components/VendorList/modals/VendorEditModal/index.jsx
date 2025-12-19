@@ -12,6 +12,7 @@ const VendorEditModal = ({ vendor, isOpen = true, onClose }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const overlayRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,6 +24,12 @@ const VendorEditModal = ({ vendor, isOpen = true, onClose }) => {
     addresses: [],
     bank_accounts: [],
   });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (vendor) {
@@ -85,37 +92,81 @@ const VendorEditModal = ({ vendor, isOpen = true, onClose }) => {
 
   return (
     <div ref={overlayRef} onClick={handleOverlayClick} style={modalStyles.overlay}>
-      <div style={modalStyles.container}>
-        <div style={modalStyles.header}>
-          <h2 style={modalStyles.title}>
+      <div style={{
+        ...modalStyles.container,
+        ...(isMobile && {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderRadius: '20px 20px 0 0',
+          maxHeight: '95vh',
+          width: '100%',
+          maxWidth: '100%'
+        })
+      }}>
+        <div style={{
+          ...modalStyles.header,
+          padding: isMobile ? '20px' : '20px 24px'
+        }}>
+          <h2 style={{
+            ...modalStyles.title,
+            fontSize: isMobile ? '16px' : '18px'
+          }}>
             Satıcı Düzenle: <span style={modalStyles.storeName}>{vendor.storeName}</span>
           </h2>
           <button
             type="button"
             aria-label="Kapat"
             onClick={onClose}
-            style={modalStyles.closeButton}
+            style={{
+              ...modalStyles.closeButton,
+              minWidth: '44px',
+              minHeight: '44px'
+            }}
           >
             <FaTimes size={20} />
           </button>
         </div>
 
-        <div style={modalStyles.content}>
+        <div style={{
+          ...modalStyles.content,
+          padding: isMobile ? '20px' : '24px'
+        }}>
           <VendorEditForm
             formData={formData}
             onFieldChange={handleFieldChange}
             onSubmit={handleSubmit}
             isSubmitting={updateMutation.isLoading}
+            isMobile={isMobile}
           />
 
-          <div style={modalStyles.footer}>
-            <button type="button" onClick={onClose} style={modalStyles.cancelButton}>
+          <div style={{
+            ...modalStyles.footer,
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: isMobile ? '12px' : '12px'
+          }}>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              style={{
+                ...modalStyles.cancelButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: '44px',
+                fontSize: '15px'
+              }}
+            >
               İptal
             </button>
             <button
               type="submit"
               onClick={handleSubmit}
-              style={modalStyles.submitButton}
+              style={{
+                ...modalStyles.submitButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: '44px',
+                fontSize: '15px'
+              }}
               disabled={updateMutation.isLoading}
             >
               {updateMutation.isLoading ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}

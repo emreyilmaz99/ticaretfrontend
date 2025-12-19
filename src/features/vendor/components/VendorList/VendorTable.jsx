@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import VendorRow from './VendorRow';
+import VendorCard from './VendorCard';
 import Pagination from '../../../../components/ui/Pagination';
 import { styles } from '../../shared/styles';
 
@@ -20,6 +21,7 @@ const VendorTable = React.memo(({
   onBan,
   onCategory,
   showCategoryButton = false,
+  isMobile = false,
 }) => {
   // Client-side filtering for search and advanced filters
   const filteredVendors = useMemo(() => {
@@ -78,6 +80,53 @@ const VendorTable = React.memo(({
     );
   }
 
+  // Mobile Card View
+  if (isMobile) {
+    return (
+      <div style={{ marginTop: '16px' }}>
+        {filteredVendors.length === 0 ? (
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '40px 20px',
+            textAlign: 'center',
+            color: '#9ca3af',
+            border: '1px solid #e5e7eb'
+          }}>
+            {searchTerm ? 'Arama kriterine uygun satıcı bulunamadı.' : 'Satıcı bulunamadı.'}
+          </div>
+        ) : (
+          <>
+            {filteredVendors.map((vendor) => (
+              <VendorCard
+                key={vendor.id}
+                vendor={vendor}
+                onEdit={onEdit}
+                onApprove={onApprove}
+                onReject={onReject}
+                onBan={onBan}
+                onCategory={onCategory}
+                showCategoryButton={showCategoryButton}
+              />
+            ))}
+          </>
+        )}
+        {totalPages > 1 && (
+          <div style={{ marginTop: '16px' }}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={meta?.total || 0}
+              perPage={itemsPerPage}
+              onPageChange={onPageChange}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Table View
   return (
     <div style={styles.tableContainer}>
       <table style={styles.table}>
@@ -145,6 +194,7 @@ VendorTable.propTypes = {
   onBan: PropTypes.func.isRequired,
   onCategory: PropTypes.func,
   showCategoryButton: PropTypes.bool,
+  isMobile: PropTypes.bool,
 };
 
 export default VendorTable;

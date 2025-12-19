@@ -1,5 +1,5 @@
 // src/pages/admin/Applications/shared/components/StatCard.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -13,14 +13,15 @@ const StatCard = React.memo(({
   color = '#059669',
   onClick,
   isActive = false,
-  style = {} 
+  style = {},
+  isMobile = false 
 }) => {
   const cardStyle = {
     background: isActive
       ? `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`
       : 'white',
-    padding: '20px',
-    borderRadius: '16px',
+    padding: isMobile ? '14px' : '20px',
+    borderRadius: isMobile ? '12px' : '16px',
     border: isActive ? `2px solid ${color}` : '1px solid #e5e7eb',
     cursor: onClick ? 'pointer' : 'default',
     transition: 'all 0.3s',
@@ -49,31 +50,32 @@ const StatCard = React.memo(({
         }
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '8px' : '12px' }}>
         {icon && (
           <div
             style={{
-              fontSize: '24px',
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
+              fontSize: isMobile ? '18px' : '24px',
+              width: isMobile ? '36px' : '48px',
+              height: isMobile ? '36px' : '48px',
+              borderRadius: isMobile ? '8px' : '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: `${color}15`,
               color,
+              flexShrink: 0,
             }}
           >
             {icon}
           </div>
         )}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontSize: '13px',
+              fontSize: isMobile ? '11px' : '13px',
               fontWeight: '600',
               color: '#6b7280',
-              marginBottom: '4px',
+              marginBottom: '2px',
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}
@@ -82,10 +84,10 @@ const StatCard = React.memo(({
           </div>
           <div
             style={{
-              fontSize: '28px',
+              fontSize: isMobile ? '22px' : '28px',
               fontWeight: '800',
               color: '#111827',
-              marginBottom: '4px',
+              marginBottom: isMobile ? '2px' : '4px',
             }}
           >
             {value}
@@ -93,7 +95,7 @@ const StatCard = React.memo(({
           {description && (
             <div
               style={{
-                fontSize: '12px',
+                fontSize: isMobile ? '11px' : '12px',
                 color: '#9ca3af',
               }}
             >
@@ -117,6 +119,7 @@ StatCard.propTypes = {
   onClick: PropTypes.func,
   isActive: PropTypes.bool,
   style: PropTypes.object,
+  isMobile: PropTypes.bool,
 };
 
 export default StatCard;

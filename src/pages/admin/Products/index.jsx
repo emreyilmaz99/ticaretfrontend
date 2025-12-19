@@ -20,6 +20,14 @@ import { getStyles } from './styles';
  * Ürün Yönetimi Ana Sayfası
  */
 const ProductsPage = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     // Data
     products,
@@ -65,7 +73,7 @@ const ProductsPage = () => {
     isBulkUpdating
   } = useProductsPage();
 
-  const styles = getStyles();
+  const styles = getStyles(isMobile);
 
   return (
     <div style={styles.container}>
@@ -103,6 +111,7 @@ const ProductsPage = () => {
         onView={openViewModal}
         onStatusChange={handleStatusChange}
         styles={styles}
+        isMobile={isMobile}
       />
 
       {/* Pagination */}

@@ -1,5 +1,5 @@
 // src/features/vendor/components/AddVendorModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes, FaStore, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@lib/apiClient';
@@ -8,6 +8,13 @@ import { useToast } from '../../../components/common/Toast';
 const AddVendorModal = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const [formData, setFormData] = useState({
     store_name: '',
@@ -99,24 +106,58 @@ const AddVendorModal = ({ isOpen, onClose }) => {
 
   return (
     <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={e => e.stopPropagation()}>
+      <div style={{
+        ...styles.modal,
+        ...(isMobile && {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderRadius: '20px 20px 0 0',
+          maxHeight: '95vh',
+          margin: 0,
+          width: '100%',
+          maxWidth: '100%'
+        })
+      }} onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.iconContainer}>
-            <FaStore size={28} color="white" />
+        <div style={{
+          ...styles.header,
+          padding: isMobile ? '24px 20px' : '32px'
+        }}>
+          <div style={{
+            ...styles.iconContainer,
+            width: isMobile ? '56px' : '64px',
+            height: isMobile ? '56px' : '64px'
+          }}>
+            <FaStore size={isMobile ? 24 : 28} color="white" />
           </div>
-          <button style={styles.closeButton} onClick={onClose}>
+          <button style={{
+            ...styles.closeButton,
+            minWidth: '44px',
+            minHeight: '44px'
+          }} onClick={onClose}>
             <FaTimes size={18} />
           </button>
-          <h2 style={styles.title}>Yeni Satıcı Ekle</h2>
+          <h2 style={{
+            ...styles.title,
+            fontSize: isMobile ? '20px' : '24px'
+          }}>Yeni Satıcı Ekle</h2>
           <p style={styles.subtitle}>
             Platformunuza yeni bir satıcı ekleyin
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGrid}>
+        <form onSubmit={handleSubmit} style={{
+          ...styles.form,
+          padding: isMobile ? '20px' : '32px'
+        }}>
+          <div style={{
+            ...styles.formGrid,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: isMobile ? '16px' : '20px'
+          }}>
             {/* Store Name */}
             <div style={styles.formGroup}>
               <label style={styles.label}>
@@ -128,7 +169,12 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="store_name"
                 value={formData.store_name}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.store_name ? styles.inputError : {})}}
+                style={{
+                  ...styles.input,
+                  ...(errors.store_name ? styles.inputError : {}),
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="Örn: ABC Market"
               />
               {errors.store_name && <span style={styles.errorText}>{errors.store_name}</span>}
@@ -145,7 +191,12 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="full_name"
                 value={formData.full_name}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.full_name ? styles.inputError : {})}}
+                style={{
+                  ...styles.input,
+                  ...(errors.full_name ? styles.inputError : {}),
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="Örn: Ahmet Yılmaz"
               />
               {errors.full_name && <span style={styles.errorText}>{errors.full_name}</span>}
@@ -162,7 +213,12 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.email ? styles.inputError : {})}}
+                style={{
+                  ...styles.input,
+                  ...(errors.email ? styles.inputError : {}),
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="ornek@email.com"
               />
               {errors.email && <span style={styles.errorText}>{errors.email}</span>}
@@ -179,7 +235,12 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.phone ? styles.inputError : {})}}
+                style={{
+                  ...styles.input,
+                  ...(errors.phone ? styles.inputError : {}),
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="0555 555 5555"
               />
               {errors.phone && <span style={styles.errorText}>{errors.phone}</span>}
@@ -195,7 +256,12 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                style={{...styles.input, ...(errors.password ? styles.inputError : {})}}
+                style={{
+                  ...styles.input,
+                  ...(errors.password ? styles.inputError : {}),
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="En az 6 karakter"
               />
               {errors.password && <span style={styles.errorText}>{errors.password}</span>}
@@ -212,7 +278,11 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="Örn: İstanbul"
               />
             </div>
@@ -227,7 +297,11 @@ const AddVendorModal = ({ isOpen, onClose }) => {
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: '44px'
+                }}
                 placeholder="Örn: Kadıköy"
               />
             </div>
@@ -242,23 +316,42 @@ const AddVendorModal = ({ isOpen, onClose }) => {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
+              style={{
+                ...styles.input,
+                minHeight: isMobile ? '80px' : '80px',
+                resize: 'vertical',
+                fontSize: isMobile ? '16px' : '14px'
+              }}
               placeholder="Tam adres bilgisi..."
             />
           </div>
 
           {/* Footer */}
-          <div style={styles.footer}>
+          <div style={{
+            ...styles.footer,
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: isMobile ? '12px' : '16px'
+          }}>
             <button
               type="button"
               onClick={onClose}
-              style={styles.cancelButton}
+              style={{
+                ...styles.cancelButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: '44px',
+                fontSize: '15px'
+              }}
             >
               İptal
             </button>
             <button
               type="submit"
-              style={styles.submitButton}
+              style={{
+                ...styles.submitButton,
+                width: isMobile ? '100%' : 'auto',
+                minHeight: '44px',
+                fontSize: '15px'
+              }}
               disabled={createVendorMutation.isLoading}
             >
               {createVendorMutation.isLoading ? '✓ Oluşturuluyor...' : '✓ Satıcı Ekle'}

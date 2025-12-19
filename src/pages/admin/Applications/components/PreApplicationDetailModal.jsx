@@ -24,6 +24,14 @@ const PreApplicationDetailModal = ({
   isApproving,
   isRejecting
 }) => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!vendor) return null;
 
   const tabs = [
@@ -35,20 +43,52 @@ const PreApplicationDetailModal = ({
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
       <div 
-        style={{...styles.modalContent, maxWidth: '800px', maxHeight: '90vh'}} 
+        style={{
+          ...styles.modalContent, 
+          ...(isMobile ? {
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 'auto',
+            maxWidth: '100%',
+            maxHeight: '95vh',
+            borderRadius: '20px 20px 0 0',
+            margin: 0
+          } : {
+            maxWidth: '800px', 
+            maxHeight: '90vh'
+          })
+        }} 
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={styles.modalHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={styles.storeIcon}>
-              <FaStore size={20} />
+        <div style={{
+          ...styles.modalHeader,
+          padding: isMobile ? '16px' : styles.modalHeader.padding
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+            <div style={{
+              ...styles.storeIcon,
+              width: isMobile ? '40px' : styles.storeIcon.width,
+              height: isMobile ? '40px' : styles.storeIcon.height,
+              flexShrink: 0
+            }}>
+              <FaStore size={isMobile ? 16 : 20} />
             </div>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#064e3b' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ 
+                margin: 0, 
+                fontSize: isMobile ? '16px' : '18px', 
+                fontWeight: '700', 
+                color: '#064e3b',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
                 {vendor.storeName || vendor.company_name || 'Mağaza Adı Yok'}
               </h2>
-              <span style={{ fontSize: '13px', color: '#6b7280' }}>
+              <span style={{ fontSize: isMobile ? '12px' : '13px', color: '#6b7280' }}>
                 {vendor.owner || vendor.full_name} • ID: {vendor.id}
               </span>
             </div>
@@ -59,9 +99,15 @@ const PreApplicationDetailModal = ({
               background: 'white', 
               border: 'none', 
               cursor: 'pointer', 
-              padding: '8px', 
+              padding: isMobile ? '12px' : '8px', 
               borderRadius: '8px',
-              color: '#6b7280'
+              color: '#6b7280',
+              minWidth: isMobile ? '44px' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             }}
           >
             <FaTimes size={18} />
@@ -72,26 +118,30 @@ const PreApplicationDetailModal = ({
         <div style={{ 
           display: 'flex', 
           borderBottom: '1px solid #e5e7eb', 
-          padding: '0 24px',
-          background: '#f9fafb'
+          padding: isMobile ? '0 12px' : '0 24px',
+          background: '#f9fafb',
+          overflowX: isMobile ? 'auto' : 'visible',
+          WebkitOverflowScrolling: 'touch'
         }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                padding: '14px 20px',
+                padding: isMobile ? '12px 16px' : '14px 20px',
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                fontSize: '13px',
+                fontSize: isMobile ? '12px' : '13px',
                 fontWeight: activeTab === tab.id ? '600' : '500',
                 color: activeTab === tab.id ? '#059669' : '#6b7280',
                 borderBottom: activeTab === tab.id ? '2px solid #059669' : '2px solid transparent',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s'
+                gap: '6px',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                minHeight: isMobile ? '44px' : 'auto'
               }}
             >
               {tab.icon} {tab.label}
@@ -103,7 +153,8 @@ const PreApplicationDetailModal = ({
         <div style={{ 
           ...styles.modalBody, 
           overflowY: 'auto', 
-          maxHeight: 'calc(90vh - 250px)' 
+          maxHeight: isMobile ? 'calc(95vh - 280px)' : 'calc(90vh - 250px)',
+          padding: isMobile ? '16px' : styles.modalBody.padding
         }}>
           {activeTab === 'general' && (
             <div>
@@ -247,18 +298,25 @@ const PreApplicationDetailModal = ({
         </div>
 
         {/* Footer */}
-        <div style={styles.modalFooter}>
+        <div style={{
+          ...styles.modalFooter,
+          flexDirection: isMobile ? 'column-reverse' : 'row',
+          gap: isMobile ? '8px' : '12px',
+          padding: isMobile ? '16px' : styles.modalFooter.padding
+        }}>
           <button 
             onClick={onClose} 
             style={{
-              padding: '12px 24px', 
+              padding: isMobile ? '12px 24px' : '12px 24px', 
               borderRadius: '10px', 
               border: '2px solid #e5e7eb', 
               background: 'white', 
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '14px',
-              color: '#6b7280'
+              fontSize: isMobile ? '15px' : '14px',
+              color: '#6b7280',
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
             }}
           >
             Kapat
@@ -267,15 +325,17 @@ const PreApplicationDetailModal = ({
             onClick={() => onReject(vendor)}
             disabled={isRejecting}
             style={{
-              padding: '12px 24px', 
+              padding: isMobile ? '12px 24px' : '12px 24px', 
               borderRadius: '10px', 
               border: 'none', 
               background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)', 
               color: 'white', 
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '14px',
-              opacity: isRejecting ? 0.7 : 1
+              fontSize: isMobile ? '15px' : '14px',
+              opacity: isRejecting ? 0.7 : 1,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
             }}
           >
             {isRejecting ? 'Reddediliyor...' : 'Reddet'}
@@ -284,19 +344,21 @@ const PreApplicationDetailModal = ({
             onClick={() => onApprove(vendor)}
             disabled={isApproving}
             style={{
-              padding: '12px 24px', 
+              padding: isMobile ? '12px 24px' : '12px 24px', 
               borderRadius: '10px', 
               border: 'none', 
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
               color: 'white', 
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '14px',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-              opacity: isApproving ? 0.7 : 1
+              fontSize: isMobile ? '15px' : '14px',
+              opacity: isApproving ? 0.7 : 1,
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+              width: isMobile ? '100%' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
             }}
           >
-            {isApproving ? 'Onaylanıyor...' : 'Ön Başvuruyu Onayla'}
+            {isApproving ? 'Onaylanıyor...' : 'Onayla'}
           </button>
         </div>
       </div>

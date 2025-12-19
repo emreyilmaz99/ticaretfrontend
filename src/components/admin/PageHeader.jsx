@@ -11,29 +11,31 @@ import React from 'react';
  * @param {React.ReactNode} action - Sağ taraftaki aksiyon butonu (opsiyonel)
  * @param {React.ReactNode} icon - Başlık ikonu (opsiyonel)
  */
-const PageHeader = ({ title, subtitle, action, icon: Icon }) => {
+const PageHeader = ({ title, subtitle, action, icon: Icon, isMobile = false }) => {
   const styles = {
     container: {
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '32px',
+      alignItems: isMobile ? 'flex-start' : 'center',
+      marginBottom: isMobile ? '16px' : '32px',
       background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-      padding: '28px 32px',
+      padding: isMobile ? '20px 16px' : '28px 32px',
       borderRadius: '16px',
       border: '1px solid #e2e8f0',
-      gap: '24px',
+      gap: isMobile ? '16px' : '24px',
       flexWrap: 'wrap',
+      flexDirection: isMobile ? 'column' : 'row',
     },
     leftSection: {
       display: 'flex',
       alignItems: 'center',
       gap: '16px',
       flex: 1,
+      width: isMobile ? '100%' : 'auto',
     },
     iconWrapper: {
-      width: '52px',
-      height: '52px',
+      width: isMobile ? '44px' : '52px',
+      height: isMobile ? '44px' : '52px',
       borderRadius: '14px',
       backgroundColor: 'rgba(5, 150, 105, 0.12)',
       display: 'flex',
@@ -48,7 +50,7 @@ const PageHeader = ({ title, subtitle, action, icon: Icon }) => {
       gap: '6px',
     },
     title: {
-      fontSize: '26px',
+      fontSize: isMobile ? '20px' : '26px',
       fontWeight: '800',
       color: '#0f172a',
       margin: 0,
@@ -57,7 +59,7 @@ const PageHeader = ({ title, subtitle, action, icon: Icon }) => {
       lineHeight: '1.2',
     },
     subtitle: {
-      fontSize: '15px',
+      fontSize: isMobile ? '13px' : '15px',
       fontWeight: '400',
       color: '#64748b',
       margin: 0,
@@ -66,6 +68,7 @@ const PageHeader = ({ title, subtitle, action, icon: Icon }) => {
     },
     actionWrapper: {
       flexShrink: 0,
+      width: isMobile ? '100%' : 'auto',
     },
   };
 

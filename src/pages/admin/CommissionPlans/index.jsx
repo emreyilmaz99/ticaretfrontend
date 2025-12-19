@@ -18,7 +18,14 @@ import { getStyles } from './styles';
  * Komisyon Planları Ana Sayfası
  */
 const CommissionPlans = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, planId: null, planName: '', title: '', message: '' });
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const {
     // Data
@@ -48,7 +55,7 @@ const CommissionPlans = () => {
     clearToast
   } = useCommissionPlans();
 
-  const styles = getStyles();
+  const styles = getStyles(isMobile);
 
   // Confirm Modal Handlers
   const openConfirmModal = (action, planId, planName, title, message) => {
@@ -98,12 +105,17 @@ const CommissionPlans = () => {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Komisyon Planları</h1>
-          <p style={styles.subtitle}>Satıcılar için komisyon oranlarını yönetin.</p>
+      <div style={{ 
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? '16px' : '24px'
+      }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <h1 style={{ ...styles.title, fontSize: isMobile ? '20px' : '26px' }}>Komisyon Planları</h1>
+          <p style={{ ...styles.subtitle, fontSize: isMobile ? '13px' : '15px' }}>Satıcılar için komisyon oranlarını yönetin.</p>
         </div>
-        <button style={styles.createBtn} onClick={openCreateModal}>
+        <button style={{ ...styles.createBtn, width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'center' : 'flex-start', minHeight: isMobile ? '44px' : 'auto' }} onClick={openCreateModal}>
           <FaPlus /> Yeni Plan Ekle
         </button>
       </div>
@@ -116,6 +128,7 @@ const CommissionPlans = () => {
         onToggleActive={handleToggleActiveWithConfirm}
         onSetDefault={handleSetDefaultWithConfirm}
         styles={styles}
+        isMobile={isMobile}
       />
 
       {/* Modal */}

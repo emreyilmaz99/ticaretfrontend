@@ -32,12 +32,20 @@ const ChartSkeleton = () => (
 );
 
 const Dashboard = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={{ 
       display: 'flex', 
       flexDirection: 'column', 
-      gap: '24px',
-      padding: '32px',
+      gap: isMobile ? '16px' : '24px',
+      padding: isMobile ? '16px' : '32px',
       backgroundColor: '#F3F4F6',
       minHeight: '100vh',
     }}>
@@ -50,7 +58,11 @@ const Dashboard = () => {
       </Suspense>
       
       {/* 3. Orta Bölüm: Siparişler ve Ürünler - LAZY LOADED */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+        gap: isMobile ? '16px' : '24px' 
+      }}>
         <Suspense fallback={<ChartSkeleton />}>
           <RecentOrders />
         </Suspense>
@@ -60,7 +72,11 @@ const Dashboard = () => {
       </div>
 
       {/* 4. Alt Bölüm: Aktiviteler ve Onaylar - LAZY LOADED */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', 
+        gap: isMobile ? '16px' : '24px' 
+      }}>
         <Suspense fallback={<ChartSkeleton />}>
           <ActivityTimeline />
         </Suspense>

@@ -5,6 +5,14 @@ import DealFormModal from './DealFormModal';
 import DealCard from './DealCard';
 
 const FeaturedDealsPage = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     deals,
     stats,
@@ -47,20 +55,20 @@ const FeaturedDealsPage = () => {
   ];
 
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? '16px' : '32px' }}>
       {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Öne Çıkan Ürünler</h1>
-          <p style={styles.subtitle}>Anasayfa carousel'inde gösterilecek kampanyalı ürünleri yönetin</p>
+      <div style={{ ...styles.header, padding: isMobile ? '20px 16px' : '28px 32px', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center' }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <h1 style={{ ...styles.title, fontSize: isMobile ? '20px' : '26px' }}>Öne Çıkan Ürünler</h1>
+          <p style={{ ...styles.subtitle, fontSize: isMobile ? '13px' : '15px' }}>Anasayfa carousel'inde gösterilecek kampanyalı ürünleri yönetin</p>
         </div>
-        <button onClick={openCreateModal} style={styles.btnPrimary}>
+        <button onClick={openCreateModal} style={{ ...styles.btnPrimary, width: isMobile ? '100%' : 'auto', justifyContent: 'center' }}>
           <FaPlus size={14} /> Yeni Kampanya
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div style={styles.statsGrid}>
+      <div style={{ ...styles.statsGrid, gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
         <StatCard
           label="Toplam Kampanya"
           value={stats.total || 0}
@@ -68,6 +76,7 @@ const FeaturedDealsPage = () => {
           filterValue="all"
           isActive={filterStatus === 'all'}
           onClick={() => setFilterStatus('all')}
+          isMobile={isMobile}
         />
         <StatCard
           label="Aktif"
@@ -76,6 +85,7 @@ const FeaturedDealsPage = () => {
           filterValue="active"
           isActive={filterStatus === 'active'}
           onClick={() => setFilterStatus('active')}
+          isMobile={isMobile}
         />
         <StatCard
           label="Şu Anda Geçerli"
@@ -84,6 +94,7 @@ const FeaturedDealsPage = () => {
           filterValue="current"
           isActive={filterStatus === 'current'}
           onClick={() => setFilterStatus('current')}
+          isMobile={isMobile}
         />
         <StatCard
           label="Pasif"
@@ -92,12 +103,18 @@ const FeaturedDealsPage = () => {
           filterValue="inactive"
           isActive={filterStatus === 'inactive'}
           onClick={() => setFilterStatus('inactive')}
+          isMobile={isMobile}
         />
       </div>
 
       {/* Filter Tabs */}
-      <div style={styles.filterContainer}>
-        <div style={styles.filterTabs}>
+      <div style={{ ...styles.filterContainer, marginBottom: isMobile ? '16px' : '24px' }}>
+        <div style={{ 
+          ...styles.filterTabs, 
+          flexDirection: isMobile ? 'column' : 'row',
+          padding: isMobile ? '12px' : '8px',
+          gap: isMobile ? '8px' : '8px'
+        }}>
           {filterOptions.map(option => (
             <button
               key={option.value}
@@ -105,10 +122,19 @@ const FeaturedDealsPage = () => {
               style={{
                 ...styles.filterTab,
                 ...(filterStatus === option.value ? styles.filterTabActive : {}),
+                width: isMobile ? '100%' : 'auto',
+                padding: isMobile ? '12px 16px' : '8px 16px',
+                justifyContent: isMobile ? 'space-between' : 'center',
+                fontSize: isMobile ? '15px' : '14px',
+                minHeight: isMobile ? '44px' : 'auto'
               }}
             >
-              {option.label}
-              <span style={styles.filterBadge}>{option.count}</span>
+              <span>{option.label}</span>
+              <span style={{
+                ...styles.filterBadge,
+                fontSize: isMobile ? '13px' : '12px',
+                padding: isMobile ? '4px 10px' : '2px 8px'
+              }}>{option.count}</span>
             </button>
           ))}
         </div>
@@ -130,7 +156,7 @@ const FeaturedDealsPage = () => {
         </div>
       ) : (
         <>
-          <div style={styles.dealsGrid}>
+          <div style={{ ...styles.dealsGrid, gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', gap: isMobile ? '12px' : '20px' }}>
             {deals.map((deal) => (
               <DealCard
                 key={deal.id}
@@ -146,7 +172,7 @@ const FeaturedDealsPage = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div style={styles.pagination}>
+            <div style={{ ...styles.pagination, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '12px' }}>
               <button
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -236,7 +262,7 @@ const FeaturedDealsPage = () => {
   );
 };
 
-const StatCard = ({ label, value, color, filterValue, isActive, onClick }) => (
+const StatCard = ({ label, value, color, filterValue, isActive, onClick, isMobile }) => (
   <div 
     onClick={onClick}
     style={{
@@ -246,7 +272,8 @@ const StatCard = ({ label, value, color, filterValue, isActive, onClick }) => (
       border: isActive ? `2px solid ${color}` : '1px solid #e2e8f0',
       transform: isActive ? 'translateY(-2px)' : 'none',
       boxShadow: isActive ? `0 4px 12px ${color}40` : '0 1px 3px rgba(0,0,0,0.1)',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      padding: isMobile ? '16px' : '20px'
     }}
     onMouseEnter={(e) => {
       if (!isActive) {
@@ -261,8 +288,8 @@ const StatCard = ({ label, value, color, filterValue, isActive, onClick }) => (
       }
     }}
   >
-    <p style={styles.statLabel}>{label}</p>
-    <p style={{ ...styles.statValue, color }}>{value}</p>
+    <p style={{ ...styles.statLabel, fontSize: isMobile ? '11px' : '13px' }}>{label}</p>
+    <p style={{ ...styles.statValue, color, fontSize: isMobile ? '20px' : '28px' }}>{value}</p>
   </div>
 );
 

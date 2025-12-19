@@ -27,17 +27,19 @@ export const RecentOrders = () => {
     return styles[status] || styles.pending;
   };
 
+  const isMobile = window.innerWidth <= 768;
+
   return (
     <div style={{ 
       backgroundColor: 'var(--bg-card)', 
-      padding: '24px', 
+      padding: isMobile ? '16px' : '24px', 
       borderRadius: 'var(--radius)', 
       boxShadow: 'var(--shadow-sm)',
       border: '1px solid #e2e8f0',
       height: '100%'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>Son Siparişler</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? '16px' : '24px' }}>
+        <h3 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: 'var(--text-main)' }}>Son Siparişler</h3>
         <button 
           onClick={handleViewAll}
           style={{ 
@@ -46,7 +48,9 @@ export const RecentOrders = () => {
             color: 'var(--primary)', 
             fontWeight: '600', 
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: isMobile ? '12px' : '14px',
+            padding: isMobile ? '8px' : '0',
+            minHeight: isMobile ? '44px' : 'auto'
           }}
         >
           Tümünü Gör

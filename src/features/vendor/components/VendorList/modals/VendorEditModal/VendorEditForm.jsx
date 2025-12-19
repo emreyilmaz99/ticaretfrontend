@@ -5,20 +5,28 @@ import AddressPreview from './AddressPreview';
 import BankAccountPreview from './BankAccountPreview';
 import { formStyles } from './styles';
 
-const VendorEditForm = React.memo(({ formData, onFieldChange, onSubmit, isSubmitting }) => {
+const VendorEditForm = React.memo(({ formData, onFieldChange, onSubmit, isSubmitting, isMobile = false }) => {
   const updateField = (field, value) => {
     onFieldChange(field, value);
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <div style={formStyles.grid}>
+      <div style={{
+        ...formStyles.grid,
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: isMobile ? '16px' : '12px'
+      }}>
         <div>
           <label style={formStyles.label}>Mağaza Adı</label>
           <input
             value={formData.name}
             onChange={(e) => updateField('name', e.target.value)}
-            style={formStyles.input}
+            style={{
+              ...formStyles.input,
+              fontSize: isMobile ? '16px' : '14px',
+              minHeight: '44px'
+            }}
           />
         </div>
         <div>
@@ -26,7 +34,11 @@ const VendorEditForm = React.memo(({ formData, onFieldChange, onSubmit, isSubmit
           <input
             value={formData.email}
             onChange={(e) => updateField('email', e.target.value)}
-            style={formStyles.input}
+            style={{
+              ...formStyles.input,
+              fontSize: isMobile ? '16px' : '14px',
+              minHeight: '44px'
+            }}
           />
         </div>
         <div>
@@ -35,7 +47,11 @@ const VendorEditForm = React.memo(({ formData, onFieldChange, onSubmit, isSubmit
             value={formData.phone}
             onChange={(e) => updateField('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
             maxLength={10}
-            style={formStyles.input}
+            style={{
+              ...formStyles.input,
+              fontSize: isMobile ? '16px' : '14px',
+              minHeight: '44px'
+            }}
           />
         </div>
         <div>
@@ -47,18 +63,26 @@ const VendorEditForm = React.memo(({ formData, onFieldChange, onSubmit, isSubmit
             value={formData.commission_rate}
             readOnly
             disabled
-            style={formStyles.inputDisabled}
+            style={{
+              ...formStyles.inputDisabled,
+              fontSize: isMobile ? '16px' : '14px',
+              minHeight: '44px'
+            }}
           />
           <small style={formStyles.helpText}>
             Komisyon oranı, atanmış komisyon planından gelmektedir.
           </small>
         </div>
-        <div style={formStyles.fullWidth}>
+        <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
           <label style={formStyles.label}>Durum</label>
           <select
             value={formData.status}
             onChange={(e) => updateField('status', e.target.value)}
-            style={formStyles.input}
+            style={{
+              ...formStyles.input,
+              fontSize: isMobile ? '16px' : '14px',
+              minHeight: '44px'
+            }}
           >
             <option value="pre_pending">Ön Başvuru - Beklemede</option>
             <option value="pre_approved">Ön Başvuru - Onaylandı</option>
@@ -102,6 +126,7 @@ VendorEditForm.propTypes = {
   onFieldChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   isSubmitting: PropTypes.bool,
+  isMobile: PropTypes.bool,
 };
 
 export default VendorEditForm;

@@ -1,5 +1,5 @@
 // src/features/users/components/UserList/UserFilters.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import { styles } from '../../shared/styles';
@@ -14,21 +14,45 @@ const UserFilters = React.memo(({
   onResetFilters,
   totalUsers,
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={styles.card}>
-      <div style={styles.headerCard}>
-        <div style={styles.searchWrapper}>
+      <div style={{
+        ...styles.headerCard,
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '12px' : '0'
+      }}>
+        <div style={{
+          ...styles.searchWrapper,
+          width: isMobile ? '100%' : 'auto'
+        }}>
           <FaSearch style={styles.searchIcon} />
           <input
             type="text"
             placeholder="İsim, email veya telefon ile ara..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            style={styles.searchInput}
+            style={{
+              ...styles.searchInput,
+              width: isMobile ? '100%' : 'auto'
+            }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          alignItems: 'center',
+          justifyContent: isMobile ? 'space-between' : 'flex-start',
+          width: isMobile ? '100%' : 'auto'
+        }}>
           <div style={styles.stats}>
             <span>Toplam: <strong>{totalUsers || 0}</strong></span>
           </div>
@@ -37,6 +61,8 @@ const UserFilters = React.memo(({
             style={{
               ...styles.btn,
               ...(showFilters ? { backgroundColor: '#f1f5f9' } : {}),
+              minHeight: isMobile ? '44px' : 'auto',
+              flex: isMobile ? 1 : 'none'
             }}
           >
             <FaFilter /> Filtreler
@@ -45,7 +71,11 @@ const UserFilters = React.memo(({
       </div>
 
       {showFilters && (
-        <div style={styles.filterPanel}>
+        <div style={{
+          ...styles.filterPanel,
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+          gap: isMobile ? '16px' : '12px'
+        }}>
           <div style={styles.filterGroup}>
             <label style={styles.filterLabel}>Durum</label>
             <select
@@ -54,7 +84,10 @@ const UserFilters = React.memo(({
                 const val = e.target.value;
                 onFilterChange('is_active', val === '' ? null : val === 'true');
               }}
-              style={styles.filterSelect}
+              style={{
+                ...styles.filterSelect,
+                minHeight: isMobile ? '44px' : 'auto'
+              }}
             >
               <option value="">Tümü</option>
               <option value="true">Aktif</option>
@@ -67,7 +100,10 @@ const UserFilters = React.memo(({
             <select
               value={filters.gender}
               onChange={(e) => onFilterChange('gender', e.target.value)}
-              style={styles.filterSelect}
+              style={{
+                ...styles.filterSelect,
+                minHeight: isMobile ? '44px' : 'auto'
+              }}
             >
               <option value="">Tümü</option>
               <option value="male">Erkek</option>
@@ -84,7 +120,10 @@ const UserFilters = React.memo(({
                 const val = e.target.value;
                 onFilterChange('email_verified', val === '' ? null : val === 'true');
               }}
-              style={styles.filterSelect}
+              style={{
+                ...styles.filterSelect,
+                minHeight: isMobile ? '44px' : 'auto'
+              }}
             >
               <option value="">Tümü</option>
               <option value="true">Doğrulanmış</option>
@@ -93,8 +132,22 @@ const UserFilters = React.memo(({
           </div>
 
           <div style={styles.filterGroup}>
-            <label style={styles.filterLabel}>&nbsp;</label>
-            <button onClick={onResetFilters} style={{ ...styles.btn, padding: '8px 12px' }}>
+            <label style={styles.filterLabel}>{isMobile ? '' : '\u00A0'}</label>
+            <button 
+              onClick={onResetFilters} 
+              style={{ 
+                ...styles.btn, 
+                padding: isMobile ? '12px' : '8px 12px',
+                minHeight: isMobile ? '44px' : 'auto',
+                width: isMobile ? '100%' : 'auto',
+                justifyContent: 'center',
+                ...(isMobile && {
+                  border: '1px solid #d1fae5',
+                  backgroundColor: '#ecfdf5',
+                  color: '#059669'
+                })
+              }}
+            >
               <FaTimes size={12} /> Temizle
             </button>
           </div>

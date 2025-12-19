@@ -9,32 +9,38 @@ const ApplicationTabs = ({
   activeTab, 
   onTabChange, 
   preCount = 0, 
-  fullCount = 0 
+  fullCount = 0,
+  isMobile = false 
 }) => {
   const tabContainerStyle = {
     display: 'flex',
-    gap: '8px',
-    marginBottom: '24px',
+    gap: isMobile ? '6px' : '8px',
+    marginBottom: isMobile ? '16px' : '24px',
     background: '#f3f4f6',
-    padding: '6px',
-    borderRadius: '16px',
-    width: 'fit-content'
+    padding: isMobile ? '4px' : '6px',
+    borderRadius: isMobile ? '12px' : '16px',
+    width: isMobile ? '100%' : 'fit-content',
+    overflowX: isMobile ? 'auto' : 'visible',
   };
 
   const getTabStyle = (isActive) => ({
-    padding: '12px 24px',
-    borderRadius: '12px',
+    padding: isMobile ? '10px 16px' : '12px 24px',
+    borderRadius: isMobile ? '10px' : '12px',
     border: 'none',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: isMobile ? '6px' : '8px',
     transition: 'all 0.2s ease',
     background: isActive ? 'white' : 'transparent',
     color: isActive ? '#059669' : '#6b7280',
     boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+    flex: isMobile ? 1 : 'none',
+    whiteSpace: 'nowrap',
+    minHeight: '44px',
+    justifyContent: 'center',
   });
 
   const getBadgeStyle = (isActive) => ({
@@ -42,7 +48,7 @@ const ApplicationTabs = ({
     color: isActive ? '#059669' : '#6b7280',
     padding: '2px 8px',
     borderRadius: '10px',
-    fontSize: '12px',
+    fontSize: isMobile ? '11px' : '12px',
     fontWeight: '700',
   });
 
@@ -52,16 +58,16 @@ const ApplicationTabs = ({
         style={getTabStyle(activeTab === 'pre')}
         onClick={() => onTabChange('pre')}
       >
-        <FaFileAlt size={14} />
-        Ön Başvurular
+        {!isMobile && <FaFileAlt size={14} />}
+        {isMobile ? 'Ön Başvurular' : 'Ön Başvurular'}
         <span style={getBadgeStyle(activeTab === 'pre')}>{preCount}</span>
       </button>
       <button 
         style={getTabStyle(activeTab === 'full')}
         onClick={() => onTabChange('full')}
       >
-        <FaUserCheck size={14} />
-        Aktivasyon Bekleyenler
+        {!isMobile && <FaUserCheck size={14} />}
+        {isMobile ? 'Aktivasyon' : 'Aktivasyon Bekleyenler'}
         <span style={getBadgeStyle(activeTab === 'full')}>{fullCount}</span>
       </button>
     </div>

@@ -5,7 +5,14 @@ import { getUsers } from '../../features/users/api/userApi';
 import { useToast } from '../../components/common/Toast';
 
 const UsersPage = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const toast = useToast();
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleDownloadExcel = async () => {
     try {
@@ -274,18 +281,24 @@ const UsersPage = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? '16px' : '32px' }}>
       {/* Header - Siparişler sayfasındaki gibi */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Kullanıcılar</h1>
-          <p style={styles.subtitle}>Sistemdeki kayıtlı kullanıcıları görüntüleyin ve yönetin.</p>
+      <div style={{ 
+        ...styles.header, 
+        padding: isMobile ? '20px 16px' : '28px 32px',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? '16px' : '0'
+      }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <h1 style={{ ...styles.title, fontSize: isMobile ? '20px' : '26px' }}>Kullanıcılar</h1>
+          <p style={{ ...styles.subtitle, fontSize: isMobile ? '13px' : '15px' }}>Sistemdeki kayıtlı kullanıcıları görüntüleyin ve yönetin.</p>
         </div>
-        <div style={styles.headerActions}>
-          <button style={styles.exportBtn} onClick={handlePrint}>
+        <div style={{ ...styles.headerActions, width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row' }}>
+          <button style={{ ...styles.exportBtn, justifyContent: isMobile ? 'center' : 'flex-start', minHeight: isMobile ? '44px' : 'auto' }} onClick={handlePrint}>
             <FaPrint /> Rapor Yazdır
           </button>
-          <button style={styles.exportBtn} onClick={handleDownloadExcel}>
+          <button style={{ ...styles.exportBtn, justifyContent: isMobile ? 'center' : 'flex-start', minHeight: isMobile ? '44px' : 'auto' }} onClick={handleDownloadExcel}>
             <FaFileExcel /> Excel İndir
           </button>
         </div>

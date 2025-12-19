@@ -9,9 +9,12 @@ import { styles } from '../../../styles';
  * Modal Header Component
  * Displays company name, status, and close button
  */
-const ModalHeader = React.memo(({ vendor, onClose }) => {
+const ModalHeader = React.memo(({ vendor, onClose, isMobile = false }) => {
   return (
-    <div style={styles.vendorModal.header}>
+    <div style={{
+      ...styles.vendorModal.header,
+      ...(isMobile && { padding: '20px 16px' })
+    }}>
       {/* Background Pattern */}
       <div style={styles.vendorModal.headerPattern} />
 
@@ -25,12 +28,21 @@ const ModalHeader = React.memo(({ vendor, onClose }) => {
           }}
         >
           {/* Company Name & Icon */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={styles.vendorModal.companyIcon}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '14px', flex: 1, minWidth: 0 }}>
+            <div style={{
+              ...styles.vendorModal.companyIcon,
+              ...(isMobile && { width: '40px', height: '40px', fontSize: '18px' })
+            }}>
               <FaStore style={{ color: 'white' }} />
             </div>
-            <div>
-              <h2 style={styles.vendorModal.companyName}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{
+                ...styles.vendorModal.companyName,
+                ...(isMobile && { fontSize: '16px' }),
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
                 {vendor.company_name || vendor.storeName}
               </h2>
               <div style={{ marginTop: '6px' }}>
@@ -40,6 +52,7 @@ const ModalHeader = React.memo(({ vendor, onClose }) => {
                     background: 'rgba(255, 255, 255, 0.95)',
                     border: '1px solid rgba(255, 255, 255, 0.5)',
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    fontSize: isMobile ? '11px' : '12px'
                   }}
                 />
               </div>
@@ -49,7 +62,10 @@ const ModalHeader = React.memo(({ vendor, onClose }) => {
           {/* Close Button */}
           <button
             onClick={onClose}
-            style={styles.vendorModal.closeButton}
+            style={{
+              ...styles.vendorModal.closeButton,
+              ...(isMobile && { minWidth: '44px', minHeight: '44px', width: '44px', height: '44px' })
+            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
               e.currentTarget.style.transform = 'scale(1.05)';

@@ -14,13 +14,30 @@ const ModalFooter = React.memo(({
   onReject,
   showApproveButton,
   showRejectButton,
+  isMobile = false,
 }) => {
   return (
-    <div style={styles.vendorModal.footer}>
+    <div style={{
+      ...styles.vendorModal.footer,
+      ...(isMobile && {
+        flexDirection: 'column-reverse',
+        padding: '20px 16px',
+        gap: '12px',
+        borderTop: '1px solid #e5e7eb'
+      })
+    }}>
       {/* Close Button */}
       <button
         onClick={onClose}
-        style={styles.vendorModal.footerButton('default')}
+        style={{
+          ...styles.vendorModal.footerButton('default'),
+          ...(isMobile && {
+            width: '100%',
+            minHeight: '44px',
+            fontSize: '15px',
+            justifyContent: 'center'
+          })
+        }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = '#f9fafb';
           e.currentTarget.style.borderColor = '#9ca3af';
@@ -42,7 +59,15 @@ const ModalFooter = React.memo(({
       {showRejectButton && (
         <button
           onClick={onReject}
-          style={styles.vendorModal.footerButton('reject')}
+          style={{
+            ...styles.vendorModal.footerButton('reject'),
+            ...(isMobile && {
+              width: '100%',
+              minHeight: '44px',
+              fontSize: '15px',
+              justifyContent: 'center'
+            })
+          }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
             e.currentTarget.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.4)';
@@ -61,7 +86,15 @@ const ModalFooter = React.memo(({
       {showApproveButton && (
         <button
           onClick={onApprove}
-          style={styles.vendorModal.footerButton('approve')}
+          style={{
+            ...styles.vendorModal.footerButton('approve'),
+            ...(isMobile && {
+              width: '100%',
+              minHeight: '44px',
+              fontSize: '15px',
+              justifyContent: 'center'
+            })
+          }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
             e.currentTarget.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.4)';

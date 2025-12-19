@@ -105,6 +105,7 @@ const CategoriesPage = () => {
         openEditModal={openEditModal}
         confirmDelete={confirmDelete}
         styles={styles}
+        isMobile={isMobile}
       />
 
       {/* Create/Edit Modal */}

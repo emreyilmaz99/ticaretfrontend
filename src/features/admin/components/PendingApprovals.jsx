@@ -10,6 +10,7 @@ const MOCK_PENDING_VENDORS = [
 
 export const PendingApprovals = () => {
   const navigate = useNavigate();
+  const isMobile = window.innerWidth <= 768;
 
   const handleViewAll = () => {
     navigate('/admin/vendors');
@@ -18,14 +19,14 @@ export const PendingApprovals = () => {
   return (
     <div style={{ 
       backgroundColor: 'var(--bg-card)', 
-      padding: '24px', 
+      padding: isMobile ? '16px' : '24px', 
       borderRadius: 'var(--radius)', 
       boxShadow: 'var(--shadow-sm)',
       border: '1px solid #e2e8f0',
       height: '100%'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>Bekleyen Satıcı Onayları</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? '16px' : '24px' }}>
+        <h3 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: 'var(--text-main)' }}>Bekleyen Satıcı Onayları</h3>
         <span style={{ 
           backgroundColor: '#fee2e2', 
           color: '#991b1b', 

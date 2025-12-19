@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaStore, FaPlus, FaFileExcel, FaPrint } from 'react-icons/fa';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ActiveVendorList from '../../features/vendor/components/ActiveVendorList';
@@ -9,8 +9,15 @@ import AddVendorModal from '../../features/vendor/components/AddVendorModal';
 const ActiveVendorsPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const toast = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Export için tüm aktif satıcıları çeken query - daha küçük per_page ile
   const { refetch: fetchAllVendors } = useQuery({
@@ -237,35 +244,67 @@ const ActiveVendorsPage = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{...styles.container, padding: isMobile ? '16px' : '32px'}}>
       {/* Header - Siparişler sayfasındaki gibi */}
-      <div style={styles.header}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: isMobile ? '16px' : '0',
+        padding: isMobile ? '20px 16px' : '28px 32px'
+      }}>
         <div>
-          <h1 style={styles.title}>Satıcılar</h1>
+          <h1 style={{...styles.title, fontSize: isMobile ? '22px' : '26px'}}>Satıcılar</h1>
           <p style={styles.subtitle}>Platformdaki aktif mağazaları buradan yönetebilirsiniz.</p>
         </div>
-        <div style={styles.headerActions}>
+        <div style={{
+          ...styles.headerActions,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto'
+        }}>
           <button 
-            style={{...styles.exportBtn, opacity: isExporting ? 0.6 : 1, cursor: isExporting ? 'wait' : 'pointer'}} 
+            style={{
+              ...styles.exportBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: '44px',
+              fontSize: isMobile ? '14px' : '14px',
+              justifyContent: 'center',
+              opacity: isExporting ? 0.6 : 1,
+              cursor: isExporting ? 'wait' : 'pointer'
+            }} 
             onClick={handlePrint}
             disabled={isExporting}
           >
             <FaPrint /> {isExporting ? 'Hazırlanıyor...' : 'Rapor Yazdır'}
           </button>
           <button 
-            style={{...styles.exportBtn, opacity: isExporting ? 0.6 : 1, cursor: isExporting ? 'wait' : 'pointer'}} 
+            style={{
+              ...styles.exportBtn,
+              width: isMobile ? '100%' : 'auto',
+              minHeight: '44px',
+              fontSize: isMobile ? '14px' : '14px',
+              justifyContent: 'center',
+              opacity: isExporting ? 0.6 : 1,
+              cursor: isExporting ? 'wait' : 'pointer'
+            }} 
             onClick={handleDownloadExcel}
             disabled={isExporting}
           >
             <FaFileExcel /> {isExporting ? 'Hazırlanıyor...' : 'Excel İndir'}
           </button>
-          <button style={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
+          <button style={{
+            ...styles.addBtn,
+            width: isMobile ? '100%' : 'auto',
+            minHeight: '44px',
+            fontSize: isMobile ? '15px' : '14px',
+            justifyContent: 'center'
+          }} onClick={() => setIsAddModalOpen(true)}>
             <FaPlus /> Yeni Satıcı Ekle
           </button>
         </div>
       </div>
 
-      <ActiveVendorList />
+      <ActiveVendorList isMobile={isMobile} />
 
       {/* Add Vendor Modal */}
       {isAddModalOpen && (

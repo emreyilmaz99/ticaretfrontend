@@ -142,14 +142,16 @@ export const getStyles = (isMobile = false) => ({
   },
 
   // Category Item stilleri
-  categoryItem: (level, isHovered) => ({
+  categoryItem: (level, isHovered, isMobile = false) => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '12px 16px',
-    paddingLeft: `${16 + level * 24}px`,
+    padding: isMobile ? '14px 12px' : '12px 16px',
+    paddingLeft: isMobile ? `${12 + level * 16}px` : `${16 + level * 24}px`,
     backgroundColor: isHovered ? '#f1f5f9' : (level === 0 ? '#f8fafc' : 'white'),
     borderBottom: '1px solid #e2e8f0',
     transition: 'background-color 0.15s',
+    flexWrap: isMobile ? 'wrap' : 'nowrap',
+    gap: isMobile ? '8px' : '0'
   }),
   expandButton: (hasChildren) => ({
     width: '24px',
@@ -175,34 +177,43 @@ export const getStyles = (isMobile = false) => ({
     borderRadius: '4px', 
     objectFit: 'cover' 
   },
-  categoryName: (level) => ({
+  categoryName: (level, isMobile = false) => ({
     fontWeight: level === 0 ? '600' : '500', 
-    color: '#1e293b'
+    color: '#1e293b',
+    fontSize: isMobile ? '15px' : '14px'
   }),
   categoryMeta: { 
     fontSize: '12px', 
     color: '#64748b', 
     marginTop: '2px' 
   },
-  statusBadge: (isActive) => ({
-    padding: '4px 8px',
+  statusBadge: (isActive, isMobile = false) => ({
+    padding: isMobile ? '6px 10px' : '4px 8px',
     borderRadius: '12px',
-    fontSize: '11px',
+    fontSize: isMobile ? '12px' : '11px',
     fontWeight: '600',
     backgroundColor: isActive ? '#dcfce7' : '#fee2e2',
     color: isActive ? '#166534' : '#991b1b',
-    marginRight: '12px'
+    marginRight: isMobile ? '8px' : '12px'
   }),
-  actionButton: (variant) => {
+  actionButton: (variant, isMobile = false) => {
     const variants = {
       add: { color: '#059669', border: '1px solid #e2e8f0', backgroundColor: 'white' },
       edit: { color: '#2563eb', border: '1px solid #e2e8f0', backgroundColor: 'white' },
       delete: { color: '#dc2626', border: '1px solid #fee2e2', backgroundColor: '#fef2f2' }
     };
     return {
-      padding: '6px',
-      borderRadius: '6px',
+      padding: isMobile ? '10px 12px' : '6px',
+      borderRadius: isMobile ? '8px' : '6px',
       cursor: 'pointer',
+      minHeight: isMobile ? '40px' : 'auto',
+      minWidth: isMobile ? '40px' : 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '4px',
+      fontSize: isMobile ? '13px' : '12px',
+      fontWeight: isMobile ? '500' : '400',
       ...variants[variant]
     };
   },

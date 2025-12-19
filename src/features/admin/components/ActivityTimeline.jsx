@@ -10,16 +10,18 @@ const MOCK_ACTIVITIES = [
 ];
 
 export const ActivityTimeline = () => {
+  const isMobile = window.innerWidth <= 768;
+
   return (
     <div style={{ 
       backgroundColor: 'var(--bg-card)', 
-      padding: '24px', 
+      padding: isMobile ? '16px' : '24px', 
       borderRadius: 'var(--radius)', 
       boxShadow: 'var(--shadow-sm)',
       border: '1px solid #e2e8f0',
       height: '100%'
     }}>
-      <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '24px' }}>Son Aktiviteler</h3>
+      <h3 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: '700', color: 'var(--text-main)', marginBottom: isMobile ? '16px' : '24px' }}>Son Aktiviteler</h3>
       
       <div style={{ position: 'relative', paddingLeft: '12px' }}>
         {/* Dikey Çizgi */}

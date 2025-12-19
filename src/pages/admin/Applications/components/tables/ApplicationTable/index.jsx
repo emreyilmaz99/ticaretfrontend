@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FaStore, FaUser, FaEnvelope, FaIdCard, FaCalendarAlt } from 'react-icons/fa';
 import ApplicationRow from './ApplicationRow';
+import ApplicationCard from './ApplicationCard';
 import { EmptyState, LoadingSpinner } from '../../../shared/components';
 import { styles } from '../../../styles';
 
@@ -23,6 +24,7 @@ const ApplicationTable = React.memo(({
   mode = 'full', // 'full' or 'pre'
   emptyMessage,
   emptySearchMessage,
+  isMobile = false,
 }) => {
   const isFull = mode === 'full';
   const isPre = mode === 'pre';
@@ -44,6 +46,57 @@ const ApplicationTable = React.memo(({
   // Column count
   const colSpan = isPre ? 6 : 5;
 
+  // Mobile Card View
+  if (isMobile) {
+    if (isLoading) {
+      return (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    if (safeApplications.length === 0) {
+      return (
+        <div style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '12px', 
+          padding: '32px 16px',
+          textAlign: 'center',
+          border: '1px solid #e2e8f0'
+        }}>
+          <EmptyState
+            icon={isFull ? '✅' : '📋'}
+            title={searchTerm ? finalEmptySearchMessage : finalEmptyMessage}
+            description={
+              searchTerm
+                ? 'Farklı bir arama terimi deneyin'
+                : isFull
+                ? 'Tüm satıcılar işlenmiş durumda'
+                : 'Yeni başvurular burada görünecek'
+            }
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {safeApplications.map((app) => (
+          <ApplicationCard
+            key={app.id}
+            application={app}
+            mode={mode}
+            onView={onView}
+            onApprove={onApprove}
+            onReject={onReject}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop Table View
   if (isLoading) {
     return (
       <div style={styles.tableContainer}>
@@ -201,6 +254,7 @@ ApplicationTable.propTypes = {
   mode: PropTypes.oneOf(['full', 'pre']),
   emptyMessage: PropTypes.string,
   emptySearchMessage: PropTypes.string,
+  isMobile: PropTypes.bool,
 };
 
 export default ApplicationTable;

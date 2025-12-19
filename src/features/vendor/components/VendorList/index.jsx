@@ -14,7 +14,7 @@ import ConfirmModal from '../../../../components/modals/ConfirmModal';
 import { VENDOR_STATUS, VENDOR_MODES } from '../../shared/constants';
 import { styles } from '../../shared/styles';
 
-const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
+const VendorList = React.memo(({ mode = VENDOR_MODES.ALL, isMobile = false }) => {
   const queryClient = useQueryClient();
   const isActiveMode = mode === VENDOR_MODES.ACTIVE_ONLY;
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, vendor: null, title: '', message: '' });
@@ -136,6 +136,7 @@ const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
         title={isActiveMode ? 'Aktif Satıcılar' : undefined}
         activeFilters={activeFilters}
         onApplyFilters={handleApplyFilters}
+        isMobile={isMobile}
       />
 
       <VendorTable
@@ -153,6 +154,7 @@ const VendorList = React.memo(({ mode = VENDOR_MODES.ALL }) => {
         onBan={handleBan}
         onCategory={openCategoryModal}
         showCategoryButton={isActiveMode}
+        isMobile={isMobile}
       />
 
       {isEditModalOpen && selectedVendor && (
@@ -190,6 +192,7 @@ VendorList.displayName = 'VendorList';
 
 VendorList.propTypes = {
   mode: PropTypes.oneOf([VENDOR_MODES.ALL, VENDOR_MODES.ACTIVE_ONLY]),
+  isMobile: PropTypes.bool,
 };
 
 export default VendorList;

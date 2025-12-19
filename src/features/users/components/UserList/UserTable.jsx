@@ -1,8 +1,9 @@
 // src/features/users/components/UserList/UserTable.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 import UserRow from './UserRow';
+import UserCard from './UserCard';
 import Pagination from '../../../../components/ui/Pagination';
 import { styles } from '../../shared/styles';
 
@@ -19,17 +20,79 @@ const UserTable = React.memo(({
   onPageChange,
   isToggling,
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const SortIcon = sortOrder === 'asc' ? FaSortAmountUp : FaSortAmountDown;
 
   const renderSortHeader = (field, label) => (
     <th style={styles.th} onClick={() => onSort(field)}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
         {label}
         {sortBy === field && <SortIcon size={12} />}
       </div>
     </th>
   );
 
+  if (isMobile) {
+    // Mobile Card View
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {isLoading ? (
+          <div style={{
+            ...styles.card,
+            padding: '48px',
+            textAlign: 'center',
+            color: '#64748b'
+          }}>
+            Yükleniyor...
+          </div>
+        ) : users.length === 0 ? (
+          <div style={{
+            ...styles.card,
+            padding: '48px',
+            textAlign: 'center',
+            color: '#64748b'
+          }}>
+            Kullanıcı bulunamadı.
+          </div>
+        ) : (
+          users.map((user) => (
+            <UserCard
+              key={user.id}
+              user={user}
+              onView={onView}
+              onToggleStatus={onToggleStatus}
+              onDelete={onDelete}
+              isToggling={isToggling}
+            />
+          ))
+        )}
+        
+        {meta && meta.last_page > 1 && (
+          <div style={{
+            ...styles.card,
+            padding: '12px'
+          }}>
+            <Pagination
+              currentPage={meta.current_page}
+              totalPages={meta.last_page}
+              totalItems={meta.total}
+              perPage={meta.per_page}
+              onPageChange={onPageChange}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Table View
   return (
     <div style={{ ...styles.card, overflow: 'hidden' }}>
       <div style={{ overflowX: 'auto' }}>

@@ -1,8 +1,8 @@
 // src/pages/admin/Reviews/styles.js
 
-export const getStyles = () => ({
+export const getStyles = (isMobile = false) => ({
   container: {
-    padding: '32px',
+    padding: isMobile ? '16px' : '32px',
     backgroundColor: '#F3F4F6',
     minHeight: '100vh',
   },
@@ -11,29 +11,32 @@ export const getStyles = () => ({
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
+    alignItems: isMobile ? 'flex-start' : 'center',
+    marginBottom: isMobile ? '16px' : '24px',
     background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-    padding: '28px 32px',
+    padding: isMobile ? '20px 16px' : '28px 32px',
     borderRadius: '16px',
     border: '1px solid #e2e8f0',
+    flexDirection: isMobile ? 'column' : 'row',
+    gap: isMobile ? '16px' : '0'
   },
   titleGroup: {},
   title: {
-    fontSize: '26px',
+    fontSize: isMobile ? '20px' : '26px',
     fontWeight: '800',
     color: '#0f172a',
     letterSpacing: '-0.02em',
     margin: 0,
   },
   subtitle: {
-    fontSize: '15px',
+    fontSize: isMobile ? '13px' : '15px',
     color: '#64748b',
     margin: '6px 0 0 0',
   },
   headerActions: {
     display: 'flex',
     gap: '12px',
+    width: isMobile ? '100%' : 'auto'
   },
   exportBtn: {
     display: 'flex',
@@ -49,6 +52,9 @@ export const getStyles = () => ({
     cursor: 'pointer',
     transition: 'all 0.2s',
     boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+    flex: isMobile ? 1 : 'none',
+    justifyContent: isMobile ? 'center' : 'flex-start',
+    minHeight: isMobile ? '44px' : 'auto'
   },
 
   // Tabs
@@ -94,9 +100,9 @@ export const getStyles = () => ({
   // Stats
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
-    marginBottom: '24px',
+    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+    gap: isMobile ? '12px' : '16px',
+    marginBottom: isMobile ? '16px' : '24px',
   },
   statCard: {
     display: 'flex',

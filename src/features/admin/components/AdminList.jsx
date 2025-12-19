@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaUserShield, FaEdit, FaTrash, FaPlus, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Pagination from '../../../components/ui/Pagination';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,9 +15,16 @@ const AdminList = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({ isOpen: false, adminId: null, adminName: '' });
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
   const toast = useToast();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data: admins = [], isLoading: loading } = useQuery({
     queryKey: ['admins'],
@@ -85,101 +92,303 @@ const AdminList = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-card)', padding: '16px 24px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', border: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ position: 'relative' }}>
-            <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input type="text" placeholder="Yönetici ara..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} style={{ padding: '10px 10px 10px 36px', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none', width: '250px', fontFamily: 'Inter, sans-serif' }} />
-          </div>
+      {/* Toolbar */}
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'space-between', 
+        alignItems: isMobile ? 'stretch' : 'center', 
+        backgroundColor: 'var(--bg-card)', 
+        padding: isMobile ? '12px' : '16px 24px',
+        borderRadius: 'var(--radius)', 
+        boxShadow: 'var(--shadow-sm)', 
+        border: '1px solid #e2e8f0',
+        gap: isMobile ? '12px' : '0'
+      }}>
+        <div style={{ position: 'relative', width: isMobile ? '100%' : 'auto' }}>
+          <FaSearch style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input 
+            type="text" 
+            placeholder="Yönetici ara..." 
+            value={searchTerm} 
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
+            style={{ 
+              padding: '10px 10px 10px 36px', 
+              borderRadius: '8px', 
+              border: '1px solid #e2e8f0', 
+              outline: 'none', 
+              width: isMobile ? '100%' : '250px',
+              fontFamily: 'Inter, sans-serif' 
+            }} 
+          />
         </div>
 
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}>
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '8px', 
+            padding: '10px 20px', 
+            backgroundColor: 'var(--primary)', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '8px', 
+            fontWeight: '600', 
+            cursor: 'pointer', 
+            boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)',
+            minHeight: isMobile ? '44px' : 'auto',
+            width: isMobile ? '100%' : 'auto'
+          }}>
           <FaPlus /> Yeni Yönetici Ekle
         </button>
       </div>
 
-      <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-            <tr>
-              <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Yönetici</th>
-              <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Roller</th>
-              <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Durum</th>
-              <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Kayıt Tarihi</th>
-              <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'right' }}>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Yükleniyor...</td></tr>
-            ) : currentItems.length === 0 ? (
-              <tr><td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Kayıt bulunamadı.</td></tr>
-            ) : (
-              currentItems.map((admin) => (
-                <tr key={admin.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '16px 24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', backgroundColor: '#e0e7ff', color: 'var(--primary)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                        <FaUserShield />
-                      </div>
-                      <div>
-                        <p style={{ fontWeight: '600', color: 'var(--text-main)' }}>{admin.name}</p>
-                        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{admin.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>{admin.roles && admin.roles.map((role, index) => (<React.Fragment key={index}>{getRoleBadge(role)}</React.Fragment>))}</div>
-                  </td>
-                  <td style={{ padding: '16px 24px' }}>{admin.is_active ? (<span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#166534', fontSize: '13px', fontWeight: '500' }}><FaCheckCircle /> Aktif</span>) : (<span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#991b1b', fontSize: '13px', fontWeight: '500' }}><FaTimesCircle /> Pasif</span>)}</td>
-                  <td style={{ padding: '16px 24px', color: 'var(--text-muted)', fontSize: '13px' }}>{new Date(admin.created_at).toLocaleDateString('tr-TR')}</td>
-                  <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                      <button 
-                        onClick={() => handleEdit(admin)}
-                        title="Düzenle" 
-                        style={{ 
-                          padding: '8px', 
-                          borderRadius: '6px', 
-                          border: '1px solid #d1fae5', 
-                          backgroundColor: '#ecfdf5', 
-                          color: '#059669', 
-                          cursor: 'pointer',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d1fae5'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ecfdf5'}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button 
-                        onClick={() => openDeleteConfirm(admin)} 
-                        title="Sil" 
-                        style={{ 
-                          padding: '8px', 
-                          borderRadius: '6px', 
-                          border: '1px solid #fee2e2', 
-                          backgroundColor: '#fff1f2', 
-                          color: '#ef4444', 
-                          cursor: 'pointer',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff1f2'}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Table / Mobile Cards */}
+      {isMobile ? (
+        // Mobile Card View
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {loading ? (
+            <div style={{ 
+              backgroundColor: 'var(--bg-card)', 
+              borderRadius: 'var(--radius)', 
+              padding: '24px', 
+              textAlign: 'center', 
+              color: 'var(--text-muted)' 
+            }}>
+              Yükleniyor...
+            </div>
+          ) : currentItems.length === 0 ? (
+            <div style={{ 
+              backgroundColor: 'var(--bg-card)', 
+              borderRadius: 'var(--radius)', 
+              padding: '24px', 
+              textAlign: 'center', 
+              color: 'var(--text-muted)' 
+            }}>
+              Kayıt bulunamadı.
+            </div>
+          ) : (
+            currentItems.map((admin) => (
+              <div 
+                key={admin.id} 
+                style={{ 
+                  backgroundColor: 'var(--bg-card)', 
+                  borderRadius: 'var(--radius)', 
+                  padding: '16px',
+                  boxShadow: 'var(--shadow-sm)', 
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}
+              >
+                {/* Admin Info */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ 
+                    width: '48px', 
+                    height: '48px', 
+                    backgroundColor: '#e0e7ff', 
+                    color: 'var(--primary)', 
+                    borderRadius: '8px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontSize: '20px',
+                    flexShrink: 0
+                  }}>
+                    <FaUserShield />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: '600', color: 'var(--text-main)', marginBottom: '2px' }}>{admin.name}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {admin.email}
+                    </p>
+                  </div>
+                </div>
 
-        <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
+                {/* Roles */}
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    Roller
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {admin.roles && admin.roles.map((role, index) => (
+                      <React.Fragment key={index}>{getRoleBadge(role)}</React.Fragment>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status & Date */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>
+                      Durum
+                    </div>
+                    <div>
+                      {admin.is_active ? (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#166534', fontSize: '13px', fontWeight: '500' }}>
+                          <FaCheckCircle /> Aktif
+                        </span>
+                      ) : (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#991b1b', fontSize: '13px', fontWeight: '500' }}>
+                          <FaTimesCircle /> Pasif
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>
+                      Kayıt Tarihi
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                      {new Date(admin.created_at).toLocaleDateString('tr-TR')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+                  <button 
+                    onClick={() => handleEdit(admin)}
+                    style={{ 
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '12px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #d1fae5', 
+                      backgroundColor: '#ecfdf5', 
+                      color: '#059669', 
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      fontSize: '14px',
+                      minHeight: '44px'
+                    }}
+                  >
+                    <FaEdit /> Düzenle
+                  </button>
+                  <button 
+                    onClick={() => openDeleteConfirm(admin)} 
+                    style={{ 
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '12px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #fecaca', 
+                      backgroundColor: '#fef2f2', 
+                      color: '#dc2626', 
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      fontSize: '14px',
+                      minHeight: '44px'
+                    }}
+                  >
+                    <FaTrash /> Sil
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        // Desktop Table View
+        <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <tr>
+                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Yönetici</th>
+                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Roller</th>
+                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Durum</th>
+                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Kayıt Tarihi</th>
+                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'right' }}>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Yükleniyor...</td></tr>
+              ) : currentItems.length === 0 ? (
+                <tr><td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Kayıt bulunamadı.</td></tr>
+              ) : (
+                currentItems.map((admin) => (
+                  <tr key={admin.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', backgroundColor: '#e0e7ff', color: 'var(--primary)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                          <FaUserShield />
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: '600', color: 'var(--text-main)' }}>{admin.name}</p>
+                          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{admin.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>{admin.roles && admin.roles.map((role, index) => (<React.Fragment key={index}>{getRoleBadge(role)}</React.Fragment>))}</div>
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>{admin.is_active ? (<span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#166534', fontSize: '13px', fontWeight: '500' }}><FaCheckCircle /> Aktif</span>) : (<span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#991b1b', fontSize: '13px', fontWeight: '500' }}><FaTimesCircle /> Pasif</span>)}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--text-muted)', fontSize: '13px' }}>{new Date(admin.created_at).toLocaleDateString('tr-TR')}</td>
+                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <button 
+                          onClick={() => handleEdit(admin)}
+                          title="Düzenle" 
+                          style={{ 
+                            padding: '8px', 
+                            borderRadius: '6px', 
+                            border: '1px solid #d1fae5', 
+                            backgroundColor: '#ecfdf5', 
+                            color: '#059669', 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d1fae5'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ecfdf5'}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button 
+                          onClick={() => openDeleteConfirm(admin)} 
+                          title="Sil" 
+                          style={{ 
+                            padding: '8px', 
+                            borderRadius: '6px', 
+                            border: '1px solid #fee2e2', 
+                            backgroundColor: '#fff1f2', 
+                            color: '#ef4444', 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff1f2'}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ 
+          backgroundColor: 'var(--bg-card)', 
+          borderRadius: 'var(--radius)', 
+          padding: isMobile ? '12px' : '16px 24px',
+          boxShadow: 'var(--shadow-sm)',
+          border: '1px solid #e2e8f0'
+        }}>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -188,7 +397,7 @@ const AdminList = () => {
             onPageChange={paginate}
           />
         </div>
-      </div>
+      )}
 
       {/* Add Admin Modal */}
       <AddAdminModal

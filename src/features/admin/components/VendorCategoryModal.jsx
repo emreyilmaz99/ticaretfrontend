@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes, FaFolder, FaInfoCircle } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 import { getVendorCategories } from '../api/vendorCategoryApi';
@@ -11,6 +11,14 @@ const toFullUrl = (u) => {
 };
 
 const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Vendor'ın seçtiği kategorileri al
   const { data: vendorCategoriesResponse, isLoading } = useQuery({
     queryKey: ['vendor-categories', vendor?.id],
@@ -37,27 +45,41 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
     }}>
       <div style={{
         backgroundColor: 'white',
-        borderRadius: '12px',
-        width: '600px',
-        maxWidth: '95vw',
-        maxHeight: '85vh',
+        borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+        width: isMobile ? '100%' : '600px',
+        maxWidth: isMobile ? '100%' : '95vw',
+        maxHeight: isMobile ? '95vh' : '85vh',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        ...(isMobile && {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0
+        })
       }}>
         {/* Header */}
         <div style={{
-          padding: '20px 24px',
+          padding: isMobile ? '20px' : '20px 24px',
           borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-main)' }}>
+            <h2 style={{ 
+              fontSize: isMobile ? '16px' : '18px', 
+              fontWeight: '600', 
+              color: 'var(--text-main)' 
+            }}>
               Satıcı Kategorileri
             </h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            <p style={{ 
+              fontSize: isMobile ? '13px' : '14px', 
+              color: 'var(--text-muted)', 
+              marginTop: '4px' 
+            }}>
               {vendor?.storeName || vendor?.company_name || vendor?.name}
             </p>
           </div>
@@ -68,7 +90,9 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
               border: 'none',
               background: 'transparent',
               cursor: 'pointer',
-              color: 'var(--text-muted)'
+              color: 'var(--text-muted)',
+              minWidth: '44px',
+              minHeight: '44px'
             }}
           >
             <FaTimes size={20} />
@@ -77,18 +101,22 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
 
         {/* Info Box */}
         <div style={{
-          margin: '20px 24px',
-          padding: '16px',
+          margin: isMobile ? '16px' : '20px 24px',
+          padding: isMobile ? '14px' : '16px',
           backgroundColor: '#eff6ff',
           border: '1px solid #bfdbfe',
           borderRadius: '8px',
           display: 'flex',
           alignItems: 'flex-start',
-          gap: '12px'
+          gap: isMobile ? '10px' : '12px'
         }}>
           <FaInfoCircle size={18} color="#2563eb" style={{ marginTop: '2px', flexShrink: 0 }} />
           <div>
-            <p style={{ fontSize: '14px', color: '#1e40af', margin: 0 }}>
+            <p style={{ 
+              fontSize: isMobile ? '13px' : '14px', 
+              color: '#1e40af', 
+              margin: 0 
+            }}>
               Bu kategoriler satıcının kendisi tarafından seçilmiştir. 
               Satıcılar istedikleri kategorilerde serbestçe satış yapabilir.
             </p>
@@ -96,7 +124,11 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '0 24px 20px' }}>
+        <div style={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          padding: isMobile ? '0 16px 20px' : '0 24px 20px' 
+        }}>
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
               Yükleniyor...
@@ -162,13 +194,19 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
 
         {/* Footer */}
         <div style={{
-          padding: '16px 24px',
+          padding: isMobile ? '16px' : '16px 24px',
           borderTop: '1px solid #e2e8f0',
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          gap: isMobile ? '12px' : '0'
         }}>
-          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+          <span style={{ 
+            fontSize: isMobile ? '13px' : '14px', 
+            color: 'var(--text-muted)',
+            textAlign: isMobile ? 'center' : 'left'
+          }}>
             Toplam {vendorCategories.length} kategori seçilmiş
           </span>
           <button
@@ -180,7 +218,10 @@ const VendorCategoryModal = ({ isOpen, onClose, vendor }) => {
               border: 'none',
               borderRadius: '8px',
               fontWeight: '500',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minHeight: '44px',
+              fontSize: '15px',
+              width: isMobile ? '100%' : 'auto'
             }}
           >
             Kapat

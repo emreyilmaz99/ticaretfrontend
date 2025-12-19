@@ -1,5 +1,5 @@
 // src/pages/admin/Applications/components/modals/VendorDetailModal/index.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ModalHeader from './ModalHeader';
 import TabNavigation from './TabNavigation';
@@ -22,6 +22,13 @@ const VendorDetailModal = React.memo(({
   showRejectButton = false,
 }) => {
   const [activeTab, setActiveTab] = useState('general');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Handle overlay click
   const handleOverlayClick = (e) => {
@@ -46,15 +53,34 @@ const VendorDetailModal = React.memo(({
 
   return (
     <div onClick={handleOverlayClick} style={styles.vendorModal.overlay}>
-      <div style={styles.vendorModal.content}>
+      <div style={{
+        ...styles.vendorModal.content,
+        ...(isMobile && {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderRadius: '20px 20px 0 0',
+          maxHeight: '95vh',
+          margin: 0,
+          width: '100%',
+          maxWidth: '100%'
+        })
+      }}>
         {/* Header */}
-        <ModalHeader vendor={vendor} onClose={onClose} />
+        <ModalHeader vendor={vendor} onClose={onClose} isMobile={isMobile} />
 
         {/* Tab Navigation */}
-        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} isMobile={isMobile} />
 
         {/* Content */}
-        <div style={styles.vendorModal.bodyContent}>
+        <div style={{
+          ...styles.vendorModal.bodyContent,
+          ...(isMobile && {
+            maxHeight: 'calc(95vh - 260px)',
+            padding: '16px'
+          })
+        }}>
           {renderTabContent()}
         </div>
 
@@ -65,6 +91,7 @@ const VendorDetailModal = React.memo(({
           onReject={onReject}
           showApproveButton={showApproveButton}
           showRejectButton={showRejectButton}
+          isMobile={isMobile}
         />
       </div>
 

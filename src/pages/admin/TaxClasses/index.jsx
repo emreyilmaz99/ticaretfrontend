@@ -6,6 +6,14 @@ import TaxClassModal from './TaxClassModal';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 
 const TaxClasses = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     taxClasses,
     isLoading,
@@ -66,7 +74,7 @@ const TaxClasses = () => {
 
   if (isLoading) {
     return (
-      <div style={styles.container}>
+      <div style={{ ...styles.container, padding: isMobile ? '16px' : '32px' }}>
         <div style={styles.loadingState}>Yükleniyor...</div>
       </div>
     );
@@ -74,104 +82,325 @@ const TaxClasses = () => {
 
   if (error) {
     return (
-      <div style={styles.container}>
+      <div style={{ ...styles.container, padding: isMobile ? '16px' : '32px' }}>
         <div style={styles.errorState}>Hata: {error.message}</div>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? '16px' : '32px' }}>
       {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Vergi Sınıfları (KDV)</h1>
-          <p style={styles.subtitle}>Ürünler için KDV oranlarını yönetin.</p>
+      <div style={{ 
+        ...styles.header,
+        padding: isMobile ? '20px 16px' : '28px 32px',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? '16px' : '0'
+      }}>
+        <div style={{ width: isMobile ? '100%' : 'auto' }}>
+          <h1 style={{ ...styles.title, fontSize: isMobile ? '20px' : '26px' }}>Vergi Sınıfları (KDV)</h1>
+          <p style={{ ...styles.subtitle, fontSize: isMobile ? '13px' : '15px' }}>Ürünler için KDV oranlarını yönetin.</p>
         </div>
-        <button style={styles.createBtn} onClick={handleCreate}>
+        <button style={{ ...styles.createBtn, width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'center' : 'flex-start', minHeight: isMobile ? '44px' : 'auto' }} onClick={handleCreate}>
           <FaPlus /> Yeni Vergi Sınıfı Ekle
         </button>
       </div>
 
-      {/* Table */}
-      <div style={styles.tableContainer}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Sıra</th>
-              <th style={styles.th}>Ad</th>
-              <th style={styles.th}>Oran (%)</th>
-              <th style={styles.th}>Açıklama</th>
-              <th style={styles.th}>Varsayılan</th>
-              <th style={styles.th}>Durum</th>
-              <th style={styles.th}>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {taxClasses.length > 0 ? (
-              taxClasses.map((taxClass) => (
-                <tr key={taxClass.id} style={styles.tr}>
-                  <td style={styles.td}>{taxClass.sort_order || '-'}</td>
-                  <td style={styles.td}>
-                    <span style={styles.taxName}>{taxClass.name}</span>
-                  </td>
-                  <td style={styles.td}>
-                    <span style={styles.rate}>%{taxClass.rate}</span>
-                  </td>
-                  <td style={styles.td}>
-                    <span style={styles.description}>
-                      {taxClass.description || '-'}
+      {/* Table / Mobile Cards */}
+      {isMobile ? (
+        // Mobile Card View
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {taxClasses.length > 0 ? (
+            taxClasses.map((taxClass) => (
+              <div
+                key={taxClass.id}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}
+              >
+                {/* Header with name and default badge */}
+                <div style={{
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid #f1f5f9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px'
+                }}>
+                  <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '16px' }}>
+                    {taxClass.name}
+                  </div>
+                  {taxClass.is_default && (
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      backgroundColor: '#fef3c7',
+                      color: '#92400e',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      <FaStar size={10} /> Varsayılan
                     </span>
-                  </td>
-                  <td style={styles.td}>
-                    <button
-                      style={styles.defaultBtn(taxClass.is_default)}
-                      onClick={() => !taxClass.is_default && handleSetDefault(taxClass)}
-                      disabled={taxClass.is_default}
-                    >
-                      {taxClass.is_default ? <FaStar /> : <FaRegStar />}
-                      {taxClass.is_default ? ' Varsayılan' : ' Varsayılan Yap'}
-                    </button>
-                  </td>
-                  <td style={styles.td}>
-                    <button
-                      style={styles.toggleBtn(taxClass.is_active)}
-                      onClick={() => handleToggleActive(taxClass)}
-                    >
-                      {taxClass.is_active ? <FaToggleOn /> : <FaToggleOff />}
-                      {taxClass.is_active ? ' Aktif' : ' Pasif'}
-                    </button>
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.actionBtns}>
-                      <button
-                        style={styles.editBtn}
-                        onClick={() => handleEdit(taxClass)}
-                        title="Düzenle"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        style={styles.deleteBtn}
-                        onClick={() => openDeleteConfirm(taxClass)}
-                        title="Sil"
-                      >
-                        <FaTrash />
-                      </button>
+                  )}
+                </div>
+
+                {/* Rate */}
+                <div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    KDV Oranı
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981' }}>
+                    %{taxClass.rate}
+                  </div>
+                </div>
+
+                {/* Description & Order */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase', fontWeight: '600' }}>
+                      Açıklama
                     </div>
+                    <div style={{ color: '#475569', fontSize: '13px' }}>
+                      {taxClass.description || '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase', fontWeight: '600' }}>
+                      Sıra
+                    </div>
+                    <div style={{ color: '#475569', fontSize: '13px', fontWeight: '600' }}>
+                      {taxClass.sort_order || '-'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    Durum
+                  </div>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    backgroundColor: taxClass.is_active ? '#d1fae5' : '#fee2e2',
+                    color: taxClass.is_active ? '#065f46' : '#991b1b'
+                  }}>
+                    {taxClass.is_active ? <FaToggleOn /> : <FaToggleOff />}
+                    {taxClass.is_active ? 'Aktif' : 'Pasif'}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '8px',
+                  paddingTop: '12px',
+                  borderTop: '1px solid #f1f5f9'
+                }}>
+                  <button
+                    onClick={() => handleToggleActive(taxClass)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: taxClass.is_active ? '1px solid #e2e8f0' : '1px solid #d1fae5',
+                      backgroundColor: taxClass.is_active ? '#f8fafc' : '#ecfdf5',
+                      color: taxClass.is_active ? '#64748b' : '#059669',
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      minHeight: '44px'
+                    }}
+                  >
+                    {taxClass.is_active ? <FaToggleOff size={16} /> : <FaToggleOn size={16} />}
+                    {taxClass.is_active ? 'Pasife Al' : 'Aktife Al'}
+                  </button>
+
+                  <button
+                    onClick={() => !taxClass.is_default && handleSetDefault(taxClass)}
+                    disabled={taxClass.is_default}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: taxClass.is_default ? '1px solid #e2e8f0' : '1px solid #fef3c7',
+                      backgroundColor: taxClass.is_default ? '#f8fafc' : '#fefce8',
+                      color: taxClass.is_default ? '#cbd5e1' : '#854d0e',
+                      cursor: taxClass.is_default ? 'not-allowed' : 'pointer',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      minHeight: '44px',
+                      opacity: taxClass.is_default ? 0.6 : 1
+                    }}
+                  >
+                    {taxClass.is_default ? <FaStar size={16} /> : <FaRegStar size={16} />}
+                    {taxClass.is_default ? 'Varsayılan' : 'Varsayılan Yap'}
+                  </button>
+
+                  <button
+                    onClick={() => handleEdit(taxClass)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '1px solid #dbeafe',
+                      backgroundColor: '#eff6ff',
+                      color: '#1e40af',
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      minHeight: '44px'
+                    }}
+                  >
+                    <FaEdit size={16} />
+                    Düzenle
+                  </button>
+
+                  <button
+                    onClick={() => openDeleteConfirm(taxClass)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '1px solid #fecaca',
+                      backgroundColor: '#fef2f2',
+                      color: '#dc2626',
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      minHeight: '44px'
+                    }}
+                  >
+                    <FaTrash size={16} />
+                    Sil
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: '48px 24px',
+              textAlign: 'center',
+              color: '#9ca3af',
+              fontSize: '14px'
+            }}>
+              Henüz vergi sınıfı eklenmemiş.
+            </div>
+          )}
+        </div>
+      ) : (
+        // Desktop Table View
+        <div style={styles.tableContainer}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Sıra</th>
+                <th style={styles.th}>Ad</th>
+                <th style={styles.th}>Oran (%)</th>
+                <th style={styles.th}>Açıklama</th>
+                <th style={styles.th}>Varsayılan</th>
+                <th style={styles.th}>Durum</th>
+                <th style={styles.th}>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {taxClasses.length > 0 ? (
+                taxClasses.map((taxClass) => (
+                  <tr key={taxClass.id} style={styles.tr}>
+                    <td style={styles.td}>{taxClass.sort_order || '-'}</td>
+                    <td style={styles.td}>
+                      <span style={styles.taxName}>{taxClass.name}</span>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={styles.rate}>%{taxClass.rate}</span>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={styles.description}>
+                        {taxClass.description || '-'}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <button
+                        style={styles.defaultBtn(taxClass.is_default)}
+                        onClick={() => !taxClass.is_default && handleSetDefault(taxClass)}
+                        disabled={taxClass.is_default}
+                      >
+                        {taxClass.is_default ? <FaStar /> : <FaRegStar />}
+                        {taxClass.is_default ? ' Varsayılan' : ' Varsayılan Yap'}
+                      </button>
+                    </td>
+                    <td style={styles.td}>
+                      <button
+                        style={styles.toggleBtn(taxClass.is_active)}
+                        onClick={() => handleToggleActive(taxClass)}
+                      >
+                        {taxClass.is_active ? <FaToggleOn /> : <FaToggleOff />}
+                        {taxClass.is_active ? ' Aktif' : ' Pasif'}
+                      </button>
+                    </td>
+                    <td style={styles.td}>
+                      <div style={styles.actionBtns}>
+                        <button
+                          style={styles.editBtn}
+                          onClick={() => handleEdit(taxClass)}
+                          title="Düzenle"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          style={styles.deleteBtn}
+                          onClick={() => openDeleteConfirm(taxClass)}
+                          title="Sil"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" style={styles.emptyState}>
+                    Henüz vergi sınıfı eklenmemiş.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" style={styles.emptyState}>
-                  Henüz vergi sınıfı eklenmemiş.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Modal */}
       <TaxClassModal

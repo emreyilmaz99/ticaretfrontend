@@ -15,6 +15,7 @@ const VendorFilters = React.memo(({
   onFilterClick,
   activeFilters,
   onApplyFilters,
+  isMobile = false,
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [localFilters, setLocalFilters] = useState({
@@ -46,33 +47,58 @@ const VendorFilters = React.memo(({
   };
   return (
     <div style={styles.card}>
-      <div style={styles.header}>
-        <div style={styles.tabContainer}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '12px' : '0'
+      }}>
+        <div style={{
+          ...styles.tabContainer,
+          overflowX: isMobile ? 'auto' : 'visible',
+          width: isMobile ? '100%' : 'auto'
+        }}>
           {showTabs ? (
             VENDOR_TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => onTabChange(tab.key)}
-                style={styles.tab(activeTab === tab.key)}
+                style={{
+                  ...styles.tab(activeTab === tab.key),
+                  minHeight: isMobile ? '44px' : 'auto',
+                  fontSize: isMobile ? '13px' : '14px',
+                  whiteSpace: 'nowrap'
+                }}
               >
                 {tab.label}
               </button>
             ))
           ) : (
-            <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+            <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: isMobile ? '15px' : '16px' }}>
               {title || 'Satıcı Listesi'}
             </span>
           )}
         </div>
-        <div style={styles.actionGroup}>
-          <div style={styles.searchWrapper}>
+        <div style={{
+          ...styles.actionGroup,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto',
+          gap: isMobile ? '10px' : '12px'
+        }}>
+          <div style={{
+            ...styles.searchWrapper,
+            width: isMobile ? '100%' : 'auto'
+          }}>
             <FaSearch style={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Mağaza veya E-posta ara..."
+              placeholder={isMobile ? "Ara..." : "Mağaza veya E-posta ara..."}
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              style={styles.searchInput}
+              style={{
+                ...styles.searchInput,
+                fontSize: isMobile ? '16px' : '14px',
+                minHeight: isMobile ? '44px' : 'auto'
+              }}
             />
           </div>
           <button 
@@ -81,6 +107,10 @@ const VendorFilters = React.memo(({
               ...styles.filterButton,
               backgroundColor: isFilterOpen ? '#10b981' : 'white',
               color: isFilterOpen ? 'white' : '#10b981',
+              width: isMobile ? '100%' : 'auto',
+              minHeight: '44px',
+              justifyContent: 'center',
+              fontSize: isMobile ? '14px' : '14px'
             }}
           >
             <FaFilter /> {isFilterOpen ? 'Kapat' : 'Filtrele'}
@@ -91,13 +121,13 @@ const VendorFilters = React.memo(({
       {/* Inline Filter Area */}
       {isFilterOpen && (
         <div style={{
-          padding: '20px 24px',
+          padding: isMobile ? '16px' : '20px 24px',
           borderTop: '1px solid #e2e8f0',
           backgroundColor: '#f8fafc',
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '200px 1fr',
+            gridTemplateColumns: isMobile ? '1fr' : '200px 1fr',
             gap: '16px',
             alignItems: 'start',
           }}>
@@ -162,8 +192,9 @@ const VendorFilters = React.memo(({
               </label>
               <div style={{
                 display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
                 gap: '12px',
-                alignItems: 'center',
+                alignItems: isMobile ? 'stretch' : 'center',
               }}>
                 <input
                   type="number"
@@ -175,13 +206,14 @@ const VendorFilters = React.memo(({
                     padding: '10px 12px',
                     border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '14px',
+                    fontSize: isMobile ? '16px' : '14px',
                     outline: 'none',
+                    minHeight: isMobile ? '44px' : 'auto'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#10b981'}
                   onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
                 />
-                <span style={{ color: '#94a3b8', fontWeight: '500' }}>-</span>
+                <span style={{ color: '#94a3b8', fontWeight: '500', textAlign: 'center' }}>-</span>
                 <input
                   type="number"
                   placeholder="Max"
@@ -192,56 +224,67 @@ const VendorFilters = React.memo(({
                     padding: '10px 12px',
                     border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '14px',
+                    fontSize: isMobile ? '16px' : '14px',
                     outline: 'none',
+                    minHeight: isMobile ? '44px' : 'auto'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#10b981'}
                   onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
                 />
-                <button
-                  onClick={handleResetFilters}
-                  style={{
-                    padding: '10px 16px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    backgroundColor: 'white',
-                    color: '#64748b',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9';
-                    e.currentTarget.style.borderColor = '#cbd5e1';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'white';
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                  }}
-                >
-                  Sıfırla
-                </button>
-                <button
-                  onClick={handleApplyLocalFilters}
-                  style={{
-                    padding: '10px 20px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  Uygula
-                </button>
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  width: isMobile ? '100%' : 'auto'
+                }}>
+                  <button
+                    onClick={handleResetFilters}
+                    style={{
+                      padding: '10px 16px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      backgroundColor: 'white',
+                      color: '#64748b',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap',
+                      minHeight: '44px',
+                      flex: isMobile ? 1 : 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f1f5f9';
+                      e.currentTarget.style.borderColor = '#cbd5e1';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'white';
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                    }}
+                  >
+                    Sıfırla
+                  </button>
+                  <button
+                    onClick={handleApplyLocalFilters}
+                    style={{
+                      padding: '10px 20px',
+                      border: 'none',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: 'white',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap',
+                      minHeight: '44px',
+                      flex: isMobile ? 1 : 'none'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    Uygula
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -263,6 +306,7 @@ VendorFilters.propTypes = {
   onFilterClick: PropTypes.func,
   activeFilters: PropTypes.object,
   onApplyFilters: PropTypes.func,
+  isMobile: PropTypes.bool,
 };
 
 export default VendorFilters;
