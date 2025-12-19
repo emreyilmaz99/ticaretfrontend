@@ -28,10 +28,12 @@ const VendorSidebar = ({ isMobile, isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       await vendorLogout();
+      navigate('/vendor/login');
     } catch (error) {
       console.error('Logout failed', error);
-    } finally {
-      localStorage.removeItem('vendor_token');
+      // Hata olsa bile token'ları temizle
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_type');
       navigate('/vendor/login');
     }
   };
