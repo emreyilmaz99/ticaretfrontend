@@ -2,7 +2,7 @@ import apiClient from '@lib/apiClient';
 
 // Vendor: listele
 export const getVendorProducts = async (params = {}) => {
-  const res = await apiClient.get('/v1/products', { params });
+  const res = await apiClient.get('/v1/products/my-products', { params });
   return res.data;
 };
 
