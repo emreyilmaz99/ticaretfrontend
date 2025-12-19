@@ -27,12 +27,12 @@ const useVendorLogin = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user_type', 'vendor');
+      localStorage.setItem('auth_token', data.data.token);
+      localStorage.setItem('user_type', data.data.user_type || 'vendor');
       showToast('Giriş başarılı!', 'success');
 
       // Status-based routing
-      switch (data.vendor.status) {
+      switch (data.data.vendor.status) {
         case VENDOR_STATUS.ACTIVE:
           navigate('/vendor/dashboard');
           break;
@@ -43,7 +43,7 @@ const useVendorLogin = () => {
         case VENDOR_STATUS.PENDING_INFO:
           navigate('/vendor/status', {
             state: {
-              status: data.vendor.status,
+              status: data.data.vendor.status,
               message: 'Başvurunuz inceleniyor. Lütfen bekleyiniz.',
             },
           });
@@ -52,7 +52,7 @@ const useVendorLogin = () => {
           navigate('/vendor/status', {
             state: {
               status: 'rejected',
-              message: data.vendor.rejection_reason || 'Başvurunuz reddedildi.',
+              message: data.data.vendor.rejection_reason || 'Başvurunuz reddedildi.',
             },
           });
           break;
@@ -60,9 +60,9 @@ const useVendorLogin = () => {
         case VENDOR_STATUS.BANNED:
           navigate('/vendor/status', {
             state: {
-              status: data.vendor.status,
+              status: data.data.vendor.status,
               message:
-                data.vendor.status === VENDOR_STATUS.BANNED
+                data.data.vendor.status === VENDOR_STATUS.BANNED
                   ? 'Hesabınız kalıcı olarak askıya alınmıştır.'
                   : 'Hesabınız geçici olarak askıya alınmıştır.',
             },
