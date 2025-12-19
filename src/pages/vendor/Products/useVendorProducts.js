@@ -61,10 +61,13 @@ const useVendorProducts = () => {
   const [tagInput, setTagInput] = useState('');
 
   // ============ QUERIES ============
+  const authToken = localStorage.getItem('auth_token');
+  
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ['vendorProducts', currentPage, perPage],
+    queryKey: ['vendorProducts', authToken, currentPage, perPage],
     queryFn: () => getVendorProducts({ page: currentPage, per_page: perPage }),
-    keepPreviousData: true
+    keepPreviousData: true,
+    enabled: !!authToken
   });
 
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({

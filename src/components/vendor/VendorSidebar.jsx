@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaSignOutAlt, FaStore, FaTimes, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { useQueryClient } from '@tanstack/react-query';
 import { vendorLogout } from '../../features/vendor/api/vendorAuthApi';
 import { MENU_GROUPS } from './constants';
 import { sidebarStyles as styles } from './styles';
@@ -8,6 +9,7 @@ import { sidebarStyles as styles } from './styles';
 const VendorSidebar = ({ isMobile, isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [expandedGroups, setExpandedGroups] = useState([]);
 
   // Close sidebar on route change (mobile)
@@ -28,12 +30,15 @@ const VendorSidebar = ({ isMobile, isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       await vendorLogout();
+      // React Query cache'ini temizle
+      queryClient.clear();
       navigate('/vendor/login');
     } catch (error) {
       console.error('Logout failed', error);
       // Hata olsa bile token'ları temizle
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_type');
+      queryClient.clear();
       navigate('/vendor/login');
     }
   };
