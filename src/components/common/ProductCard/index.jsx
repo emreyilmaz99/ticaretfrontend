@@ -30,7 +30,8 @@ const ProductCard = React.memo(({
   
   // PERFORMANCE: Memoize favorite check to prevent recalculation on every render
   const isFav = useMemo(() => isFavorite(product.id), [isFavorite, product.id]);
-  const productUrl = useMemo(() => `/product/${product.slug || product.id}`, [product.slug, product.id]);
+  // Backend slug yerine ID bekliyor - ID kullan
+  const productUrl = useMemo(() => `/product/${product.id}`, [product.id]);
   
   // PERFORMANCE: Memoize styles to prevent recalculation
   const styles = useMemo(
@@ -41,9 +42,14 @@ const ProductCard = React.memo(({
   const handleToggleFavorite = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      showToast('Favorilere eklemek için lütfen giriş yapın.', 'warning');
+      navigate('/login');
+      return;
+    }
     if (isFav) removeFromFavorites(product.id);
     else addToFavorites(product);
-  }, [isFav, product, addToFavorites, removeFromFavorites]);
+  }, [isFav, product, user, addToFavorites, removeFromFavorites, showToast, navigate]);
 
   const handleAddToCart = useCallback((e) => {
     e.preventDefault();

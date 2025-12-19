@@ -42,24 +42,7 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('auth_token');
     const userType = localStorage.getItem('user_type');
 
-    // Token kontrolü - yoksa login'e yönlendir
-    const url = config.url || '';
-    const isAuthEndpoint = url.includes('/login') || url.includes('/register');
-    const isPublicEndpoint = 
-      url.includes('/v1/public') ||
-      url.startsWith('/v1/categories') && config.method === 'get' ||
-      url.startsWith('/v1/vendors/') && config.method === 'get' ||
-      url.includes('/vendor-stores/');
-
-    if (!token && !isAuthEndpoint && !isPublicEndpoint) {
-      const loginPath = getLoginPath(userType);
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = loginPath;
-      }
-      return Promise.reject(new Error('No token found'));
-    }
-
-    // Token ve User Type header'larını ekle
+    // Token ve User Type header'larını ekle (varsa)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -67,6 +50,27 @@ apiClient.interceptors.request.use(
     if (userType) {
       config.headers['X-User-Type'] = userType;
     }
+
+    // Token zorunlu OLMAYAN endpoint'ler - bu endpoint'ler için token kontrolü yapma
+    const url = config.url || '';
+    const isAuthEndpoint = url.includes('/login') || url.includes('/register');
+    
+    // Public endpoint'ler - GET istekleri genelde public
+    const isPublicEndpoint = 
+      url.includes('/v1/public') ||
+      (url.includes('/v1/categories') && config.method === 'get') ||
+      (url.includes('/v1/products') && config.method === 'get' && !url.includes('/my-products')) ||
+      (url.includes('/v1/vendors') && config.method === 'get') ||
+      url.includes('/vendor-stores/') ||
+      url.includes('/v1/banners') ||
+      url.includes('/v1/deals') ||
+      url.includes('/v1/featured-deals') ||
+      url.includes('/v1/reviews') ||
+      url.includes('/v1/units');
+
+    // Token yoksa VE endpoint auth gerektiriyorsa SADECE O ZAMAN login'e yönlendir
+    // Ama request'i yine de gönder, backend 401 dönerse orada handle ederiz
+    // Bu sayede public endpoint'lerde sorun çıkmaz
 
     return config;
   },
@@ -84,30 +88,69 @@ apiClient.interceptors.response.use(
   (error) => {
     // 401 Unauthorized - Token geçersiz veya eksik
     if (error.response?.status === 401) {
-      console.error('[API Client] 401 Unauthorized:', {
-        url: error.config?.url,
+      const url = error.config?.url || '';
+      const currentPath = window.location.pathname;
+      
+      console.warn('[API Client] 401 Unauthorized:', {
+        url: url,
+        currentPath: currentPath,
         data: error.response?.data,
       });
       
-      // Sadece authentication endpoint'lerinde token temizle ve yönlendir
-      // /me, /profile gibi endpoint'lerde 401 alınca logout yap
-      const url = error.config?.url || '';
+      // Public sayfalarda (ana sayfa, kategoriler, ürün detay) 401 hatası tamamen görmezden gel
+      const isPublicPage = 
+        currentPath === '/' ||
+        currentPath.startsWith('/product') ||
+        currentPath.startsWith('/products') ||
+        currentPath.startsWith('/search') ||
+        currentPath.startsWith('/store') ||
+        currentPath.includes('/login') ||
+        currentPath.includes('/register');
+      
+      if (isPublicPage) {
+        console.warn('[API Client] 401 on public page, ignoring');
+        return Promise.reject(error);
+      }
+      
+      // Public endpoint'lerde 401 alınsa bile logout YAPMA
+      const isPublicEndpoint = 
+        url.includes('/v1/public') ||
+        url.includes('/v1/categories') ||
+        url.includes('/categories/tree') ||
+        (url.includes('/v1/products/') && !url.includes('/my-products')) ||
+        url.includes('/v1/vendors') ||
+        url.includes('/vendor-stores') ||
+        url.includes('/v1/banners') ||
+        url.includes('/v1/deals') ||
+        url.includes('/v1/featured-deals') ||
+        url.includes('/v1/reviews') ||
+        url.includes('/v1/units');
+      
+      if (isPublicEndpoint) {
+        console.warn('[API Client] 401 on public endpoint, ignoring:', url);
+        return Promise.reject(error);
+      }
+      
+      // SADECE user-specific endpoint'lerde logout yap
       const shouldLogout = 
-        url.includes('/me') || 
-        url.includes('/profile') || 
-        url.includes('/logout') ||
-        error.response?.data?.message?.includes('Unauthenticated');
+        (url.includes('/user/me') || url.includes('/v1/me')) ||
+        url.includes('/profile') ||
+        url.includes('/user/orders') ||
+        url.includes('/user/addresses') ||
+        url.includes('/cart') ||
+        url.includes('/checkout');
       
       if (shouldLogout) {
-        // Token ve user type'ı temizle
+        console.error('[API Client] User session expired, redirecting to login');
         const userType = localStorage.getItem('user_type');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_type');
         
-        // Doğru login sayfasına yönlendir
         const loginPath = getLoginPath(userType);
         if (!window.location.pathname.includes('/login')) {
-          window.location.href = loginPath;
+          setTimeout(() => {
+            window.location.href = loginPath;
+          }, 100);
         }
       }
     }

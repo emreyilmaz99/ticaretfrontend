@@ -56,6 +56,10 @@ const useNavbar = () => {
     queryKey: ['categories'], // UNIFIED: Home sayfası ile aynı key
     queryFn: getCategoryTree,
     staleTime: 1000 * 60 * 30, // 30 dakika cache
+    retry: 1, // Sadece 1 kez tekrar dene
+    onError: (error) => {
+      console.warn('[Navbar] Categories fetch failed, will show empty:', error.message);
+    }
   });
 
   const categories = (categoriesData?.data || []).slice(0, 8).map(cat => ({

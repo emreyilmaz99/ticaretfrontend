@@ -62,11 +62,17 @@ export const useUserProfile = () => {
   // Update profile mutation
   const updateMutation = useMutation({
     mutationFn: (data) => updateUserProfile(data),
-    onSuccess: () => {
+    onSuccess: async () => {
       qc.invalidateQueries(['user', 'profile']);
-      refreshUser();
+      await refreshUser(); // Önce user'ı güncelle
       toast.success('Başarılı', 'Profil bilgileriniz güncellendi.');
       setIsSaving(false);
+      
+      // Debug: Güncellenmiş user bilgisini console'a yazdır
+      setTimeout(() => {
+        const updatedUser = qc.getQueryData(['user', 'profile']);
+        console.log('[UserProfile] Profil güncellendi, yeni user:', updatedUser);
+      }, 500);
     },
     onError: (err) => {
       toast.error('Hata', err.response?.data?.message || 'Güncelleme başarısız.');
@@ -136,6 +142,7 @@ export const useUserProfile = () => {
   const handleProfileSubmit = (e) => {
     e.preventDefault();
     setIsSaving(true);
+    console.log('[UserProfile] Profil güncelleniyor, gönderilen data:', form);
     updateMutation.mutate(form);
   };
 

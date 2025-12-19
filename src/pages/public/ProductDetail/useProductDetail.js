@@ -43,13 +43,37 @@ export const useProductDetail = () => {
     queryKey: ['product', slug],
     queryFn: () => getProduct(slug),
     enabled: !!slug,
+    retry: (failureCount, error) => {
+      // 401 hatası public endpoint'te ignore edilmeli
+      if (error.response?.status === 401) return false;
+      return failureCount < 2;
+    },
+    onError: (err) => {
+      // 401 hatası public page'de normal, görmezden gel
+      if (err.response?.status === 401) {
+        console.warn('[ProductDetail] 401 on public endpoint, backend should allow public access');
+        return;
+      }
+      console.error('[ProductDetail] Failed to fetch product:', err);
+      if (err.response?.status === 404) {
+        toast.error('Hata', 'Ürün bulunamadı.');
+      }
+    }
   });
 
   // Fetch related products
   const { data: relatedData } = useQuery({
     queryKey: ['relatedProducts', slug],
     queryFn: () => getRelatedProducts(slug, 4),
-    enabled: !!slug,
+    enabled: !!slug && !!data?.data?.product,
+    retry: (failureCount, error) => {
+      if (error.response?.status === 401) return false;
+      return failureCount < 2;
+    },
+    onError: (err) => {
+      if (err.response?.status === 401) return;
+      console.warn('[ProductDetail] Failed to fetch related products:', err);
+    }
   });
 
   const product = data?.data?.product;

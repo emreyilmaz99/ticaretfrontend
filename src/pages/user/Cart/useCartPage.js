@@ -292,6 +292,10 @@ const useCartPage = () => {
    * Sepeti Onayla butonuna tıklama - Checkout başlat
    */
   const handleCheckoutClick = useCallback(() => {
+    // Debug: User bilgisini console'a yazdır
+    console.log('[Cart] Checkout başlatılıyor, user:', user);
+    console.log('[Cart] identity_number:', user?.identity_number);
+    
     // Giriş kontrolü
     if (!isAuthenticated) {
       toast.warning('Giriş Yapın', 'Ödeme yapabilmek için giriş yapmanız gerekmektedir.');
@@ -300,7 +304,7 @@ const useCartPage = () => {
     }
 
     // TC Kimlik kontrolü
-    if (!user?.identity_number) {
+    if (!user?.identity_number || user?.identity_number === '') {
       toast.warning('TC Kimlik Gerekli', 'Ödeme yapabilmek için profil sayfanızdan TC Kimlik numaranızı girmeniz gerekmektedir.');
       navigate('/account/profile');
       return;

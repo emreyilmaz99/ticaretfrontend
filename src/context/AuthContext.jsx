@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { registerUser, loginUser, logoutUser, getUserMe } from '../features/user/api/userAuthApi';
+import { registerUser, loginUser, logoutUser, getUserProfile } from '../features/user/api/userAuthApi';
 
 const AuthContext = createContext();
 
@@ -17,9 +17,11 @@ export const AuthProvider = ({ children }) => {
       const userType = localStorage.getItem('user_type');
       if (token && userType === 'user') {
         try {
-          const response = await getUserMe();
+          const response = await getUserProfile();
           if (response.success && response.data?.user) {
             setUser(response.data.user);
+          } else if (response.data) {
+            setUser(response.data);
           } else {
             // Token invalid, clear it
             localStorage.removeItem('auth_token');
@@ -94,12 +96,19 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUser = async () => {
     try {
-      const response = await getUserMe();
+      // Profil endpoint'ini kullan - daha detaylı user bilgisi döner
+      const response = await getUserProfile();
+      console.log('[AuthContext] refreshUser response:', response);
       if (response.success && response.data?.user) {
+        console.log('[AuthContext] User güncellendi:', response.data.user);
         setUser(response.data.user);
+      } else if (response.data) {
+        // Bazı endpoint'ler direkt user objesini döndürür
+        console.log('[AuthContext] User güncellendi (direkt):', response.data);
+        setUser(response.data);
       }
     } catch (error) {
-      // Ignore errors
+      console.warn('[AuthContext] refreshUser failed:', error);
     }
   };
 
