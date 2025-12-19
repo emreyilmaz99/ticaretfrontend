@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useCartStore from '../../../stores/useCartStore';
 import { useAuth } from '../../../context/AuthContext';
 import { getUserAddresses, createUserAddress, deleteUserAddress } from '../../../features/user/api/userAddressApi';
+import { getUserProfile } from '../../../features/user/api/userAuthApi';
 import { initializeCheckout } from '../../../features/checkout/api/checkoutApi';
 import { useToast } from '../../../components/common/Toast';
 
@@ -291,11 +292,7 @@ const useCartPage = () => {
   /**
    * Sepeti Onayla butonuna tıklama - Checkout başlat
    */
-  const handleCheckoutClick = useCallback(() => {
-    // Debug: User bilgisini console'a yazdır
-    console.log('[Cart] Checkout başlatılıyor, user:', user);
-    console.log('[Cart] identity_number:', user?.identity_number);
-    
+  const handleCheckoutClick = useCallback(async () => {
     // Giriş kontrolü
     if (!isAuthenticated) {
       toast.warning('Giriş Yapın', 'Ödeme yapabilmek için giriş yapmanız gerekmektedir.');
@@ -303,10 +300,23 @@ const useCartPage = () => {
       return;
     }
 
-    // TC Kimlik kontrolü
-    if (!user?.identity_number || user?.identity_number === '') {
-      toast.warning('TC Kimlik Gerekli', 'Ödeme yapabilmek için profil sayfanızdan TC Kimlik numaranızı girmeniz gerekmektedir.');
-      navigate('/account/profile');
+    // Güncel profil bilgisini API'den çek
+    try {
+      const profileResponse = await getUserProfile();
+      const userProfile = profileResponse?.data?.user || profileResponse?.data;
+      
+      console.log('[Cart] Checkout başlatılıyor, güncel profil:', userProfile);
+      console.log('[Cart] identity_number:', userProfile?.identity_number);
+      
+      // TC Kimlik kontrolü
+      if (!userProfile?.identity_number || userProfile?.identity_number === '') {
+        toast.warning('TC Kimlik Gerekli', 'Ödeme yapabilmek için profil sayfanızdan TC Kimlik numaranızı girmeniz gerekmektedir.');
+        navigate('/account/profile');
+        return;
+      }
+    } catch (error) {
+      console.error('[Cart] Profil bilgisi alınamadı:', error);
+      toast.error('Hata', 'Profil bilgileriniz alınamadı. Lütfen tekrar deneyin.');
       return;
     }
 
@@ -320,7 +330,7 @@ const useCartPage = () => {
     setShowCheckoutModal(true);
     setCheckoutStep('address');
     setPaymentHtml(null);
-  }, [isAuthenticated, user, selectedAddress, toast, navigate]);
+  }, [isAuthenticated, selectedAddress, toast, navigate]);
 
   /**
    * Ödemeye geç - iyzico form başlat
