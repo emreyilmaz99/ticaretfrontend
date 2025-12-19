@@ -19,7 +19,7 @@ const cartAxios = () => {
   };
   
   // User token varsa ekle (authenticated user için sepet sync'i)
-  const userToken = localStorage.getItem('user_token');
+  const userToken = localStorage.getItem('auth_token');
   if (userToken) {
     headers['Authorization'] = `Bearer ${userToken}`;
   }

@@ -10,11 +10,12 @@ const VendorLayout = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // Token kontrolü - sayfa yüklenmeden önce kontrol et
-  const token = localStorage.getItem('vendor_token');
+  // Unified token ve user type kontrolü
+  const token = localStorage.getItem('auth_token');
+  const userType = localStorage.getItem('user_type');
   
-  // Token yoksa hemen login sayfasına yönlendir
-  if (!token) {
+  // Token yoksa veya user type vendor değilse login'e yönlendir
+  if (!token || userType !== 'vendor') {
     return <Navigate to="/vendor/login" replace />;
   }
 

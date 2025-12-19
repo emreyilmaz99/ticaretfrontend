@@ -30,10 +30,8 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
   const loadNotes = async () => {
     setLoadingNotes(true);
     try {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/admin/orders/${order.order_id}/notes`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${BACKEND_URL}/api/v1/orders/${order.order_id}/notes`
       );
       if (response.data.success) {
         setOrderNotes(response.data.data.notes || []);
@@ -57,10 +55,8 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
   const loadUserOrders = async () => {
     setLoadingUserOrders(true);
     try {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/admin/orders/${order.order_id}/user-orders`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${BACKEND_URL}/api/v1/orders/${order.order_id}/user-orders`
       );
       if (response.data.success) {
         setUserOrders(response.data.data.orders || []);
@@ -102,16 +98,12 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
     }
 
     try {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.post(
-        `${BACKEND_URL}/api/v1/admin/orders/${order.order_id}/notes`,
+        `${BACKEND_URL}/api/v1/orders/${order.order_id}/notes`,
         {
           note: adminNote,
           is_visible_to_vendor: visibleToVendor,
           is_visible_to_customer: visibleToCustomer
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
         }
       );
 

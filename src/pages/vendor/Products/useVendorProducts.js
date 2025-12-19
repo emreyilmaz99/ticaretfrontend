@@ -40,7 +40,7 @@ const useVendorProducts = () => {
 
   // Auth check
   useEffect(() => {
-    const token = localStorage.getItem('vendor_token');
+    const token = localStorage.getItem('auth_token');
     if (!token) navigate('/vendor/login');
   }, [navigate]);
 

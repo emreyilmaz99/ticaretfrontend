@@ -44,10 +44,7 @@ export const useVendorCategories = () => {
   } = useQuery({
     queryKey: ['mySelectedCategories'],
     queryFn: async () => {
-      const token = localStorage.getItem('vendor_token');
-      const response = await apiClient.get('/v1/vendor/my-categories', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/v1/vendor/my-categories');
       return response.data.data?.categories || [];
     }
   });
@@ -62,11 +59,9 @@ export const useVendorCategories = () => {
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async (categoryIds) => {
-      const token = localStorage.getItem('vendor_token');
       const response = await apiClient.put(
         '/v1/vendor/my-categories',
-        { category_ids: categoryIds },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { category_ids: categoryIds }
       );
       return response.data;
     },

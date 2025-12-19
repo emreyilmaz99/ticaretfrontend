@@ -27,7 +27,8 @@ const useVendorLogin = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      localStorage.setItem('vendor_token', data.token);
+      localStorage.setItem('auth_token', data.token);
+      localStorage.setItem('user_type', 'vendor');
       showToast('Giriş başarılı!', 'success');
 
       // Status-based routing

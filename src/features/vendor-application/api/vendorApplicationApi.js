@@ -31,14 +31,14 @@ export const rejectPreApplication = (id, reason) => {
 
 // Tam başvuru onayla (Vendor aktifleştir) - komisyon planı ile
 export const approveFullApplication = (vendorId, commissionPlanId = null) => {
-  return apiClient.post(`/v1/admin/vendors/${vendorId}/approve-full`, {
+  return apiClient.post(`/v1/vendors/${vendorId}/approve-full`, {
     commission_plan_id: commissionPlanId
   });
 };
 
 // Tam başvuru reddet
 export const rejectFullApplication = (vendorId, reason) => {
-  return apiClient.post(`/v1/admin/vendors/${vendorId}/reject-full`, {
+  return apiClient.post(`/v1/vendors/${vendorId}/reject-full`, {
     rejection_reason: reason
   });
 };

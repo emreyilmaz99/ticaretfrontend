@@ -10,19 +10,22 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check for existing token and fetch user data
     const checkAuth = async () => {
-      const token = localStorage.getItem('user_token');
-      if (token) {
+      const token = localStorage.getItem('auth_token');
+      const userType = localStorage.getItem('user_type');
+      if (token && userType === 'user') {
         try {
           const response = await getUserMe();
           if (response.success && response.data?.user) {
             setUser(response.data.user);
           } else {
             // Token invalid, clear it
-            localStorage.removeItem('user_token');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_type');
           }
         } catch (error) {
           // Token expired or invalid
-          localStorage.removeItem('user_token');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user_type');
         }
       }
       setLoading(false);
@@ -41,15 +44,15 @@ export const AuthProvider = ({ children }) => {
         phone: userData.phone || null,
       });
 
-      if (response.success) {
-        // Auto-login after registration
-        localStorage.setItem('user_token', response.data.token);
+      if (response.success && response.data?.user) {
+        // Token already saved by registerUser API
         setUser(response.data.user);
         return { success: true, message: response.message };
       }
       
       return { success: false, message: response.message || 'Kayıt başarısız.' };
     } catch (error) {
+      console.error('[AuthContext] Register error:', error.response?.data);
       const message = error.response?.data?.message || 'Kayıt işlemi başarısız.';
       return { success: false, message };
     }
@@ -59,14 +62,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await loginUser(email, password);
       
-      if (response.success) {
-        localStorage.setItem('user_token', response.data.token);
+      if (response.success && response.data?.user) {
+        // Token already saved by loginUser API
         setUser(response.data.user);
         return { success: true };
       }
 
       return { success: false, message: response.message || 'Giriş başarısız.' };
     } catch (error) {
+      console.error('[AuthContext] Login error:', error.response?.data);
       const message = error.response?.data?.message || 'Giriş işlemi başarısız.';
       return { success: false, message };
     }
@@ -79,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       // Ignore logout errors
     } finally {
       setUser(null);
-      localStorage.removeItem('user_token');
+      // Token cleanup already done by logoutUser API
     }
   };
 

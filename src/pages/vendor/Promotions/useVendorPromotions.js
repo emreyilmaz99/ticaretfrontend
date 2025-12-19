@@ -12,7 +12,7 @@ const useVendorPromotions = () => {
 
   // Auth check
   useEffect(() => {
-    const token = localStorage.getItem('vendor_token');
+    const token = localStorage.getItem('auth_token');
     if (!token) navigate('/vendor/login');
   }, [navigate]);
 
@@ -45,7 +45,7 @@ const useVendorPromotions = () => {
   const { data: productsData } = useQuery({
     queryKey: ['vendor', 'products-for-campaign'],
     queryFn: async () => {
-      const res = await apiClient.get('/v1/vendor/products?per_page=1000');
+      const res = await apiClient.get('/v1/products?per_page=1000');
       return res.data;
     },
     enabled: activeTab === 'campaigns', // Only fetch when Campaigns tab is active

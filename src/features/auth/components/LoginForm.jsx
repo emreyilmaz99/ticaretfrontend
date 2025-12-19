@@ -21,7 +21,8 @@ export const LoginForm = () => {
 
       if (response.data.success) {
         const token = response.data.data.token;
-        localStorage.setItem('admin_token', token);
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_type', 'admin');
         navigate('/admin/dashboard');
       }
     } catch (err) {

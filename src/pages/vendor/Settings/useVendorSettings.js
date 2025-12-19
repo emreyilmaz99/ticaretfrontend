@@ -35,7 +35,7 @@ const useVendorSettings = () => {
 
   // Auth check
   useEffect(() => {
-    const token = localStorage.getItem('vendor_token');
+    const token = localStorage.getItem('auth_token');
     if (!token) navigate('/vendor/login');
   }, [navigate]);
 
@@ -123,7 +123,7 @@ const useVendorSettings = () => {
 
   // ============ ADDRESS MUTATIONS ============
   const createAddressMutation = useMutation({
-    mutationFn: (data) => apiClient.post('/v1/vendor/addresses', data),
+    mutationFn: (data) => apiClient.post('/v1/addresses', data),
     onSuccess: () => {
       queryClient.invalidateQueries(['vendor', 'me']);
       toast.success('Başarılı', 'Adres eklendi.');
@@ -133,7 +133,7 @@ const useVendorSettings = () => {
   });
 
   const updateAddressMutation = useMutation({
-    mutationFn: ({ id, data }) => apiClient.put(`/v1/vendor/addresses/${id}`, data),
+    mutationFn: ({ id, data }) => apiClient.put(`/v1/addresses/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['vendor', 'me']);
       toast.success('Başarılı', 'Adres güncellendi.');
@@ -143,7 +143,7 @@ const useVendorSettings = () => {
   });
 
   const deleteAddressMutation = useMutation({
-    mutationFn: (id) => apiClient.delete(`/v1/vendor/addresses/${id}`),
+    mutationFn: (id) => apiClient.delete(`/v1/addresses/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(['vendor', 'me']);
       toast.success('Başarılı', 'Adres silindi.');

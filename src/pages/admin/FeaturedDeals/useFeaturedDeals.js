@@ -28,11 +28,9 @@ export const useFeaturedDeals = () => {
   } = useQuery({
     queryKey: ['featuredDeals', filterStatus],
     queryFn: async () => {
-      const token = localStorage.getItem('admin_token');
       const params = filterStatus !== 'all' ? `?status=${filterStatus}` : '';
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/admin/featured-deals${params}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${BACKEND_URL}/api/v1/admin/featured-deals${params}`
       );
       return response.data.data;
     }
@@ -42,10 +40,8 @@ export const useFeaturedDeals = () => {
   const { data: productsData } = useQuery({
     queryKey: ['productsForDeals'],
     queryFn: async () => {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/admin/featured-deals/create`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${BACKEND_URL}/api/v1/admin/featured-deals/create`
       );
       return response.data.data;
     },
@@ -55,11 +51,9 @@ export const useFeaturedDeals = () => {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.post(
         `${BACKEND_URL}/api/v1/admin/featured-deals`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
+        data
       );
       return response.data;
     },
@@ -77,11 +71,9 @@ export const useFeaturedDeals = () => {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.put(
         `${BACKEND_URL}/api/v1/admin/featured-deals/${id}`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
+        data
       );
       return response.data;
     },
@@ -100,10 +92,8 @@ export const useFeaturedDeals = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
       setDeletingId(id);
-      const token = localStorage.getItem('admin_token');
       await apiClient.delete(
-        `${BACKEND_URL}/api/v1/admin/featured-deals/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${BACKEND_URL}/api/v1/admin/featured-deals/${id}`
       );
     },
     onSuccess: async () => {
@@ -122,11 +112,9 @@ export const useFeaturedDeals = () => {
   const toggleMutation = useMutation({
     mutationFn: async (id) => {
       setTogglingId(id);
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.post(
         `${BACKEND_URL}/api/v1/admin/featured-deals/${id}/toggle`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {}
       );
       return response.data;
     },
@@ -146,11 +134,9 @@ export const useFeaturedDeals = () => {
   // Reorder mutation
   const reorderMutation = useMutation({
     mutationFn: async (deals) => {
-      const token = localStorage.getItem('admin_token');
       const response = await apiClient.post(
         `${BACKEND_URL}/api/v1/admin/featured-deals/reorder`,
-        { deals },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { deals }
       );
       return response.data;
     },

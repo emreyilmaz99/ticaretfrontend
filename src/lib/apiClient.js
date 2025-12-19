@@ -12,33 +12,60 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
+  withCredentials: false, // CORS için false yap
 });
 
 /**
+ * Unified Token Management
+ * User type'a göre doğru login sayfasına yönlendirme
+ */
+const getLoginPath = (userType) => {
+  switch (userType) {
+    case 'admin':
+      return '/admin/login';
+    case 'vendor':
+      return '/vendor/login';
+    case 'user':
+    default:
+      return '/login';
+  }
+};
+
+/**
  * Request Interceptor
- * URL'ye göre otomatik token ekleme
+ * Tek token ile user type header'ı ekleme
  */
 apiClient.interceptors.request.use(
   (config) => {
-    const url = config.url || '';
-    let token = null;
+    const token = localStorage.getItem('auth_token');
+    const userType = localStorage.getItem('user_type');
 
-    // URL pattern'e göre token seç
-    if (url.includes('/v1/admin') || url.includes('/admin')) {
-      token = localStorage.getItem('admin_token');
-    } else if (url.includes('/v1/vendor') || url.includes('/vendor')) {
-      token = localStorage.getItem('vendor_token');
-    } else if (url.includes('/v1/user') || url.includes('/user') || url.includes('/cart') || url.includes('/favorites')) {
-      token = localStorage.getItem('user_token');
-    } else {
-      // Genel istekler için user token dene, yoksa admin token
-      token = localStorage.getItem('user_token') || localStorage.getItem('admin_token');
+    // Token kontrolü - yoksa login'e yönlendir
+    const url = config.url || '';
+    const isAuthEndpoint = url.includes('/login') || url.includes('/register');
+    const isPublicEndpoint = 
+      url.includes('/v1/products') || 
+      url.includes('/v1/categories') || 
+      url.includes('/v1/vendors/') ||
+      url.includes('/v1/public');
+
+    if (!token && !isAuthEndpoint && !isPublicEndpoint) {
+      const loginPath = getLoginPath(userType);
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = loginPath;
+      }
+      return Promise.reject(new Error('No token found'));
     }
 
-    // Token varsa Authorization header'ına ekle
+    // Token ve User Type header'larını ekle
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (userType) {
+      config.headers['X-User-Type'] = userType;
     }
 
     return config;
@@ -60,16 +87,32 @@ apiClient.interceptors.response.use(
       console.error('[API Client] 401 Unauthorized:', {
         url: error.config?.url,
         data: error.response?.data,
-        headers: error.config?.headers,
       });
       
-      // İsteğe bağlı: Otomatik logout veya refresh token
-      // window.location.href = '/login';
+      // Token ve user type'ı temizle
+      const userType = localStorage.getItem('user_type');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_type');
+      
+      // Doğru login sayfasına yönlendir
+      const loginPath = getLoginPath(userType);
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = loginPath;
+      }
     }
 
     // 403 Forbidden - Yetki yok
     if (error.response?.status === 403) {
-      console.error('[API Client] 403 Forbidden:', error.response?.data);
+      const message = error.response?.data?.message || 'Bu işlem için yetkiniz yok';
+      console.error('[API Client] 403 Forbidden:', message);
+      
+      // Toast notification göster (opsiyonel - component'te de handle edilebilir)
+      // Toast sistemi global olarak erişilebilirse burada gösterilebilir
+    }
+
+    // 422 Validation Error
+    if (error.response?.status === 422) {
+      console.warn('[API Client] Validation Error:', error.response?.data?.errors);
     }
 
     // 500 Server Error

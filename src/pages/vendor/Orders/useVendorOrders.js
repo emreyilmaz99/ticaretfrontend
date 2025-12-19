@@ -36,11 +36,9 @@ export const useVendorOrders = () => {
   } = useQuery({
     queryKey: ['vendorOrders', debouncedSearch, statusFilter, minAmount, maxAmount], // Use debounced value
     queryFn: async () => {
-      const token = localStorage.getItem('vendor_token');
       const queryString = buildQueryParams();
       const response = await apiClient.get(
-        `/v1/vendor/orders${queryString ? '?' + queryString : ''}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/v1/orders${queryString ? '?' + queryString : ''}`
       );
       return response.data.data;
     }
@@ -53,10 +51,7 @@ export const useVendorOrders = () => {
   } = useQuery({
     queryKey: ['vendorOrderStats'],
     queryFn: async () => {
-      const token = localStorage.getItem('vendor_token');
-      const response = await apiClient.get('/v1/vendor/orders/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/v1/orders/stats');
       return response.data.data;
     }
   });
@@ -64,11 +59,9 @@ export const useVendorOrders = () => {
   // Update status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }) => {
-      const token = localStorage.getItem('vendor_token');
       const response = await apiClient.put(
-        `/v1/vendor/orders/${orderId}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/v1/orders/${orderId}/status`,
+        { status }
       );
       return response.data;
     },
@@ -85,11 +78,9 @@ export const useVendorOrders = () => {
   // Cancel order mutation
   const cancelOrderMutation = useMutation({
     mutationFn: async (orderId) => {
-      const token = localStorage.getItem('vendor_token');
       const response = await apiClient.post(
-        `/v1/vendor/orders/${orderId}/cancel`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/v1/orders/${orderId}/cancel`,
+        {}
       );
       return response.data;
     },

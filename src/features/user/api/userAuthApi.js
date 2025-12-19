@@ -5,6 +5,10 @@ import apiClient from '@lib/apiClient';
  */
 export const registerUser = async (data) => {
   const response = await apiClient.post('/v1/user/register', data);
+  if (response.data.success && response.data.data?.token) {
+    localStorage.setItem('auth_token', response.data.data.token);
+    localStorage.setItem('user_type', response.data.data.user_type || 'user');
+  }
   return response.data;
 };
 
@@ -13,6 +17,10 @@ export const registerUser = async (data) => {
  */
 export const loginUser = async (email, password) => {
   const response = await apiClient.post('/v1/user/login', { email, password });
+  if (response.data.success && response.data.data?.token) {
+    localStorage.setItem('auth_token', response.data.data.token);
+    localStorage.setItem('user_type', response.data.data.user_type || 'user');
+  }
   return response.data;
 };
 
@@ -21,6 +29,8 @@ export const loginUser = async (email, password) => {
  */
 export const logoutUser = async () => {
   const response = await apiClient.post('/v1/user/logout');
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('user_type');
   return response.data;
 };
 
@@ -28,7 +38,7 @@ export const logoutUser = async () => {
  * Get current user info
  */
 export const getUserMe = async () => {
-  const response = await apiClient.get('/v1/user/me');
+  const response = await apiClient.get('/v1/me');
   return response.data;
 };
 
@@ -36,7 +46,7 @@ export const getUserMe = async () => {
  * Get user profile
  */
 export const getUserProfile = async () => {
-  const response = await apiClient.get('/v1/user/profile');
+  const response = await apiClient.get('/v1/profile');
   return response.data;
 };
 
@@ -44,7 +54,7 @@ export const getUserProfile = async () => {
  * Update user profile
  */
 export const updateUserProfile = async (data) => {
-  const response = await apiClient.put('/v1/user/profile', data);
+  const response = await apiClient.put('/v1/profile', data);
   return response.data;
 };
 

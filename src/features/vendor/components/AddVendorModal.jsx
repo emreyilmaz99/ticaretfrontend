@@ -24,7 +24,7 @@ const AddVendorModal = ({ isOpen, onClose }) => {
 
   const createVendorMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await apiClient.post('/v1/admin/vendors', data);
+      const response = await apiClient.post('/v1/vendors', data);
       return response.data;
     },
     onSuccess: () => {

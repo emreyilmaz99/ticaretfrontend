@@ -34,7 +34,7 @@ export const useReviewsPage = () => {
       params.append('page', currentPage);
       params.append('per_page', perPage);
 
-      const response = await apiClient.get(`/v1/admin/reviews?${params}`);
+      const response = await apiClient.get(`/v1/reviews?${params}`);
       return response.data;
     },
     keepPreviousData: true, // Sayfa geçişlerinde smooth UX
@@ -44,7 +44,7 @@ export const useReviewsPage = () => {
   const { data: statsData, isLoading: isLoadingStats } = useQuery({
     queryKey: ['adminReviewStats'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/admin/reviews/stats');
+      const response = await apiClient.get('/v1/reviews/stats');
       return response.data;
     },
   });
@@ -56,7 +56,7 @@ export const useReviewsPage = () => {
   // Approve mutation
   const approveMutation = useMutation({
     mutationFn: async (reviewId) => {
-      const response = await apiClient.post(`/v1/admin/reviews/${reviewId}/approve`);
+      const response = await apiClient.post(`/v1/reviews/${reviewId}/approve`);
       return response.data;
     },
     onSuccess: () => {
@@ -72,7 +72,7 @@ export const useReviewsPage = () => {
   // Reject mutation
   const rejectMutation = useMutation({
     mutationFn: async ({ reviewId, reason }) => {
-      const response = await apiClient.post(`/v1/admin/reviews/${reviewId}/reject`, {
+      const response = await apiClient.post(`/v1/reviews/${reviewId}/reject`, {
         rejection_reason: reason,
       });
       return response.data;
@@ -90,7 +90,7 @@ export const useReviewsPage = () => {
   // Bulk approve mutation
   const bulkApproveMutation = useMutation({
     mutationFn: async (reviewIds) => {
-      const response = await apiClient.post('/v1/admin/reviews/bulk-approve', {
+      const response = await apiClient.post('/v1/reviews/bulk-approve', {
         review_ids: reviewIds,
       });
       return response.data;
@@ -109,7 +109,7 @@ export const useReviewsPage = () => {
   // Bulk reject mutation
   const bulkRejectMutation = useMutation({
     mutationFn: async ({ reviewIds, reason }) => {
-      const response = await apiClient.post('/v1/admin/reviews/bulk-reject', {
+      const response = await apiClient.post('/v1/reviews/bulk-reject', {
         review_ids: reviewIds,
         rejection_reason: reason,
       });

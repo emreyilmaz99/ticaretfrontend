@@ -34,7 +34,7 @@ export const useAdminOrders = () => {
     queryFn: async () => {
       const queryString = buildQueryParams();
       const response = await apiClient.get(
-        `/v1/admin/orders${queryString ? '?' + queryString : ''}`
+        `/v1/orders${queryString ? '?' + queryString : ''}`
       );
       return response.data.data;
     }
@@ -47,7 +47,7 @@ export const useAdminOrders = () => {
   } = useQuery({
     queryKey: ['adminOrderStats'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/admin/orders/stats');
+      const response = await apiClient.get('/v1/orders/stats');
       return response.data.data;
     }
   });
@@ -56,7 +56,7 @@ export const useAdminOrders = () => {
   const updateStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }) => {
       const response = await apiClient.put(
-        `/v1/admin/orders/${orderId}/status`,
+        `/v1/orders/${orderId}/status`,
         { status }
       );
       return response.data;
@@ -75,7 +75,7 @@ export const useAdminOrders = () => {
   const cancelOrderMutation = useMutation({
     mutationFn: async ({ orderId, reason }) => {
       const response = await apiClient.post(
-        `/v1/admin/orders/${orderId}/cancel`,
+        `/v1/orders/${orderId}/cancel`,
         { reason }
       );
       return response.data;

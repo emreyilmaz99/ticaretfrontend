@@ -2,16 +2,22 @@ import apiClient from '@lib/apiClient';
 
 export const vendorLogin = async (credentials) => {
   const response = await apiClient.post('/v1/vendor/login', credentials);
+  if (response.data.success && response.data.data?.token) {
+    localStorage.setItem('auth_token', response.data.data.token);
+    localStorage.setItem('user_type', response.data.data.user_type || 'vendor');
+  }
   return response.data;
 };
 
 export const vendorLogout = async () => {
   const response = await apiClient.post('/v1/vendor/logout');
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('user_type');
   return response.data;
 };
 
 export const getVendorProfile = async () => {
-  const response = await apiClient.get('/v1/vendor/me');
+  const response = await apiClient.get('/v1/me');
   return response.data;
 };
 
@@ -50,7 +56,7 @@ export const updateVendorProfile = async (data) => {
 };
 
 export const createVendorAddress = async (payload) => {
-  const response = await apiClient.post('/v1/vendor/addresses', payload);
+  const response = await apiClient.post('/v1/addresses', payload);
   return response.data;
 };
 

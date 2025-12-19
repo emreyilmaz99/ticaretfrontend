@@ -25,7 +25,7 @@ const useCartStore = create(
 
         // Actions
         fetchCart: async () => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
           
           // Giriş yapmamış kullanıcılar için boş sepet
           if (!userToken) {
@@ -83,7 +83,7 @@ const useCartStore = create(
         },
 
         addToCart: async (product, quantity = 1, variant = null, toast = null, navigate = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           // Auth kontrolü - giriş yapmamış kullanıcıları login'e yönlendir
           if (!userToken) {
@@ -132,7 +132,7 @@ const useCartStore = create(
         },
 
         removeFromCart: async (itemId, toast = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           if (!userToken) {
             if (toast) {
@@ -177,7 +177,7 @@ const useCartStore = create(
         },
 
         updateQuantity: async (itemId, quantity, toast = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           if (!userToken) {
             if (toast) {
@@ -222,7 +222,7 @@ const useCartStore = create(
         },
 
         clearCart: async (toast = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           if (!userToken) {
             set((state) => {
@@ -277,7 +277,7 @@ const useCartStore = create(
 
         // Kupon fonksiyonları
         applyCoupon: async (code, toast = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           if (!userToken) {
             if (toast) {
@@ -356,7 +356,7 @@ const useCartStore = create(
         },
 
         removeCoupon: async (toast = null) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
 
           if (!userToken) {
             if (toast) {
@@ -446,7 +446,7 @@ const useCartStore = create(
         name: 'cart-storage',
         // Sadece authenticated kullanıcılar için persist
         partialize: (state) => {
-          const userToken = localStorage.getItem('user_token');
+          const userToken = localStorage.getItem('auth_token');
           if (!userToken) {
             return {}; // Misafir kullanıcılar için hiçbir şey kaydetme
           }

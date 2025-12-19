@@ -48,7 +48,7 @@ const useApplicationMutations = () => {
   const approveFullMutation = useMutation({
     mutationFn: async ({ vendorId, commissionPlanId }) => {
       const response = await import('@lib/apiClient').then(mod => mod.default.post(
-        `/v1/admin/vendors/${vendorId}/approve`,
+        `/v1/vendors/${vendorId}/approve`,
         { commission_plan_id: commissionPlanId }
       ));
       return response.data;
@@ -67,7 +67,7 @@ const useApplicationMutations = () => {
   const rejectFullMutation = useMutation({
     mutationFn: async ({ vendorId, reason }) => {
       const response = await import('@lib/apiClient').then(mod => mod.default.post(
-        `/v1/admin/vendors/${vendorId}/reject`,
+        `/v1/vendors/${vendorId}/reject`,
         { reason }
       ));
       return response.data;

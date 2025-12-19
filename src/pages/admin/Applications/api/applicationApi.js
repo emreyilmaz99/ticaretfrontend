@@ -5,7 +5,7 @@ import apiClient from '@lib/apiClient';
  * Get pre-pending applications
  */
 export const getPreApplications = async ({ page = 1, per_page = 10 } = {}) => {
-  const response = await apiClient.get('/v1/admin/vendors', {
+  const response = await apiClient.get('/v1/vendors', {
     params: { status: 'pre_pending', page, per_page },
   });
   return response.data;
@@ -15,7 +15,7 @@ export const getPreApplications = async ({ page = 1, per_page = 10 } = {}) => {
  * Get full approval pending applications
  */
 export const getFullApplications = async ({ page = 1, per_page = 10 } = {}) => {
-  const response = await apiClient.get('/v1/admin/vendors', {
+  const response = await apiClient.get('/v1/vendors', {
     params: { status: 'pending_full_approval', page, per_page },
   });
   return response.data;
@@ -29,7 +29,7 @@ export const getApplications = async ({ status, page = 1, per_page = 10 } = {}) 
   if (status && status !== 'all') {
     params.status = status;
   }
-  const response = await apiClient.get('/v1/admin/vendors', { params });
+  const response = await apiClient.get('/v1/vendors', { params });
   return response.data;
 };
 
@@ -37,7 +37,7 @@ export const getApplications = async ({ status, page = 1, per_page = 10 } = {}) 
  * Approve pre-application (pre_pending -> pre_approved)
  */
 export const approvePreApplication = async (vendorId) => {
-  const response = await apiClient.put(`/v1/admin/vendors/${vendorId}/status`, {
+  const response = await apiClient.put(`/v1/vendors/${vendorId}/status`, {
     status: 'pre_approved',
   });
   return response.data;
@@ -47,7 +47,7 @@ export const approvePreApplication = async (vendorId) => {
  * Approve full application with commission plan
  */
 export const approveFullApplication = async (vendorId, commissionPlanId) => {
-  const response = await apiClient.post(`/v1/admin/vendors/${vendorId}/approve`, {
+  const response = await apiClient.post(`/v1/vendors/${vendorId}/approve`, {
     commission_plan_id: commissionPlanId,
   });
   return response.data;
@@ -57,7 +57,7 @@ export const approveFullApplication = async (vendorId, commissionPlanId) => {
  * Reject application with reason
  */
 export const rejectApplication = async (vendorId, reason) => {
-  const response = await apiClient.put(`/v1/admin/vendors/${vendorId}/status`, {
+  const response = await apiClient.put(`/v1/vendors/${vendorId}/status`, {
     status: 'rejected',
     reason,
   });
@@ -68,7 +68,7 @@ export const rejectApplication = async (vendorId, reason) => {
  * Update vendor status
  */
 export const updateApplicationStatus = async (vendorId, status, options = {}) => {
-  const response = await apiClient.put(`/v1/admin/vendors/${vendorId}/status`, {
+  const response = await apiClient.put(`/v1/vendors/${vendorId}/status`, {
     status,
     ...options,
   });
@@ -79,7 +79,7 @@ export const updateApplicationStatus = async (vendorId, status, options = {}) =>
  * Get application detail
  */
 export const getApplicationDetail = async (vendorId) => {
-  const response = await apiClient.get(`/v1/admin/vendors/${vendorId}`);
+  const response = await apiClient.get(`/v1/vendors/${vendorId}`);
   return response.data;
 };
 
@@ -87,7 +87,7 @@ export const getApplicationDetail = async (vendorId) => {
  * Update admin notes
  */
 export const updateAdminNotes = async (vendorId, notes) => {
-  const response = await apiClient.put(`/v1/admin/vendors/${vendorId}`, {
+  const response = await apiClient.put(`/v1/vendors/${vendorId}`, {
     admin_notes: notes,
   });
   return response.data;

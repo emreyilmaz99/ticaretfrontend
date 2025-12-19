@@ -41,7 +41,7 @@ export const useUserReviews = () => {
   } = useQuery({
     queryKey: ['userReviews'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/user/reviews');
+      const response = await apiClient.get('/v1/reviews');
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -100,7 +100,7 @@ export const useUserReviews = () => {
       });
 
       const response = await apiClient.post(
-        `/v1/user/orders/${orderId}/items/${orderItemId}/review`,
+        `/v1/orders/${orderId}/items/${orderItemId}/review`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -127,7 +127,7 @@ export const useUserReviews = () => {
   // Delete review mutation
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId) => {
-      const response = await apiClient.delete(`/v1/user/reviews/${reviewId}`);
+      const response = await apiClient.delete(`/v1/reviews/${reviewId}`);
       return response.data;
     },
     onSuccess: () => {

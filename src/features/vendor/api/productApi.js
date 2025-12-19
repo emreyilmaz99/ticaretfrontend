@@ -2,7 +2,7 @@ import apiClient from '@lib/apiClient';
 
 // Vendor: listele
 export const getVendorProducts = async (params = {}) => {
-  const res = await apiClient.get('/v1/vendor/products', { params });
+  const res = await apiClient.get('/v1/products', { params });
   return res.data;
 };
 
@@ -15,7 +15,7 @@ export const createVendorProduct = async (payload) => {
     body = payload;
     config.headers = { 'Content-Type': 'multipart/form-data' };
   }
-  const res = await apiClient.post('/v1/vendor/products', body, config);
+  const res = await apiClient.post('/v1/products', body, config);
   return res.data;
 };
 
@@ -32,33 +32,33 @@ export const updateVendorProduct = async (id, payload) => {
     config.headers = { 'Content-Type': 'multipart/form-data' };
     
     // Token'ı manuel olarak ekle (Interceptor bazen FormData ile sorun yaşayabilir)
-    const token = localStorage.getItem('vendor_token');
+    const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const res = await apiClient.post(`/v1/vendor/products/${id}`, body, config);
+    const res = await apiClient.post(`/v1/products/${id}`, body, config);
     return res.data;
   }
 
-  const res = await apiClient.put(`/v1/vendor/products/${id}`, body, config);
+  const res = await apiClient.put(`/v1/products/${id}`, body, config);
   return res.data;
 };
 
 // Vendor: sil
 export const deleteVendorProduct = async (id) => {
-  const res = await apiClient.delete(`/v1/vendor/products/${id}`);
+  const res = await apiClient.delete(`/v1/products/${id}`);
   return res.data;
 };
 
 // Vendor: fotoğraf sil
 export const deleteVendorProductPhoto = async (productId, photoId) => {
-  const res = await apiClient.delete(`/v1/vendor/products/${productId}/photos/${photoId}`);
+  const res = await apiClient.delete(`/v1/products/${productId}/photos/${photoId}`);
   return res.data;
 };
 
 // Vendor: ürün durumunu güncelle (active/inactive)
 export const updateVendorProductStatus = async (id, status) => {
-  const res = await apiClient.put(`/v1/vendor/products/${id}/status`, { status });
+  const res = await apiClient.put(`/v1/products/${id}/status`, { status });
   return res.data;
 };

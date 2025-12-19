@@ -31,7 +31,7 @@ const useVendorApplications = () => {
   const { data: pendingVendorsData, isLoading: pendingVendorsLoading } = useQuery({
     queryKey: ['pendingActivationVendors'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/admin/vendors', { 
+      const response = await apiClient.get('/v1/vendors', { 
         params: { status: 'pending_full_approval' } 
       });
       return response.data;

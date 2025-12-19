@@ -41,8 +41,8 @@ export const useUserModal = () => {
   const loadUserOrders = useCallback(async (userId) => {
     setLoadingOrders(true);
     try {
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/users/${userId}/orders`, {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/users/${userId}/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();

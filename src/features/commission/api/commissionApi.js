@@ -47,5 +47,5 @@ export const toggleActiveCommissionPlan = (id) => {
 
 // Planı satıcıya ata
 export const assignCommissionPlanToVendor = (vendorId, planId) => {
-  return apiClient.post(`/v1/admin/vendors/${vendorId}/assign-commission-plan`, { commission_plan_id: planId });
+  return apiClient.post(`/v1/vendors/${vendorId}/assign-commission-plan`, { commission_plan_id: planId });
 };
