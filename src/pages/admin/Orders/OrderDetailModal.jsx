@@ -10,17 +10,8 @@ import apiClient from '@lib/apiClient';
 import { printInvoice } from './invoiceService';
 
 const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
+  // ÖNEMLİ: TÜM HOOKS EARLY RETURN'DEN ÖNCE OLMALI!
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  if (!isOpen || !order) return null;
-
-  // --- STATE YÖNETİMİ ---
   const [activeTab, setActiveTab] = useState('details'); // 'details' | 'history' | 'notes'
   const [adminNote, setAdminNote] = useState('');
   const [visibleToVendor, setVisibleToVendor] = useState(true);
@@ -32,14 +23,13 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
   const [userOrders, setUserOrders] = useState([]);
   const [loadingUserOrders, setLoadingUserOrders] = useState(false);
 
-  // --- İŞLEVLER ---
-
-  // Notları yükle
+  // Fonksiyonlar hooks'tan sonra ama early return'den önce tanımlanmalı
   const loadNotes = async () => {
+    if (!order?.order_id) return;
     setLoadingNotes(true);
     try {
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/orders/${order.order_id}/notes`
+        `/v1/orders/${order.order_id}/notes`
       );
       if (response.data.success) {
         setOrderNotes(response.data.data.notes || []);
@@ -51,20 +41,12 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
     }
   };
 
-  // --- NOTLARI YÜK ---
-  useEffect(() => {
-    if (isOpen && order?.order_id) {
-      loadNotes();
-      loadUserOrders();
-    }
-  }, [isOpen, order?.order_id]);
-
-  // Kullanıcının diğer siparişlerini yükle
   const loadUserOrders = async () => {
+    if (!order?.order_id) return;
     setLoadingUserOrders(true);
     try {
       const response = await apiClient.get(
-        `${BACKEND_URL}/api/v1/orders/${order.order_id}/user-orders`
+        `/v1/orders/${order.order_id}/user-orders`
       );
       if (response.data.success) {
         setUserOrders(response.data.data.orders || []);
@@ -75,6 +57,24 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
       setLoadingUserOrders(false);
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && order?.order_id) {
+      loadNotes();
+      loadUserOrders();
+    }
+  }, [isOpen, order?.order_id]);
+
+  // Early return AFTER all hooks
+  if (!isOpen || !order) return null;
+
+  // --- İŞLEVLER ---
 
   // 1. Zorla İptal Et (Admin Yetkisi)
   const handleForceCancel = () => {
@@ -107,7 +107,7 @@ const OrderDetailModal = ({ order, isOpen, onClose, styles, onCancel }) => {
 
     try {
       const response = await apiClient.post(
-        `${BACKEND_URL}/api/v1/orders/${order.order_id}/notes`,
+        `/v1/orders/${order.order_id}/notes`,
         {
           note: adminNote,
           is_visible_to_vendor: visibleToVendor,
