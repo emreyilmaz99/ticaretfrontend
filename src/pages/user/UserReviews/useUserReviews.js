@@ -41,7 +41,7 @@ export const useUserReviews = () => {
   } = useQuery({
     queryKey: ['userReviews'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/reviews');
+      const response = await apiClient.get('/v1/user/reviews');
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -56,43 +56,25 @@ export const useUserReviews = () => {
   } = useQuery({
     queryKey: ['reviewableOrders'],
     queryFn: async () => {
-      try {
-        // Önce mevcut endpoint'i dene
-        const response = await apiClient.get('/v1/user/reviewable-orders');
-        return response.data;
-      } catch (error) {
-        if (error.response?.status === 404) {
-          // Endpoint yoksa, kullanıcı siparişlerinden değerlendirilebilir olanları al
-          // Sadece teslim edilmiş siparişleri getir
-          const ordersResponse = await apiClient.get('/v1/orders?status=delivered');
-          return ordersResponse.data;
-        }
-        throw error;
-      }
+      const response = await apiClient.get('/v1/user/reviewable-orders');
+      return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
 
-  const reviews = reviewsData?.data?.data || [];
+  // Reviews: API'den gelen yapı { data: { reviews: [], pagination: {} } }
+  const reviews = reviewsData?.data?.reviews || reviewsData?.data?.data || [];
   
-  // Reviewable orders veri yapısını düzenle
+  // Reviewable orders: API'den gelen yapı { data: [...] }
   const reviewableOrders = useMemo(() => {
     const data = reviewableData?.data;
     if (!data) return [];
     
-    // Eğer veri zaten reviewable_items içeriyorsa (orijinal endpoint'ten geldiyse)
-    if (Array.isArray(data) && data[0]?.reviewable_items) {
+    // Doğrudan array olarak geliyorsa
+    if (Array.isArray(data)) {
       return data;
-    }
-    
-    // Eğer veri orders API'sinden geldiyse (orders array)
-    if (data.orders) {
-      return data.orders.map(order => ({
-        ...order,
-        reviewable_items: order.items || []
-      }));
     }
     
     return [];
@@ -102,7 +84,7 @@ export const useUserReviews = () => {
   const pendingCount = useMemo(() => {
     if (!Array.isArray(reviewableOrders)) return 0;
     return reviewableOrders.reduce((acc, order) => {
-      const items = order.reviewable_items || order.items || [];
+      const items = order.reviewable_items || [];
       return acc + items.length;
     }, 0);
   }, [reviewableOrders]);

@@ -40,9 +40,9 @@ const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles })
         <div style={styles.reviewProductSection}>
           <img
             src={
-              review.product?.photos?.[0]?.path
-                ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${review.product.photos[0].path}`
-                : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E'
+              review.product?.photos?.[0]?.url
+                || review.product?.photos?.[0]?.path
+                || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E'
             }
             alt={review.product?.name}
             style={styles.reviewProductImage}
@@ -87,11 +87,12 @@ const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles })
       {review.media && review.media.length > 0 && (
         <div style={styles.reviewMediaGrid}>
           {review.media.slice(0, 4).map((media, index) => {
-            const mediaUrl = media.url || media.path;
-            const fullUrl = mediaUrl
-              ? (mediaUrl.startsWith('http') 
-                  ? mediaUrl 
-                  : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${mediaUrl}`)
+            // Dokümantasyona göre path "/storage/reviews/photo.jpg" formatında geliyor
+            const mediaPath = media.path || media.url;
+            const fullUrl = mediaPath
+              ? (mediaPath.startsWith('http') 
+                  ? mediaPath 
+                  : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mediaPath}`)
               : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E';
             
             return (
@@ -103,7 +104,7 @@ const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles })
                 }}
                 onClick={() => onImageClick && onImageClick(fullUrl)}
               >
-                {media.type === 'video' ? (
+                {media.media_type === 'video' || media.type === 'video' ? (
                   <video src={fullUrl} style={styles.reviewMediaVideo} />
                 ) : (
                   <img 
