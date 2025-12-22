@@ -2,8 +2,16 @@
 import React, { useState } from 'react';
 import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 
-const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) => {
-  const [reason, setReason] = useState('');
+const RejectReviewModal = ({ 
+  isBulk = false, 
+  count = 1, 
+  rejectionReason = '', 
+  setRejectionReason, 
+  onSubmit, 
+  onClose, 
+  isLoading, 
+  styles 
+}) => {
   const [error, setError] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -14,18 +22,16 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
   }, []);
 
   const handleSubmit = () => {
-    if (!reason.trim()) {
+    if (!rejectionReason.trim()) {
       setError('Lütfen bir ret nedeni yazınız.');
       return;
     }
-    if (reason.length < 10) {
+    if (rejectionReason.length < 10) {
       setError('Ret nedeni en az 10 karakter olmalıdır.');
       return;
     }
-    onConfirm(reason);
+    onSubmit();
   };
-
-  if (!review) return null;
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
@@ -80,33 +86,11 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
         }}>
           <div style={{ marginBottom: '16px' }}>
             <p style={{ fontSize: '14px', color: '#374151', marginBottom: '12px' }}>
-              <strong>Yorum #{review.id}</strong> reddedilecek. Lütfen ret nedenini yazınız:
+              {isBulk 
+                ? `${count} yorum reddedilecek. Lütfen ret nedenini yazınız:` 
+                : 'Yorum reddedilecek. Lütfen ret nedenini yazınız:'
+              }
             </p>
-            
-            {review.comment && (
-              <div style={{
-                padding: '12px',
-                backgroundColor: '#f9fafb',
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb',
-                marginBottom: '16px'
-              }}>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
-                  Yorum içeriği:
-                </div>
-                <div style={{ 
-                  fontSize: '14px', 
-                  color: '#374151',
-                  maxHeight: '80px',
-                  overflow: 'auto'
-                }}>
-                  {review.comment.length > 200 
-                    ? review.comment.substring(0, 200) + '...' 
-                    : review.comment
-                  }
-                </div>
-              </div>
-            )}
           </div>
 
           <div style={{ marginBottom: '8px' }}>
@@ -120,9 +104,9 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
               Ret Nedeni <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <textarea
-              value={reason}
+              value={rejectionReason}
               onChange={(e) => {
-                setReason(e.target.value);
+                setRejectionReason(e.target.value);
                 setError('');
               }}
               placeholder="Bu yorum neden reddediliyor? (örn: uygunsuz içerik, spam vb.)"
@@ -160,7 +144,7 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
               </p>
             )}
             <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
-              {reason.length}/500 karakter
+              {rejectionReason.length}/500 karakter
             </p>
           </div>
 
@@ -180,12 +164,12 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
                 <button
                   key={quickReason}
                   type="button"
-                  onClick={() => setReason(quickReason)}
+                  onClick={() => setRejectionReason(quickReason)}
                   style={{
                     padding: '6px 12px',
                     fontSize: '12px',
-                    backgroundColor: reason === quickReason ? '#6366f1' : '#f3f4f6',
-                    color: reason === quickReason ? '#fff' : '#4b5563',
+                    backgroundColor: rejectionReason === quickReason ? '#6366f1' : '#f3f4f6',
+                    color: rejectionReason === quickReason ? '#fff' : '#4b5563',
                     border: 'none',
                     borderRadius: '16px',
                     cursor: 'pointer',
@@ -231,7 +215,7 @@ const RejectReviewModal = ({ review, onClose, onConfirm, isLoading, styles }) =>
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? 'İşleniyor...' : 'Yorumu Reddet'}
+            {isLoading ? 'İşleniyor...' : isBulk ? `${count} Yorumu Reddet` : 'Yorumu Reddet'}
           </button>
         </div>
       </div>
