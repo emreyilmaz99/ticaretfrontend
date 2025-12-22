@@ -62,7 +62,15 @@ const VendorReviewsPage = () => {
   const getMediaUrl = (pathOrUrl) => {
     if (!pathOrUrl) return '/placeholder.jpg';
     if (pathOrUrl.startsWith('http')) return pathOrUrl;
+    
     const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+    
+    // Backend zaten /storage/ ile başlıyorsa tekrar ekleme
+    if (pathOrUrl.startsWith('/storage/')) {
+      return `${baseUrl}${pathOrUrl}`;
+    }
+    
+    // Yoksa /storage/ ekle
     return `${baseUrl}/storage/${pathOrUrl}`;
   };
 

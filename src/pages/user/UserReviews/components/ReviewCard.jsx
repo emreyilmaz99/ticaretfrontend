@@ -8,6 +8,21 @@ import {
 const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles }) => {
   const statusConfig = getStatusConfig(review.status);
 
+  const getMediaUrl = (pathOrUrl) => {
+    if (!pathOrUrl) return null;
+    if (pathOrUrl.startsWith('http')) return pathOrUrl;
+    
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+    
+    // Backend zaten /storage/ ile başlıyorsa tekrar ekleme
+    if (pathOrUrl.startsWith('/storage/')) {
+      return `${baseUrl}${pathOrUrl}`;
+    }
+    
+    // Yoksa /storage/ ekle
+    return `${baseUrl}/storage/${pathOrUrl}`;
+  };
+
   const renderStars = (rating) => {
     return (
       <div style={styles.reviewRating}>
@@ -40,9 +55,13 @@ const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles })
         <div style={styles.reviewProductSection}>
           <img
             src={
-              review.product?.photos?.[0]?.url
-                || review.product?.photos?.[0]?.path
-                || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E'
+              getMediaUrl(
+                review.product?.thumbnail ||
+                review.product?.main_photo ||
+                review.product?.photos?.[0]?.url ||
+                review.product?.photos?.[0]?.path ||
+                review.product?.photos?.[0]
+              ) || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E'
             }
             alt={review.product?.name}
             style={styles.reviewProductImage}
@@ -87,13 +106,8 @@ const ReviewCard = ({ review, onDelete, onImageClick, getStatusConfig, styles })
       {review.media && review.media.length > 0 && (
         <div style={styles.reviewMediaGrid}>
           {review.media.slice(0, 4).map((media, index) => {
-            // Dokümantasyona göre path "/storage/reviews/photo.jpg" formatında geliyor
-            const mediaPath = media.path || media.url;
-            const fullUrl = mediaPath
-              ? (mediaPath.startsWith('http') 
-                  ? mediaPath 
-                  : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${mediaPath}`)
-              : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E';
+            const mediaUrl = getMediaUrl(media.path || media.url);
+            const fullUrl = mediaUrl || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f1f5f9" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel Yok%3C/text%3E%3C/svg%3E';
             
             return (
               <div 
