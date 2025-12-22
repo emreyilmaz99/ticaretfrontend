@@ -20,7 +20,7 @@ const Invoice = () => {
   // Get items - items veya products olabilir
   const orderItems = order?.items || order?.products || [];
 
-  // Ürünlerden vendor bilgilerini çek
+  // Ürünlerden slug ile vendor bilgilerini çek
   useEffect(() => {
     const fetchVendors = async () => {
       if (!order || orderItems.length === 0) return;
@@ -28,12 +28,16 @@ const Invoice = () => {
       try {
         // Her benzersiz ürün slug'ı için vendor bilgisi çek
         const slugs = [...new Set(orderItems.map(item => item.slug).filter(Boolean))];
+        console.log('[Invoice] Product slugs:', slugs);
+        
         const vendorMap = new Map();
         
         for (const slug of slugs) {
           try {
             const productData = await getProduct(slug);
+            console.log('[Invoice] Product data for slug', slug, ':', productData);
             const vendor = productData?.data?.product?.vendor || productData?.data?.vendor;
+            console.log('[Invoice] Vendor from product:', vendor);
             if (vendor && vendor.id) {
               vendorMap.set(vendor.id, vendor);
             }
