@@ -6,8 +6,10 @@ const PricingTab = ({
   formData, 
   setFormData, 
   units = [], 
-  readOnly = false 
+  readOnly = false,
+  isMobile = false
 }) => {
+  const tabContentStyle = isMobile ? styles.tabContentMobile : styles.tabContent;
   const handleChange = (field, value) => {
     if (readOnly) return;
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -21,7 +23,7 @@ const PricingTab = ({
   // Only show for simple products
   if (formData.type === 'variable') {
     return (
-      <div style={styles.tabContent}>
+      <div style={tabContentStyle}>
         <div style={styles.infoBox}>
           <p>Varyantlı ürünlerde fiyat ve stok bilgileri her varyant için ayrı ayrı belirlenir.</p>
           <p>Lütfen "Varyantlar" sekmesinden varyantları tanımlayınız.</p>
@@ -31,7 +33,7 @@ const PricingTab = ({
   }
 
   return (
-    <div style={styles.tabContent}>
+    <div style={tabContentStyle}>
       {/* Price */}
       <div style={styles.formRow}>
         <div style={styles.formGroup}>

@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { styles, getStatusStyle } from '../styles';
+import { getStyles, getStatusStyle } from '../styles';
 
 /**
- * Recent orders table
+ * Recent orders table / mobile cards
  */
-const RecentOrders = ({ orders }) => {
+const RecentOrders = ({ orders, isMobile = false }) => {
   const navigate = useNavigate();
+  const styles = getStyles(isMobile);
 
   const handleViewAllOrders = () => {
     navigate('/vendor/orders');
@@ -24,6 +25,7 @@ const RecentOrders = ({ orders }) => {
         </button>
       </div>
       
+      {/* Desktop Table View */}
       <table style={styles.table}>
         <thead>
           <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
@@ -70,6 +72,41 @@ const RecentOrders = ({ orders }) => {
           ))}
         </tbody>
       </table>
+
+      {/* Mobile Card View */}
+      <div style={{ display: isMobile ? 'block' : 'none' }}>
+        {orders.map((order, index) => (
+          <div key={index} style={styles.mobileOrderCard}>
+            <div style={styles.mobileOrderHeader}>
+              <span style={styles.mobileOrderId}>{order.id}</span>
+              <span style={styles.mobileOrderAmount}>{order.amount}</span>
+            </div>
+            <div style={styles.mobileOrderInfo}>
+              <div style={styles.mobileOrderRow}>
+                <span style={styles.mobileOrderLabel}>Müşteri:</span>
+                <span style={styles.mobileOrderValue}>{order.customer}</span>
+              </div>
+              <div style={styles.mobileOrderRow}>
+                <span style={styles.mobileOrderLabel}>Ürün:</span>
+                <span style={styles.mobileOrderValue}>{order.product}</span>
+              </div>
+              <div style={styles.mobileOrderRow}>
+                <span style={styles.mobileOrderLabel}>Tarih:</span>
+                <span style={{ ...styles.mobileOrderValue, color: '#94a3b8' }}>{order.date}</span>
+              </div>
+              <div style={styles.mobileOrderRow}>
+                <span style={styles.mobileOrderLabel}>Durum:</span>
+                <span style={{ 
+                  ...styles.statusBadge,
+                  ...getStatusStyle(order.status)
+                }}>
+                  {order.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

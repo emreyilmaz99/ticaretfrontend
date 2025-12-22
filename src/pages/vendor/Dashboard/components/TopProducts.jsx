@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { styles } from '../styles';
+import { getStyles } from '../styles';
 
 /**
  * Top selling products widget
  */
-const TopProducts = ({ products }) => {
+const TopProducts = ({ products, isMobile = false }) => {
   const navigate = useNavigate();
+  const styles = getStyles(isMobile);
 
   const handleViewAllProducts = () => {
     navigate('/vendor/products');
@@ -15,7 +16,7 @@ const TopProducts = ({ products }) => {
   return (
     <div style={{ ...styles.card, display: 'flex', flexDirection: 'column' }}>
       <h3 style={styles.cardTitle}>Çok Satanlar</h3>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '16px' }}>
         {products.map((product, index) => (
           <div 
             key={index} 

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useVendorDashboard } from './useVendorDashboard';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import {
   DashboardHeader,
   StatsGrid,
@@ -16,6 +16,19 @@ import {
  * Shows performance stats, charts, and recent orders
  */
 const VendorDashboard = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const styles = getStyles(isMobile);
+
   const {
     // Data
     vendor,
@@ -34,32 +47,32 @@ const VendorDashboard = () => {
 
   // Loading state
   if (isLoading) {
-    return <div style={{ padding: 24 }}>Yükleniyor...</div>;
+    return <div style={{ padding: isMobile ? 16 : 24 }}>Yükleniyor...</div>;
   }
 
   // Pending approval state
   if (isPending) {
-    return <PendingScreen vendor={vendor} />;
+    return <PendingScreen vendor={vendor} isMobile={isMobile} />;
   }
 
   // Banned/Suspended state
   if (isBanned) {
-    return <BannedScreen vendor={vendor} />;
+    return <BannedScreen vendor={vendor} isMobile={isMobile} />;
   }
 
   // Active vendor dashboard
   return (
     <div style={styles.container}>
-      <DashboardHeader />
+      <DashboardHeader isMobile={isMobile} />
 
-      <StatsGrid stats={stats} />
+      <StatsGrid stats={stats} isMobile={isMobile} />
 
       <div style={styles.chartsGrid}>
-        <RevenueChart data={revenueData} />
-        <TopProducts products={topProducts} />
+        <RevenueChart data={revenueData} isMobile={isMobile} />
+        <TopProducts products={topProducts} isMobile={isMobile} />
       </div>
 
-      <RecentOrders orders={recentOrders} />
+      <RecentOrders orders={recentOrders} isMobile={isMobile} />
     </div>
   );
 };

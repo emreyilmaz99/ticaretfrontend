@@ -3,26 +3,39 @@ import React from 'react';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { styles } from '../../styles';
 
-const ModalFooter = ({ mode, onClose, onSubmit, isSubmitting }) => {
+const ModalFooter = ({ mode, onClose, onSubmit, isSubmitting, isMobile = false }) => {
+  const footerStyle = isMobile ? {
+    ...styles.modalFooter,
+    padding: '16px',
+    flexDirection: mode === 'view' ? 'row' : 'column-reverse',
+    gap: '8px'
+  } : styles.modalFooter;
+
+  const buttonStyle = isMobile ? {
+    width: '100%',
+    justifyContent: 'center',
+    padding: '12px 16px'
+  } : {};
+
   if (mode === 'view') {
     return (
-      <div style={styles.modalFooter}>
+      <>
         <button 
           type="button" 
-          style={styles.cancelBtn}
+          style={{ ...styles.cancelBtn, ...buttonStyle }}
           onClick={onClose}
         >
           Kapat
         </button>
-      </div>
+      </>
     );
   }
 
   return (
-    <div style={styles.modalFooter}>
+    <>
       <button 
         type="button" 
-        style={styles.cancelBtn}
+        style={{ ...styles.cancelBtn, ...buttonStyle }}
         onClick={onClose}
         disabled={isSubmitting}
       >
@@ -31,14 +44,14 @@ const ModalFooter = ({ mode, onClose, onSubmit, isSubmitting }) => {
       </button>
       <button 
         type="submit" 
-        style={styles.submitBtn}
+        style={{ ...styles.submitBtn, ...buttonStyle }}
         onClick={onSubmit}
         disabled={isSubmitting}
       >
         <FaSave style={{ marginRight: 6 }} />
         {isSubmitting ? 'Kaydediliyor...' : (mode === 'create' ? 'Ürün Ekle' : 'Güncelle')}
       </button>
-    </div>
+    </>
   );
 };
 

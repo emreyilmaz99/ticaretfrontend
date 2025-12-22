@@ -10,9 +10,28 @@ const tabs = [
   { id: 'settings', label: 'Ayarlar' }
 ];
 
-const ModalTabs = ({ activeTab, onTabChange, formType }) => {
+const ModalTabs = ({ activeTab, onTabChange, formType, isMobile = false }) => {
+  const tabsStyle = isMobile ? {
+    ...styles.modalTabs,
+    padding: '0 16px',
+    gap: '16px'
+  } : styles.modalTabs;
+
+  const tabStyle = (isActive) => {
+    const baseStyle = isMobile ? {
+      ...styles.modalTab,
+      fontSize: '13px',
+      padding: '12px 0'
+    } : styles.modalTab;
+
+    return {
+      ...baseStyle,
+      ...(isActive ? styles.modalTabActive : {})
+    };
+  };
+
   return (
-    <div style={styles.modalTabs}>
+    <div style={tabsStyle}>
       {tabs.map(tab => {
         // Hide variants tab for simple products
         if (tab.id === 'variants' && formType === 'simple') {
@@ -22,10 +41,7 @@ const ModalTabs = ({ activeTab, onTabChange, formType }) => {
         return (
           <button
             key={tab.id}
-            style={{
-              ...styles.modalTab,
-              ...(activeTab === tab.id ? styles.modalTabActive : {})
-            }}
+            style={tabStyle(activeTab === tab.id)}
             onClick={() => onTabChange(tab.id)}
           >
             {tab.label}

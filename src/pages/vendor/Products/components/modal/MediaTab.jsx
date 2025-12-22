@@ -12,8 +12,10 @@ const MediaTab = ({
   toFullUrl,
   onImageClick,
   openConfirmModal,
-  readOnly = false 
+  readOnly = false,
+  isMobile = false
 }) => {
+  const tabContentStyle = isMobile ? styles.tabContentMobile : styles.tabContent;
   const existingPhotos = selectedProduct?.photos || [];
 
   const handleDeletePhoto = (photo) => {
@@ -30,7 +32,7 @@ const MediaTab = ({
   };
 
   return (
-    <div style={styles.tabContent}>
+    <div style={tabContentStyle}>
       {/* Existing Photos */}
       {existingPhotos.length > 0 && (
         <div style={styles.formGroup}>

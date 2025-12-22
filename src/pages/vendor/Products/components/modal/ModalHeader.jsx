@@ -3,7 +3,7 @@ import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { styles } from '../../styles';
 
-const ModalHeader = ({ mode, onClose }) => {
+const ModalHeader = ({ mode, onClose, isMobile = false }) => {
   const getTitle = () => {
     switch (mode) {
       case 'create': return 'Yeni Ürün Ekle';
@@ -13,13 +13,18 @@ const ModalHeader = ({ mode, onClose }) => {
     }
   };
 
+  const titleStyle = isMobile ? {
+    ...styles.modalTitle,
+    fontSize: '16px'
+  } : styles.modalTitle;
+
   return (
-    <div style={styles.modalHeader}>
-      <h2 style={styles.modalTitle}>{getTitle()}</h2>
+    <>
+      <h2 style={titleStyle}>{getTitle()}</h2>
       <button style={styles.modalCloseBtn} onClick={onClose}>
-        <FaTimes />
+        <FaTimes size={isMobile ? 18 : 20} />
       </button>
-    </div>
+    </>
   );
 };
 

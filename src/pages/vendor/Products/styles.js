@@ -675,6 +675,17 @@ export const styles = {
     overflow: 'hidden',
   },
 
+  // Mobile specific tab content
+  tabContentMobile: {
+    padding: '16px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    boxSizing: 'border-box',
+    width: '100%',
+    overflow: 'hidden',
+  },
+
   // --- Switch Toggle Styles ---
   switchLabel: {
     display: 'flex',

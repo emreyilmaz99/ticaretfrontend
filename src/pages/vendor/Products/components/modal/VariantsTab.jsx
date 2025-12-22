@@ -9,12 +9,15 @@ const VariantsTab = ({
   addVariant, 
   removeVariant,
   units = [],
-  readOnly = false 
+  readOnly = false,
+  isMobile = false
 }) => {
+  const tabContentStyle = isMobile ? styles.tabContentMobile : styles.tabContent;
+  
   // Only show for variable products
   if (formData.type === 'simple') {
     return (
-      <div style={styles.tabContent}>
+      <div style={tabContentStyle}>
         <div style={styles.infoBox}>
           <p>Basit ürünlerde varyant tanımlaması yapılmaz.</p>
           <p>Varyant eklemek için ürün tipini "Varyantlı Ürün" olarak değiştiriniz.</p>
@@ -24,7 +27,7 @@ const VariantsTab = ({
   }
 
   return (
-    <div style={styles.tabContent}>
+    <div style={tabContentStyle}>
       <div style={styles.variantsHeader}>
         <h4 style={styles.variantsTitle}>Ürün Varyantları</h4>
         {!readOnly && (

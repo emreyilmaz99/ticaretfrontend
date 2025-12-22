@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaWallet, FaShoppingBag, FaBox, FaStar, FaArrowUp, FaArrowDown } from 'react-icons/fa';
-import { styles } from '../styles';
+import { getStyles } from '../styles';
 
 const ICON_MAP = {
   wallet: FaWallet,
@@ -12,7 +12,9 @@ const ICON_MAP = {
 /**
  * Statistics cards grid
  */
-const StatsGrid = ({ stats }) => {
+const StatsGrid = ({ stats, isMobile = false }) => {
+  const styles = getStyles(isMobile);
+  
   return (
     <div style={styles.statsGrid}>
       {stats.map((stat, index) => {
@@ -26,14 +28,14 @@ const StatsGrid = ({ stats }) => {
                 backgroundColor: `${stat.color}15`,
                 color: stat.color
               }}>
-                <IconComponent />
+                <IconComponent size={isMobile ? 18 : 20} />
               </div>
               <div style={{
                 ...styles.statChange,
                 color: stat.isPositive ? '#10b981' : '#ef4444',
                 backgroundColor: stat.isPositive ? '#ecfdf5' : '#fef2f2'
               }}>
-                {stat.isPositive ? <FaArrowUp size={10} /> : <FaArrowDown size={10} />}
+                {stat.isPositive ? <FaArrowUp size={isMobile ? 8 : 10} /> : <FaArrowDown size={isMobile ? 8 : 10} />}
                 {stat.change}
               </div>
             </div>

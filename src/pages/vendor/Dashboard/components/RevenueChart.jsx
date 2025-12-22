@@ -1,11 +1,13 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { styles } from '../styles';
+import { getStyles } from '../styles';
 
 /**
  * Revenue chart component
  */
-const RevenueChart = ({ data }) => {
+const RevenueChart = ({ data, isMobile = false }) => {
+  const styles = getStyles(isMobile);
+  
   return (
     <div style={styles.card}>
       <h3 style={styles.cardTitle}>Haftalık Gelir Analizi</h3>
@@ -23,20 +25,21 @@ const RevenueChart = ({ data }) => {
               dataKey="name" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#94a3b8', fontSize: 12 }} 
+              tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12 }} 
               dy={10} 
             />
             <YAxis 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#94a3b8', fontSize: 12 }} 
+              tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12 }} 
             />
             <Tooltip 
               contentStyle={{ 
                 backgroundColor: '#1e293b', 
                 border: 'none', 
                 borderRadius: '8px', 
-                color: 'white' 
+                color: 'white',
+                fontSize: isMobile ? '12px' : '14px'
               }}
               itemStyle={{ color: '#fff' }}
             />
@@ -44,7 +47,7 @@ const RevenueChart = ({ data }) => {
               type="monotone" 
               dataKey="value" 
               stroke="#10b981" 
-              strokeWidth={3} 
+              strokeWidth={isMobile ? 2 : 3} 
               fillOpacity={1} 
               fill="url(#colorRevenue)" 
             />

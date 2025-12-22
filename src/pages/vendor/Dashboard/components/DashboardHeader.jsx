@@ -1,27 +1,26 @@
 import React, { useState } from 'react';
 import { FaBell, FaCalendarAlt, FaPlus } from 'react-icons/fa';
-import { useOutletContext, useNavigate } from 'react-router-dom';
-import { styles } from '../styles';
+import { useNavigate } from 'react-router-dom';
+import { getStyles } from '../styles';
 
 /**
  * Dashboard header with title and action buttons
  */
-const DashboardHeader = () => {
-  const { isMobile } = useOutletContext() || {};
+const DashboardHeader = ({ isMobile = false }) => {
   const navigate = useNavigate();
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('Bu Hafta');
+  
+  const styles = getStyles(isMobile);
 
   const handleNewProduct = () => {
     navigate('/vendor/products');
-    // Trigger modal açma event'i gönder (products sayfası yüklendiğinde yakalayabilir)
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('openProductModal'));
     }, 100);
   };
 
   const handleNotifications = () => {
-    // Bildirimler modalı veya sayfası (yakında eklenecek)
     alert('Bildirimler özelliği yakında eklenecek!');
   };
 
@@ -32,59 +31,31 @@ const DashboardHeader = () => {
   const handlePeriodSelect = (period) => {
     setSelectedPeriod(period);
     setShowDateFilter(false);
-    // Burada period'a göre dashboard verilerini filtreleme yapılabilir
   };
-
-  // On mobile, the title is in the top navbar, so we can hide it or simplify it
-  if (isMobile) {
-    return (
-      <div style={{ ...styles.header, marginBottom: '24px', flexDirection: 'column', alignItems: 'stretch', gap: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p style={{ ...styles.subtitle, margin: 0 }}>
-            Hoşgeldiniz, mağazanızın performans özeti.
-          </p>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <div 
-            style={{ ...styles.dateFilter, flex: 1, justifyContent: 'center', cursor: 'pointer' }}
-            onClick={handleDateFilterToggle}
-          >
-            <FaCalendarAlt /> {selectedPeriod}
-          </div>
-          <button 
-            style={{ ...styles.addButton, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-            onClick={handleNewProduct}
-          >
-            <FaPlus /> Yeni Ürün
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={styles.header}>
-      <div>
+      <div style={{ flex: 1 }}>
         <h1 style={styles.title}>Özet</h1>
         <p style={styles.subtitle}>
-          Hoşgeldiniz, mağazanızın performans özeti burada
+          {isMobile ? 'Mağaza performans özeti' : 'Hoşgeldiniz, mağazanızın performans özeti burada'}
         </p>
       </div>
       <div style={styles.headerActions}>
         {/* Date Filter */}
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', flex: isMobile ? 1 : 'initial' }}>
           <div 
-            style={{ ...styles.dateFilter, cursor: 'pointer' }}
+            style={styles.dateFilter}
             onClick={handleDateFilterToggle}
           >
-            <FaCalendarAlt /> {selectedPeriod}
+            <FaCalendarAlt size={isMobile ? 14 : 16} /> 
+            <span style={{ whiteSpace: 'nowrap' }}>{selectedPeriod}</span>
           </div>
           
           {showDateFilter && (
             <div style={{
               position: 'absolute',
-              top: '48px',
+              top: isMobile ? '42px' : '48px',
               right: 0,
               backgroundColor: '#fff',
               border: '1px solid #e2e8f0',
@@ -104,9 +75,7 @@ const DashboardHeader = () => {
                     backgroundColor: selectedPeriod === period ? '#f0fdf4' : '#fff',
                     color: selectedPeriod === period ? '#059669' : '#475569',
                     fontWeight: selectedPeriod === period ? '600' : '500',
-                    fontSize: '14px',
-                    transition: 'all 0.2s',
-                    borderBottom: '1px solid #f1f5f9'
+                    transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedPeriod !== period) {
@@ -126,20 +95,21 @@ const DashboardHeader = () => {
           )}
         </div>
 
-        {/* Notification Bell */}
-        <div 
-          style={{ ...styles.notificationButton, cursor: 'pointer' }}
+        {/* Notifications */}
+        <button 
+          style={styles.notificationButton}
           onClick={handleNotifications}
         >
-          <FaBell />
-          <div style={styles.notificationDot}></div>
-        </div>
+          <FaBell size={isMobile ? 16 : 18} />
+          <span style={styles.notificationDot}></span>
+        </button>
 
+        {/* Add Product Button - shown on desktop, hidden on mobile (in styles) */}
         <button 
           style={styles.addButton}
           onClick={handleNewProduct}
         >
-          Yeni Ürün Ekle
+          <FaPlus size={12} /> Yeni Ürün
         </button>
       </div>
     </div>

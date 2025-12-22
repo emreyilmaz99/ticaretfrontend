@@ -11,8 +11,11 @@ const SettingsTab = ({
   addTag,
   removeTag,
   removeLastTag,
-  readOnly = false 
+  readOnly = false,
+  isMobile = false
 }) => {
+  const tabContentStyle = isMobile ? styles.tabContentMobile : styles.tabContent;
+  
   const handleChange = (field, value) => {
     if (readOnly) return;
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -29,7 +32,7 @@ const SettingsTab = ({
   };
 
   return (
-    <div style={styles.tabContent}>
+    <div style={tabContentStyle}>
       {/* Featured Toggle */}
       <div style={styles.formGroup}>
         <label style={styles.switchLabel}>

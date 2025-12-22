@@ -7,8 +7,10 @@ const GeneralTab = ({
   setFormData, 
   groupedCategories,
   taxClasses = [],
-  readOnly = false 
+  readOnly = false,
+  isMobile = false
 }) => {
+  const tabContentStyle = isMobile ? styles.tabContentMobile : styles.tabContent;
   const handleChange = (field, value) => {
     if (readOnly) return;
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -37,7 +39,7 @@ const GeneralTab = ({
   };
 
   return (
-    <div style={styles.tabContent}>
+    <div style={tabContentStyle}>
       {/* Product Name */}
       <div style={styles.formGroup}>
         <label style={styles.label}>

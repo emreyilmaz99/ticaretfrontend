@@ -48,26 +48,27 @@ export const getStatusStyle = (status) => {
 /**
  * Generates all styles for the dashboard page
  */
-export const getStyles = () => ({
+export const getStyles = (isMobile = false) => ({
   container: {
     fontFamily: "'Inter', sans-serif",
     color: '#1e293b',
-    padding: '24px'
+    padding: isMobile ? '16px' : '24px',
+    paddingBottom: isMobile ? '96px' : '24px' // Extra padding for bottom nav
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '24px',
+    marginBottom: isMobile ? '16px' : '24px',
     background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-    padding: '28px 32px',
-    borderRadius: '16px',
+    padding: isMobile ? '20px 16px' : '28px 32px',
+    borderRadius: isMobile ? '12px' : '16px',
     border: '1px solid #e2e8f0',
     flexWrap: 'wrap',
-    gap: '16px'
+    gap: isMobile ? '12px' : '16px'
   },
   title: {
-    fontSize: '26px',
+    fontSize: isMobile ? '20px' : '26px',
     fontWeight: '800',
     color: '#ffffff',
     letterSpacing: '-0.02em',
@@ -75,31 +76,34 @@ export const getStyles = () => ({
   },
   subtitle: {
     color: '#ffffff',
-    fontSize: '15px',
+    fontSize: isMobile ? '13px' : '15px',
     margin: '6px 0 0 0',
     opacity: 0.9
   },
   headerActions: {
     display: 'flex',
-    gap: '12px',
-    alignItems: 'center'
+    gap: isMobile ? '8px' : '12px',
+    alignItems: 'center',
+    width: isMobile ? '100%' : 'auto',
+    justifyContent: isMobile ? 'flex-start' : 'flex-end'
   },
   dateFilter: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     backgroundColor: 'white',
-    padding: '10px 16px',
+    padding: isMobile ? '8px 12px' : '10px 16px',
     borderRadius: '10px',
     border: '1px solid #e2e8f0',
     color: '#475569',
-    fontSize: '14px',
+    fontSize: isMobile ? '12px' : '14px',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    flex: isMobile ? '1' : 'initial'
   },
   notificationButton: {
-    width: '42px',
-    height: '42px',
+    width: isMobile ? '36px' : '42px',
+    height: isMobile ? '36px' : '42px',
     backgroundColor: 'white',
     borderRadius: '10px',
     border: '1px solid #e2e8f0',
@@ -108,7 +112,8 @@ export const getStyles = () => ({
     justifyContent: 'center',
     color: '#64748b',
     cursor: 'pointer',
-    position: 'relative'
+    position: 'relative',
+    flexShrink: 0
   },
   notificationDot: {
     position: 'absolute',
@@ -120,26 +125,28 @@ export const getStyles = () => ({
     borderRadius: '50%'
   },
   addButton: {
-    padding: '10px 20px',
+    padding: isMobile ? '8px 16px' : '10px 20px',
     backgroundColor: '#14532d',
     border: 'none',
     borderRadius: '10px',
     fontWeight: '600',
+    fontSize: isMobile ? '12px' : '14px',
     color: 'white',
     cursor: 'pointer',
     boxShadow: '0 4px 12px rgba(20, 83, 45, 0.2)',
-    transition: 'all 0.2s'
+    transition: 'all 0.2s',
+    display: isMobile ? 'none' : 'block' // Hide on mobile to save space
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '24px',
-    marginBottom: '32px'
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: isMobile ? '12px' : '24px',
+    marginBottom: isMobile ? '20px' : '32px'
   },
   statCard: {
     backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '16px',
+    padding: isMobile ? '16px' : '24px',
+    borderRadius: isMobile ? '12px' : '16px',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
     border: '1px solid #f1f5f9'
   },
@@ -147,106 +154,113 @@ export const getStyles = () => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '16px'
+    marginBottom: isMobile ? '12px' : '16px'
   },
   statIcon: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    width: isMobile ? '40px' : '48px',
+    height: isMobile ? '40px' : '48px',
+    borderRadius: isMobile ? '10px' : '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '20px'
+    fontSize: isMobile ? '18px' : '20px'
   },
   statChange: {
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    fontSize: '12px',
+    fontSize: isMobile ? '11px' : '12px',
     fontWeight: '600',
     padding: '4px 8px',
     borderRadius: '20px'
   },
   statValue: {
-    fontSize: '28px',
+    fontSize: isMobile ? '24px' : '28px',
     fontWeight: '700',
     color: '#0f172a',
     marginBottom: '4px'
   },
   statTitle: {
     color: '#64748b',
-    fontSize: '13px',
+    fontSize: isMobile ? '12px' : '13px',
     fontWeight: '500'
   },
   chartsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '24px',
-    marginBottom: '32px'
+    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: isMobile ? '16px' : '24px',
+    marginBottom: isMobile ? '20px' : '32px'
   },
   card: {
     backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '16px',
+    padding: isMobile ? '16px' : '24px',
+    borderRadius: isMobile ? '12px' : '16px',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
     border: '1px solid #f1f5f9'
   },
   cardTitle: {
-    fontSize: '18px',
+    fontSize: isMobile ? '16px' : '18px',
     fontWeight: '700',
     color: '#0f172a',
-    marginBottom: '24px'
+    marginBottom: isMobile ? '16px' : '24px'
   },
   chartContainer: {
-    height: '300px',
+    height: isMobile ? '250px' : '300px',
     width: '100%'
   },
   productItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    paddingBottom: '16px'
+    gap: isMobile ? '10px' : '12px',
+    paddingBottom: isMobile ? '12px' : '16px'
   },
   productImage: {
-    width: '48px',
-    height: '48px',
+    width: isMobile ? '40px' : '48px',
+    height: isMobile ? '40px' : '48px',
     borderRadius: '8px',
-    backgroundColor: '#f1f5f9'
+    backgroundColor: '#f1f5f9',
+    flexShrink: 0
   },
   productInfo: {
-    flex: 1
+    flex: 1,
+    minWidth: 0 // Allow text truncation
   },
   productName: {
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '600',
     color: '#0f172a',
-    margin: 0
+    margin: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   },
   productSales: {
-    fontSize: '12px',
+    fontSize: isMobile ? '11px' : '12px',
     color: '#64748b',
     margin: '4px 0 0 0'
   },
   productRevenue: {
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '700',
-    color: '#10b981'
+    color: '#10b981',
+    flexShrink: 0
   },
   viewAllButton: {
     marginTop: 'auto',
     width: '100%',
-    padding: '12px',
+    padding: isMobile ? '10px' : '12px',
     border: '1px solid #e2e8f0',
     borderRadius: '8px',
     backgroundColor: 'white',
     color: '#475569',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '600',
     cursor: 'pointer'
   },
   tableCard: {
     backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '16px',
+    padding: isMobile ? '16px' : '24px',
+    borderRadius: isMobile ? '12px' : '16px',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
     border: '1px solid #f1f5f9'
   },
@@ -254,18 +268,20 @@ export const getStyles = () => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '24px'
+    marginBottom: isMobile ? '16px' : '24px'
   },
   tableViewAll: {
     color: '#3b82f6',
     background: 'none',
     border: 'none',
+    fontSize: isMobile ? '13px' : '14px',
     fontWeight: '600',
     cursor: 'pointer'
   },
   table: {
     width: '100%',
-    borderCollapse: 'collapse'
+    borderCollapse: 'collapse',
+    display: isMobile ? 'none' : 'table' // Hide table on mobile
   },
   tableHeaderCell: {
     textAlign: 'left',
@@ -279,80 +295,127 @@ export const getStyles = () => ({
     padding: '16px 12px'
   },
   statusBadge: {
-    padding: '6px 12px',
+    padding: isMobile ? '4px 10px' : '6px 12px',
     borderRadius: '20px',
-    fontSize: '12px',
+    fontSize: isMobile ? '11px' : '12px',
+    fontWeight: '600'
+  },
+  // Mobile order cards
+  mobileOrderCard: {
+    display: isMobile ? 'block' : 'none',
+    backgroundColor: '#f8fafc',
+    borderRadius: '12px',
+    padding: '16px',
+    marginBottom: '12px',
+    border: '1px solid #e2e8f0'
+  },
+  mobileOrderHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '12px'
+  },
+  mobileOrderId: {
+    fontSize: '14px',
+    fontWeight: '700',
+    color: '#0f172a'
+  },
+  mobileOrderAmount: {
+    fontSize: '15px',
+    fontWeight: '700',
+    color: '#10b981'
+  },
+  mobileOrderInfo: {
+    display: 'grid',
+    gap: '8px'
+  },
+  mobileOrderRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '13px'
+  },
+  mobileOrderLabel: {
+    color: '#64748b',
+    fontWeight: '500'
+  },
+  mobileOrderValue: {
+    color: '#0f172a',
     fontWeight: '600'
   },
   // Status screens
   pendingContainer: {
-    padding: 24
+    padding: isMobile ? '16px' : '24px',
+    paddingBottom: isMobile ? '96px' : '24px'
   },
   pendingCard: {
     backgroundColor: '#fef3c7',
     border: '1px solid #f59e0b',
-    borderRadius: 16,
-    padding: 32,
-    marginBottom: 24,
+    borderRadius: isMobile ? '12px' : '16px',
+    padding: isMobile ? '24px' : '32px',
+    marginBottom: isMobile ? '16px' : '24px',
     textAlign: 'center'
   },
   pendingIcon: {
-    fontSize: 48,
-    marginBottom: 16
+    fontSize: isMobile ? '40px' : '48px',
+    marginBottom: isMobile ? '12px' : '16px'
   },
   pendingTitle: {
-    fontSize: 24,
+    fontSize: isMobile ? '20px' : '24px',
     fontWeight: 700,
     color: '#92400e',
-    marginBottom: 8
+    marginBottom: '8px'
   },
   pendingText: {
     color: '#a16207',
-    fontSize: 16
+    fontSize: isMobile ? '14px' : '16px'
   },
   bannedCard: {
     backgroundColor: '#fef2f2',
     border: '1px solid #ef4444',
-    borderRadius: 16,
-    padding: 32,
+    borderRadius: isMobile ? '12px' : '16px',
+    padding: isMobile ? '24px' : '32px',
     textAlign: 'center'
   },
   bannedTitle: {
-    fontSize: 24,
+    fontSize: isMobile ? '20px' : '24px',
     fontWeight: 700,
     color: '#991b1b',
-    marginBottom: 8
+    marginBottom: '8px'
   },
   bannedText: {
     color: '#b91c1c',
-    fontSize: 16
+    fontSize: isMobile ? '14px' : '16px'
   },
   infoGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 24
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+    gap: isMobile ? '16px' : '24px'
   },
   infoCard: {
     background: 'white',
-    padding: 24,
-    borderRadius: 16,
+    padding: isMobile ? '16px' : '24px',
+    borderRadius: isMobile ? '12px' : '16px',
     border: '1px solid #e2e8f0'
   },
   infoTitle: {
-    fontSize: 16,
+    fontSize: isMobile ? '14px' : '16px',
     fontWeight: 600,
-    marginBottom: 16,
+    marginBottom: isMobile ? '12px' : '16px',
     color: '#0f172a'
   },
   infoRow: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginBottom: '8px'
   },
   infoLabel: {
-    color: '#64748b'
+    color: '#64748b',
+    fontSize: isMobile ? '13px' : '14px'
   },
   infoValue: {
-    fontWeight: 500
+    fontWeight: 500,
+    fontSize: isMobile ? '13px' : '14px'
   }
 });
 

@@ -1,10 +1,12 @@
 import React from 'react';
-import { styles } from '../styles';
+import { getStyles } from '../styles';
 
 /**
  * Pending approval state screen
  */
-export const PendingScreen = ({ vendor }) => {
+export const PendingScreen = ({ vendor, isMobile = false }) => {
+  const styles = getStyles(isMobile);
+  
   return (
     <div style={styles.pendingContainer}>
       <div style={styles.pendingCard}>
@@ -64,7 +66,7 @@ export const PendingScreen = ({ vendor }) => {
               </span>
             </div>
           </div>
-          <p style={{ marginTop: 16, color: '#94a3b8', fontSize: 13 }}>
+          <p style={{ marginTop: 16, color: '#94a3b8', fontSize: isMobile ? 12 : 13 }}>
             Admin onayından sonra ürünlerinizi ekleyebilir ve satışa başlayabilirsiniz.
           </p>
         </div>
@@ -76,7 +78,8 @@ export const PendingScreen = ({ vendor }) => {
 /**
  * Banned/Suspended state screen
  */
-export const BannedScreen = ({ vendor }) => {
+export const BannedScreen = ({ vendor, isMobile = false }) => {
+  const styles = getStyles(isMobile);
   const isSuspended = vendor.status === 'suspended';
   
   return (
