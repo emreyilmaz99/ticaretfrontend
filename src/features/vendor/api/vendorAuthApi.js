@@ -69,3 +69,12 @@ export const completeOnboarding = async () => {
   const response = await apiClient.post('/v1/vendor/onboarding/complete');
   return response.data;
 };
+
+/**
+ * Get vendor bank accounts
+ * GET /v1/vendor/bank-accounts
+ */
+export const getBankAccounts = async () => {
+  const response = await apiClient.get('/v1/vendor/bank-accounts');
+  return response.data;
+};

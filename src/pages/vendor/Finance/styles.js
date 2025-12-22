@@ -218,6 +218,29 @@ export const getStyles = () => ({
     color: isCompleted ? '#16a34a' : '#d97706',
     textTransform: 'uppercase',
   }),
+
+  // Loading State
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '400px',
+    gap: '16px',
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: '4px solid #f1f5f9',
+    borderTop: '4px solid #059669',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+  },
+  loadingText: {
+    color: '#64748b',
+    fontSize: '14px',
+    fontWeight: '500',
+  },
 });
 
 export default getStyles;

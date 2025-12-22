@@ -7,3 +7,4 @@ export { default as WalletCard } from './WalletCard';
 export { default as SecondaryStatsCards } from './SecondaryStatsCards';
 export { default as TransactionTable } from './TransactionTable';
 export { default as AccountSettingsModal } from './AccountSettingsModal';
+export { default as WithdrawalModal } from './WithdrawalModal';
