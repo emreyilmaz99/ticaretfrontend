@@ -13,7 +13,7 @@ const VendorResponse = ({ response, formatDate, handleDeleteResponse, styles }) 
           {formatDate(response.created_at)}
         </span>
       </div>
-      <p style={styles.responseText}>{response.response}</p>
+      <p style={styles.responseText}>{response.response_text || response.response}</p>
       <button
         style={styles.responseDeleteBtn}
         onClick={() => handleDeleteResponse(response.id)}
@@ -27,7 +27,8 @@ const VendorResponse = ({ response, formatDate, handleDeleteResponse, styles }) 
 VendorResponse.propTypes = {
   response: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    response: PropTypes.string.isRequired,
+    response_text: PropTypes.string,
+    response: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
   formatDate: PropTypes.func.isRequired,

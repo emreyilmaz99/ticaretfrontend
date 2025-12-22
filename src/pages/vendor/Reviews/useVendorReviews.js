@@ -71,9 +71,7 @@ export const useVendorReviews = () => {
   const storeResponseMutation = useMutation({
     mutationFn: ({ reviewId, response_text }) => 
       vendorReviewService.storeResponse(reviewId, { 
-        response_text,
-        response: response_text, // Backend farklı field bekliyor olabilir
-        comment: response_text   // veya bu
+        response: response_text
       }),
     onSuccess: () => {
       toast.success('Yanıtınız başarıyla gönderildi');
