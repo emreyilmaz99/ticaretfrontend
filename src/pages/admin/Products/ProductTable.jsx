@@ -62,9 +62,9 @@ const ProductTable = ({
                 style={{ marginTop: '4px', width: '18px', height: '18px' }}
               />
               <div style={styles.thumbnail}>
-                {product.image ? (
+                {(product.thumbnail || product.photos?.[0]?.url || product.image) ? (
                   <SecureImage 
-                    src={product.image} 
+                    src={product.thumbnail || product.photos?.[0]?.url || product.image} 
                     alt={product.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
@@ -221,9 +221,9 @@ const ProductTable = ({
             <td style={styles.td}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={styles.thumbnail}>
-                  {product.image ? (
+                  {(product.thumbnail || product.photos?.[0]?.url || product.image) ? (
                     <img 
-                      src={product.image} 
+                      src={product.thumbnail || product.photos?.[0]?.url || product.image} 
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

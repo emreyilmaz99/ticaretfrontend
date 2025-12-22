@@ -73,8 +73,21 @@ export const useReviewsPage = () => {
   const rejectMutation = useMutation({
     mutationFn: async ({ reviewId, reason }) => {
       console.log('[Reject Review] reviewId:', reviewId, 'reason:', reason, 'type:', typeof reason);
-      const payload = { reason: reason }; // Backend 'reason' field'ını bekliyor
-      console.log('[Reject Review] Payload:', payload);
+      console.log('[Reject Review] Is Array?:', Array.isArray(reason));
+      
+      // Eğer array gelirse string'e çevir
+      const reasonString = Array.isArray(reason) ? reason[0] : String(reason || '');
+      
+      if (!reasonString || !reasonString.trim()) {
+        throw new Error('Rejection reason is required');
+      }
+      
+      // Backend hem reason hem rejection_reason bekliyor olabilir
+      const payload = { 
+        reason: reasonString,
+        rejection_reason: reasonString 
+      };
+      console.log('[Reject Review] Final Payload:', JSON.stringify(payload));
       const response = await apiClient.post(`/v1/reviews/${reviewId}/reject`, payload);
       return response.data;
     },

@@ -19,7 +19,19 @@ const ProductDetailModal = ({
 }) => {
   if (!product) return null;
 
-  const mainImage = selectedImage || product.image;
+  // Backend'den gelen field'ları kullan: thumbnail veya photos array
+  console.log('[ProductDetailModal] Product:', product);
+  console.log('[ProductDetailModal] product.thumbnail:', product.thumbnail);
+  console.log('[ProductDetailModal] product.photos:', product.photos);
+  console.log('[ProductDetailModal] product.image:', product.image);
+  
+  const productImages = product.photos?.map(p => p.url) || product.images || [];
+  const defaultImage = product.thumbnail || productImages[0] || product.image;
+  const mainImage = selectedImage || defaultImage;
+  
+  console.log('[ProductDetailModal] productImages:', productImages);
+  console.log('[ProductDetailModal] defaultImage:', defaultImage);
+  console.log('[ProductDetailModal] mainImage:', mainImage);
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
@@ -58,10 +70,17 @@ const ProductDetailModal = ({
                 onClick={() => mainImage && onOpenLightbox(mainImage)}
               >
                 {mainImage ? (
-                  <SecureImage 
+                  <img 
                     src={mainImage} 
                     alt={product.name} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    onError={(e) => {
+                      console.error('[ProductDetailModal] Image failed to load:', mainImage);
+                      e.target.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('[ProductDetailModal] Image loaded successfully:', mainImage);
+                    }}
                   />
                 ) : (
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
@@ -72,9 +91,9 @@ const ProductDetailModal = ({
               </div>
               
               {/* Diğer Görseller */}
-              {product.images && product.images.length > 1 && (
+              {productImages && productImages.length > 1 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                  {product.images.map((imageUrl, i) => {
+                  {productImages.map((imageUrl, i) => {
                     const isSelected = selectedImage === imageUrl;
                     return (
                       <div 
@@ -91,10 +110,11 @@ const ProductDetailModal = ({
                         }}
                         onClick={() => onSelectImage(imageUrl)}
                       >
-                        <SecureImage 
+                        <img 
                           src={imageUrl} 
                           alt={product.name} 
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          onError={(e) => console.error('[ProductDetailModal] Thumbnail failed:', imageUrl)}
                         />
                       </div>
                     );
