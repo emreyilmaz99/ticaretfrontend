@@ -42,6 +42,15 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('auth_token');
     const userType = localStorage.getItem('user_type');
 
+    // DEBUG: Log tüm requestleri
+    console.log('🔹 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      data: config.data,
+    });
+
     // Token ve User Type header'larını ekle (varsa)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

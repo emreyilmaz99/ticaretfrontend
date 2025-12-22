@@ -75,8 +75,9 @@ const AdminSidebar = ({ isMobile = false, isOpen = false, onClose = () => {} }) 
       label: 'Finansal İşlemler',
       icon: FaPercentage,
       items: [
+        { path: '/admin/vendor-payments', icon: FaReceipt, label: 'Satıcı Hakedişleri' },
         { path: '/admin/commission-plans', icon: FaPercentage, label: 'Komisyon Planları' },
-        { path: '/admin/tax-classes', icon: FaReceipt, label: 'Vergi Sınıfları (KDV)' },
+        { path: '/admin/tax-classes', icon: FaLeaf, label: 'Vergi Sınıfları (KDV)' },
       ]
     },
     {

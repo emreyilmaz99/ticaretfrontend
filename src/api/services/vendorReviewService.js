@@ -6,7 +6,7 @@ export const vendorReviewService = {
   // Get all reviews with filters (vendor's reviews only)
   getAllReviews: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await apiClient.get(`/v1/vendor/reviews?${queryString}`);
+    const response = await apiClient.get(`/v1/reviews?${queryString}`);
     return response.data;
   },
 
@@ -25,8 +25,16 @@ export const vendorReviewService = {
 
   // Store a response to a review
   storeResponse: async (reviewId, data) => {
-    const response = await apiClient.post(`/v1/reviews/${reviewId}/response`, data);
-    return response;
+    console.log('🚀 Sending POST request to:', `/v1/reviews/${reviewId}/response`);
+    console.log('📦 Request data:', data);
+    try {
+      const response = await apiClient.post(`/v1/reviews/${reviewId}/response`, data);
+      console.log('✅ Response:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error details:', error.response?.data);
+      throw error;
+    }
   },
 
   // Delete a response

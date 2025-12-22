@@ -21,6 +21,12 @@ const ReviewCard = ({
   handleDeleteResponse,
   styles,
 }) => {
+  console.log('📋 Review data:', {
+    id: review.id,
+    has_response: review.has_response,
+    response: review.response,
+  });
+
   return (
     <div style={styles.reviewCard}>
       {/* Review Header */}
@@ -104,7 +110,7 @@ const ReviewCard = ({
       </div>
 
       {/* Vendor Response */}
-      {review.response && (
+      {(review.response || review.has_response) && review.response && (
         <VendorResponse 
           response={review.response}
           formatDate={formatDate}
@@ -114,7 +120,7 @@ const ReviewCard = ({
       )}
 
       {/* Reply Form */}
-      {!review.response && activeReplyId !== review.id && (
+      {!review.response && !review.has_response && activeReplyId !== review.id && (
         <button
           style={styles.actionBtn}
           onClick={() => handleStartReply(review.id)}

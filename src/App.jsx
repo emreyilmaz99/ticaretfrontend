@@ -42,6 +42,7 @@ const CategoriesPage = lazy(() => import('./pages/admin/Categories'));
 const AdminOrders = lazy(() => import('./pages/admin/Orders'));
 const FeaturedDealsPage = lazy(() => import('./pages/admin/FeaturedDeals'));
 const ReviewsPage = lazy(() => import('./pages/admin/Reviews'));
+const VendorPayments = lazy(() => import('./pages/admin/VendorPayments'));
 
 // 3. Satıcı Sayfaları - LAZY LOADED (Code Split)
 const VendorLogin = lazy(() => import('./pages/vendor/Auth/Login'));
@@ -220,6 +221,13 @@ function App() {
                   <Route path="/admin/reviews" element={
                     <Suspense fallback={<AdminLoadingFallback />}>
                       <ReviewsPage />
+                    </Suspense>
+                  } />
+                  
+                  {/* YENİ EKLENEN ROTA: SATICI HAKEDİŞLERİ */}
+                  <Route path="/admin/vendor-payments" element={
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <VendorPayments />
                     </Suspense>
                   } />
                   

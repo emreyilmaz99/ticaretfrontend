@@ -25,6 +25,12 @@ const VendorTable = React.memo(({
 }) => {
   // Client-side filtering for search and advanced filters
   const filteredVendors = useMemo(() => {
+    // Ensure vendors is an array
+    if (!Array.isArray(vendors)) {
+      console.warn('VendorTable: vendors is not an array:', vendors);
+      return [];
+    }
+
     let filtered = vendors;
 
     // Search filter
