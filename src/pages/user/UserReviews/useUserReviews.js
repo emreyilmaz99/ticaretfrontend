@@ -56,8 +56,19 @@ export const useUserReviews = () => {
   } = useQuery({
     queryKey: ['reviewableOrders'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/user/reviewable-orders');
-      return response.data;
+      try {
+        // Önce mevcut endpoint'i dene
+        const response = await apiClient.get('/v1/user/reviewable-orders');
+        return response.data;
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // Endpoint yoksa, kullanıcı siparişlerinden değerlendirilebilir olanları al
+          // Sadece teslim edilmiş siparişleri getir
+          const ordersResponse = await apiClient.get('/v1/orders?status=delivered');
+          return ordersResponse.data;
+        }
+        throw error;
+      }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
@@ -65,11 +76,35 @@ export const useUserReviews = () => {
   });
 
   const reviews = reviewsData?.data?.data || [];
-  const reviewableOrders = reviewableData?.data || [];
+  
+  // Reviewable orders veri yapısını düzenle
+  const reviewableOrders = useMemo(() => {
+    const data = reviewableData?.data;
+    if (!data) return [];
+    
+    // Eğer veri zaten reviewable_items içeriyorsa (orijinal endpoint'ten geldiyse)
+    if (Array.isArray(data) && data[0]?.reviewable_items) {
+      return data;
+    }
+    
+    // Eğer veri orders API'sinden geldiyse (orders array)
+    if (data.orders) {
+      return data.orders.map(order => ({
+        ...order,
+        reviewable_items: order.items || []
+      }));
+    }
+    
+    return [];
+  }, [reviewableData]);
 
   // Calculate pending items count
   const pendingCount = useMemo(() => {
-    return reviewableOrders.reduce((acc, order) => acc + order.reviewable_items.length, 0);
+    if (!Array.isArray(reviewableOrders)) return 0;
+    return reviewableOrders.reduce((acc, order) => {
+      const items = order.reviewable_items || order.items || [];
+      return acc + items.length;
+    }, 0);
   }, [reviewableOrders]);
 
   // Stats

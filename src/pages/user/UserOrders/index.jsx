@@ -108,12 +108,19 @@ const UserOrders = () => {
                   <div style={{ textAlign: 'center', padding: '40px' }}>
                     <FiLoader className="animate-spin" size={24} color="#2563eb" style={{ margin: '0 auto' }} />
                   </div>
-                ) : orderDetail?.data ? (
-                  <OrderDetailContent 
-                    order={orderDetail.data} 
-                    formatPrice={formatPrice} 
-                    formatDate={formatDate}
-                  />
+                ) : orderDetail?.data?.order ? (
+                  <>
+                    {console.log('[OrderDetail] Tam API Response:', orderDetail)}
+                    {console.log('[OrderDetail] Order Data:', orderDetail.data.order)}
+                    {console.log('[OrderDetail] Order Keys:', Object.keys(orderDetail.data.order))}
+                    {orderDetail.data.order.items && console.log('[OrderDetail] Items:', orderDetail.data.order.items)}
+                    {orderDetail.data.order.products && console.log('[OrderDetail] Products:', orderDetail.data.order.products)}
+                    <OrderDetailContent 
+                      order={orderDetail.data.order} 
+                      formatPrice={formatPrice} 
+                      formatDate={formatDate}
+                    />
+                  </>
                 ) : null}
               </div>
             )}
@@ -241,6 +248,17 @@ const UserOrders = () => {
 
 // Sipariş Detay İçeriği Komponenti
 const OrderDetailContent = ({ order, formatPrice, formatDate }) => {
+  // Backend'den gelen veriyi kontrol et - items veya products field'ı olabilir
+  const orderItems = order.items || order.products || [];
+  
+  console.log('[OrderDetailContent] Order object:', order);
+  console.log('[OrderDetailContent] orderItems:', orderItems);
+  console.log('[OrderDetailContent] subtotal_amount:', order.subtotal_amount);
+  console.log('[OrderDetailContent] subtotal:', order.subtotal);
+  console.log('[OrderDetailContent] total_amount:', order.total_amount);
+  console.log('[OrderDetailContent] total:', order.total);
+  console.log('[OrderDetailContent] amount:', order.amount);
+  
   return (
     <div style={{ display: 'grid', gap: '24px' }}>
       {/* Ürünler */}
@@ -249,7 +267,7 @@ const OrderDetailContent = ({ order, formatPrice, formatDate }) => {
           Sipariş Ürünleri
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {order.products?.map((item, idx) => (
+          {orderItems.map((item, idx) => (
             <div key={idx} style={{
               display: 'flex',
               gap: '16px',
@@ -259,25 +277,25 @@ const OrderDetailContent = ({ order, formatPrice, formatDate }) => {
               border: '1px solid #e5e7eb'
             }}>
               <img
-                src={item.image}
-                alt={item.name}
+                src={item.product?.photos?.[0]?.file_path || item.image || '/placeholder.png'}
+                alt={item.product_name || item.name || 'Ürün'}
                 style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px' }}
                 onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23f1f5f9" width="80" height="80"/%3E%3Ctext fill="%2394a3b8" font-family="Arial" font-size="10" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EGörsel%3C/text%3E%3C/svg%3E'; }}
               />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
-                  {item.name}
+                  {item.product_name || item.name || 'Ürün Adı Yok'}
                 </p>
-                {item.variant && (
+                {(item.variant_name || item.variant) && (
                   <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>
-                    {item.variant}
+                    {item.variant_name || item.variant}
                   </p>
                 )}
                 <p style={{ fontSize: '13px', color: '#6b7280' }}>
-                  Adet: {item.qty}
+                  Adet: {item.quantity || item.qty || 0}
                 </p>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#059669', marginTop: '8px' }}>
-                  {formatPrice(item.price_after_coupon)}
+                  {formatPrice(item.unit_price || item.price_after_coupon || item.price || 0)} × {item.quantity || item.qty || 1} = {formatPrice((item.unit_price || item.price || 0) * (item.quantity || item.qty || 1))}
                 </p>
               </div>
             </div>
@@ -361,29 +379,29 @@ const OrderDetailContent = ({ order, formatPrice, formatDate }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
             <span style={{ color: '#6b7280' }}>Ara Toplam:</span>
-            <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.subtotal)}</span>
+            <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.subtotal_amount || order.subtotal || 0)}</span>
           </div>
-          {order.coupon_discount > 0 && (
+          {(order.discount_amount || order.coupon_discount || 0) > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
               <span style={{ color: '#059669' }}>
-                Kupon İndirimi {order.coupon_code && `(${order.coupon_code})`}:
+                İndirim {(order.coupon_code || order.discount_code) && `(${order.coupon_code || order.discount_code})`}:
               </span>
-              <span style={{ color: '#059669', fontWeight: '600' }}>-{formatPrice(order.coupon_discount)}</span>
+              <span style={{ color: '#059669', fontWeight: '600' }}>-{formatPrice(order.discount_amount || order.coupon_discount || 0)}</span>
             </div>
           )}
-          {order.tax_amount > 0 && (
+          {(order.tax_amount || 0) > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
               <span style={{ color: '#6b7280' }}>KDV:</span>
-              <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.tax_amount)}</span>
+              <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.tax_amount || 0)}</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
             <span style={{ color: '#6b7280' }}>Kargo:</span>
-            <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.shipping_cost || 0)}</span>
+            <span style={{ color: '#111827', fontWeight: '600' }}>{formatPrice(order.shipping_amount || order.shipping_cost || 0)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: '700', paddingTop: '8px', borderTop: '1px solid #e5e7eb' }}>
             <span style={{ color: '#111827' }}>Toplam:</span>
-            <span style={{ color: '#059669' }}>{formatPrice(order.amount)}</span>
+            <span style={{ color: '#059669' }}>{formatPrice(order.total_amount || order.total || order.amount || 0)}</span>
           </div>
         </div>
       </div>

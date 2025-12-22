@@ -18,10 +18,14 @@ export const useUserOrders = () => {
   const orders = data?.data?.orders || [];
 
   const formatPrice = (price) => {
+    // null, undefined veya sayıya dönüştürülemeyen değerler için 0 kullan
+    const numericPrice = parseFloat(price);
+    const safePrice = isNaN(numericPrice) ? 0 : numericPrice;
+    
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY'
-    }).format(price);
+    }).format(safePrice);
   };
 
   const formatDate = (dateString) => {

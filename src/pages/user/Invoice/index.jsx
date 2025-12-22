@@ -104,6 +104,62 @@ const Invoice = () => {
           </div>
         </div>
 
+        {/* Satıcı Bilgileri */}
+        {order.vendor && (
+          <div style={{ 
+            backgroundColor: '#f9fafb', 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            padding: '20px',
+            marginBottom: '30px'
+          }}>
+            <h4 style={{ 
+              fontSize: '12px', 
+              textTransform: 'uppercase', 
+              color: '#9CA3AF', 
+              marginBottom: '12px', 
+              letterSpacing: '0.5px',
+              margin: '0 0 12px 0'
+            }}>
+              Satıcı Bilgileri
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
+                  <strong style={{ color: '#111827' }}>{order.vendor.business_name || order.vendor.name}</strong>
+                </p>
+                {order.vendor.tax_number && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                    Vergi No: {order.vendor.tax_number}
+                  </p>
+                )}
+                {order.vendor.tax_office && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                    Vergi Dairesi: {order.vendor.tax_office}
+                  </p>
+                )}
+              </div>
+              <div>
+                {order.vendor.phone && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                    Tel: {order.vendor.phone}
+                  </p>
+                )}
+                {order.vendor.email && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                    E-posta: {order.vendor.email}
+                  </p>
+                )}
+                {order.vendor.address && (
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6B7280', lineHeight: '1.5' }}>
+                    {order.vendor.address}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="info-section">
           <div className="info-box">
             <h4>Müşteri Bilgileri</h4>
