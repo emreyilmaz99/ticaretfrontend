@@ -72,9 +72,10 @@ export const useReviewsPage = () => {
   // Reject mutation
   const rejectMutation = useMutation({
     mutationFn: async ({ reviewId, reason }) => {
-      const response = await apiClient.post(`/v1/reviews/${reviewId}/reject`, {
-        rejection_reason: reason,
-      });
+      console.log('[Reject Review] reviewId:', reviewId, 'reason:', reason, 'type:', typeof reason);
+      const payload = { reason: reason }; // Backend 'reason' field'ını bekliyor
+      console.log('[Reject Review] Payload:', payload);
+      const response = await apiClient.post(`/v1/reviews/${reviewId}/reject`, payload);
       return response.data;
     },
     onSuccess: () => {
