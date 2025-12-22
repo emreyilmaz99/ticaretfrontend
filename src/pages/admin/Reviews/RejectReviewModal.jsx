@@ -80,9 +80,7 @@ const RejectReviewModal = ({
         {/* Body */}
         <div style={{
           ...styles.modalBody,
-          padding: isMobile ? '16px' : styles.modalBody.padding,
-          maxHeight: isMobile ? 'calc(90vh - 150px)' : 'auto',
-          overflowY: 'auto'
+          padding: isMobile ? '16px' : styles.modalBody.padding
         }}>
           <div style={{ marginBottom: '16px' }}>
             <p style={{ fontSize: '14px', color: '#374151', marginBottom: '12px' }}>

@@ -469,7 +469,8 @@ export const getStyles = (isMobile = false) => ({
     width: '100%',
     maxWidth: '700px',
     maxHeight: '90vh',
-    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
     boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
   },
   modalHeader: {
@@ -502,8 +503,9 @@ export const getStyles = (isMobile = false) => ({
   },
   modalBody: {
     padding: '28px',
-    maxHeight: 'calc(90vh - 180px)',
+    flex: 1,
     overflowY: 'auto',
+    overflowX: 'hidden',
   },
   modalFooter: {
     display: 'flex',

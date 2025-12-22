@@ -80,9 +80,7 @@ const ReviewDetailModal = ({ review, onClose, onApprove, onReject, styles }) => 
         {/* Body */}
         <div style={{
           ...styles.modalBody,
-          padding: isMobile ? '16px' : styles.modalBody.padding,
-          maxHeight: isMobile ? 'calc(90vh - 150px)' : 'auto',
-          overflowY: 'auto'
+          padding: isMobile ? '16px' : styles.modalBody.padding
         }}>
           {/* User & Product Info */}
           <div style={styles.detailSection}>
