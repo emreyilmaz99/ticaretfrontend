@@ -86,7 +86,10 @@ const ProductStats = ({ products = [], statusFilter, setStatusFilter }) => {
         </div>
         
         <div 
-          style={getStatCardStyle('stock')}
+          style={{
+            ...getStatCardStyle('stock'),
+            position: 'relative' // Badge için gerekli
+          }}
           onClick={() => handleStatClick('stock')}
           title="Stok yönetimini aç"
         >
