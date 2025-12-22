@@ -62,17 +62,28 @@ export const useUserProfile = () => {
   // Update profile mutation
   const updateMutation = useMutation({
     mutationFn: (data) => updateUserProfile(data),
-    onSuccess: async () => {
-      qc.invalidateQueries(['user', 'profile']);
-      await refreshUser(); // Önce user'ı güncelle
+    onSuccess: async (response) => {
+      // Backend'den dönen güncel user bilgisini al
+      const updatedUser = response?.data?.user;
+      
+      // Query cache'i güncelle
+      await qc.invalidateQueries(['user', 'profile']);
+      await refreshUser(); // Auth context'teki user'ı güncelle
+      
+      // Form state'ini de güncelle
+      if (updatedUser) {
+        setForm({
+          name: updatedUser.name || '',
+          phone: updatedUser.phone || '',
+          identity_number: updatedUser.identity_number || '',
+          birth_date: updatedUser.birth_date || '',
+          gender: updatedUser.gender || ''
+        });
+        console.log('[UserProfile] Form güncellendi:', updatedUser);
+      }
+      
       toast.success('Başarılı', 'Profil bilgileriniz güncellendi.');
       setIsSaving(false);
-      
-      // Debug: Güncellenmiş user bilgisini console'a yazdır
-      setTimeout(() => {
-        const updatedUser = qc.getQueryData(['user', 'profile']);
-        console.log('[UserProfile] Profil güncellendi, yeni user:', updatedUser);
-      }, 500);
     },
     onError: (err) => {
       toast.error('Hata', err.response?.data?.message || 'Güncelleme başarısız.');

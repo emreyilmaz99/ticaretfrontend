@@ -3,11 +3,21 @@ import React from 'react';
 import { FaStar, FaEdit, FaTrash, FaCheckCircle } from 'react-icons/fa';
 
 export const AddressCard = ({ address, onEdit, onDelete, onSetDefault, styles }) => {
+  const handleCardClick = () => {
+    if (!address.is_default) {
+      onSetDefault(address.id);
+    }
+  };
+
   return (
-    <div style={{
-      ...styles.addressCard,
-      ...(address.is_default ? styles.addressCardDefault : {})
-    }}>
+    <div 
+      onClick={handleCardClick}
+      style={{
+        ...styles.addressCard,
+        ...(address.is_default ? styles.addressCardDefault : {}),
+        cursor: address.is_default ? 'default' : 'pointer'
+      }}
+    >
       {address.is_default && (
         <div style={styles.defaultBadge}>
           <FaCheckCircle size={10} /> Varsayılan
@@ -20,24 +30,19 @@ export const AddressCard = ({ address, onEdit, onDelete, onSetDefault, styles })
           <span style={{ fontWeight: '600', fontSize: '14px' }}>{address.full_name}</span>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          {!address.is_default && (
-            <button
-              onClick={() => onSetDefault(address.id)}
-              style={{...styles.actionButton, backgroundColor: '#f1f5f9', color: '#64748b'}}
-              title="Varsayılan Yap"
-            >
-              <FaStar />
-            </button>
-          )}
           <button
-            onClick={() => onEdit(address)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(address);
+            }}
             style={{...styles.actionButton, backgroundColor: '#e0f2fe', color: '#0284c7'}}
             title="Düzenle"
           >
             <FaEdit />
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (window.confirm('Bu adresi silmek istediğinize emin misiniz?')) {
                 onDelete(address.id);
               }

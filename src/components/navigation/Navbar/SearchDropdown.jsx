@@ -163,14 +163,16 @@ const SearchDropdown = ({
                   <div style={styles.productName}>{product.name}</div>
                   <div>
                     <span style={styles.productPrice}>
-                      {product.discount_price 
-                        ? `${product.discount_price.toFixed(2)} ₺`
-                        : `${product.price.toFixed(2)} ₺`
+                      {product.discount_price && product.discount_price !== null
+                        ? `${parseFloat(product.discount_price).toFixed(2)} ₺`
+                        : product.price && product.price !== null
+                          ? `${parseFloat(product.price).toFixed(2)} ₺`
+                          : 'Fiyat Yok'
                       }
                     </span>
-                    {product.discount_price && (
+                    {product.discount_price && product.discount_price !== null && product.price && product.price !== null && (
                       <span style={styles.originalPrice}>
-                        {product.price.toFixed(2)} ₺
+                        {parseFloat(product.price).toFixed(2)} ₺
                       </span>
                     )}
                   </div>
