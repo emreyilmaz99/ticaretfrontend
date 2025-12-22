@@ -129,34 +129,56 @@ export const useVendorFinance = () => {
     const stats = dashboardData.data;
     
     // Pending date hesaplama (7 gün settlement period)
-    const pendingDate = stats.pending_earnings > 0 
-      ? '7 gün içinde çekilebilir olacak' 
-      : '-';
+    const hasPending = (stats.pending_balance || stats.pending_earnings || 0) > 0;
+    const pendingDate = hasPending ? '7 gün içinde çekilebilir olacak' : '-';
+
+    // Field adları: available_balance veya available_earnings olabilir
+    const availableBalance = stats.available_balance ?? stats.available_earnings ?? 0;
+    const pendingAmount = stats.pending_balance ?? stats.pending_earnings ?? 0;
+    const totalPaid = stats.total_withdrawn ?? stats.total_paid ?? 0;
 
     return {
-      availableBalance: formatCurrency(stats.available_balance),
-      pendingAmount: formatCurrency(stats.pending_balance),
+      availableBalance: formatCurrency(availableBalance),
+      pendingAmount: formatCurrency(pendingAmount),
       pendingDate,
-      totalPaid: formatCurrency(stats.total_withdrawn || 0),
-      growthPercent: '+%12', // Bu hesaplanabilir veya API'den gelebilir
-      stats, // Ham veriyi de sakla
+      totalPaid: formatCurrency(totalPaid),
+      growthPercent: '+%12',
+      stats,
     };
   }, [dashboardData]);
 
   // Transactions - Earnings verilerini transaction formatına dönüştür
   const transactions = useMemo(() => {
-    if (!earningsData?.data?.data) return [];
+    // API yanıtı farklı yapılarda gelebilir
+    let earnings = [];
+    
+    if (earningsData?.data?.earnings) {
+      earnings = earningsData.data.earnings;
+    } else if (Array.isArray(earningsData?.data)) {
+      earnings = earningsData.data;
+    } else if (earningsData?.data?.data) {
+      earnings = earningsData.data.data;
+    } else if (earningsData?.earnings) {
+      earnings = earningsData.earnings;
+    }
+    
+    if (!earnings || earnings.length === 0) return [];
 
-    return earningsData.data.data.map((earning) => ({
-      id: `TRX-${earning.id}`,
-      date: formatDate(earning.created_at),
-      type: getTransactionType(earning.earning_status),
-      description: `${earning.product_name} - ${earning.order_number}`,
-      amount: formatCurrency(earning.net_earning),
-      status: earning.earning_status,
-      statusLabel: getStatusLabel(earning.earning_status),
-      rawData: earning, // Detaylar için ham veri
-    }));
+    return earnings.map((earning) => {
+      // Status field: earning_status veya status olabilir
+      const status = earning.earning_status || earning.status || 'pending';
+      
+      return {
+        id: `TRX-${earning.id}`,
+        date: formatDate(earning.created_at || earning.order_date),
+        type: getTransactionType(status),
+        description: `${earning.product_name || 'Ürün'} - ${earning.order_number || ''}`,
+        amount: formatCurrency(earning.net_earning || earning.amount || 0),
+        status: status,
+        statusLabel: getStatusLabel(status),
+        rawData: earning,
+      };
+    });
   }, [earningsData]);
 
   // Handlers
