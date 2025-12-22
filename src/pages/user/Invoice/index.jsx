@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getOrder } from '../../../features/checkout/api/checkoutApi';
+import { getProduct } from '../../../api/publicApi';
 import { FiLoader } from 'react-icons/fi';
 
 const Invoice = () => {
   const { orderNumber } = useParams();
+  const [vendors, setVendors] = useState([]);
+  const [vendorsLoaded, setVendorsLoaded] = useState(false);
 
   const { data: orderData, isLoading } = useQuery({
     queryKey: ['invoice', orderNumber],
@@ -14,12 +17,51 @@ const Invoice = () => {
 
   const order = orderData?.data?.order;
 
+  // Get items - items veya products olabilir
+  const orderItems = order?.items || order?.products || [];
+
+  // Ürünlerden vendor bilgilerini çek
   useEffect(() => {
-    if (order) {
-      // Auto-print when order is loaded
+    const fetchVendors = async () => {
+      if (!order || orderItems.length === 0) return;
+      
+      try {
+        // Her benzersiz ürün slug'ı için vendor bilgisi çek
+        const slugs = [...new Set(orderItems.map(item => item.slug).filter(Boolean))];
+        const vendorMap = new Map();
+        
+        for (const slug of slugs) {
+          try {
+            const productData = await getProduct(slug);
+            const vendor = productData?.data?.product?.vendor || productData?.data?.vendor;
+            if (vendor && vendor.id) {
+              vendorMap.set(vendor.id, vendor);
+            }
+          } catch (err) {
+            console.log('[Invoice] Vendor fetch error for slug:', slug, err);
+          }
+        }
+        
+        setVendors(Array.from(vendorMap.values()));
+      } catch (error) {
+        console.error('[Invoice] Error fetching vendors:', error);
+      } finally {
+        setVendorsLoaded(true);
+      }
+    };
+    
+    if (order && !vendorsLoaded) {
+      fetchVendors();
+    }
+  }, [order, orderItems, vendorsLoaded]);
+
+  useEffect(() => {
+    if (order && vendorsLoaded) {
+      console.log('[Invoice] Vendors loaded:', vendors);
+      // Auto-print when order and vendors are loaded
       setTimeout(() => window.print(), 500);
     }
-  }, [order]);
+  }, [order, vendorsLoaded, vendors]);
 
   const formatMoney = (amount) => {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount || 0);
@@ -27,13 +69,13 @@ const Invoice = () => {
 
   // Calculate totals - using the same logic as vendor invoice
   const calculateTotals = () => {
-    if (!order || !order.products) {
+    if (!order) {
       return { subtotalWithoutTax: 0, totalTax: 0, total: 0 };
     }
 
-    const subtotalWithoutTax = order.subtotal - (order.tax_amount || 0) - (order.coupon_discount || 0);
+    const subtotalWithoutTax = (order.subtotal_amount || order.subtotal || 0) - (order.tax_amount || 0) - (order.discount_amount || order.coupon_discount || 0);
     const totalTax = order.tax_amount || 0;
-    const total = order.amount || 0;
+    const total = order.total_amount || order.total || order.amount || 0;
 
     return { subtotalWithoutTax, totalTax, total };
   };
@@ -105,7 +147,7 @@ const Invoice = () => {
         </div>
 
         {/* Satıcı Bilgileri */}
-        {order.vendor && (
+        {vendors.length > 0 && (
           <div style={{ 
             backgroundColor: '#f9fafb', 
             border: '1px solid #e5e7eb', 
@@ -123,40 +165,49 @@ const Invoice = () => {
             }}>
               Satıcı Bilgileri
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
-                  <strong style={{ color: '#111827' }}>{order.vendor.business_name || order.vendor.name}</strong>
-                </p>
-                {order.vendor.tax_number && (
-                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                    Vergi No: {order.vendor.tax_number}
+            {vendors.map((vendor, idx) => (
+              <div key={idx} style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '16px',
+                marginBottom: vendors.length > 1 ? '16px' : 0,
+                paddingBottom: vendors.length > 1 && idx < vendors.length - 1 ? '16px' : 0,
+                borderBottom: vendors.length > 1 && idx < vendors.length - 1 ? '1px solid #e5e7eb' : 'none'
+              }}>
+                <div>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
+                    <strong style={{ color: '#111827' }}>{vendor.business_name || vendor.store_name || vendor.name}</strong>
                   </p>
-                )}
-                {order.vendor.tax_office && (
-                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                    Vergi Dairesi: {order.vendor.tax_office}
-                  </p>
-                )}
+                  {vendor.tax_number && (
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                      Vergi No: {vendor.tax_number}
+                    </p>
+                  )}
+                  {vendor.tax_office && (
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                      Vergi Dairesi: {vendor.tax_office}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  {vendor.phone && (
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                      Tel: {vendor.phone}
+                    </p>
+                  )}
+                  {vendor.email && (
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
+                      E-posta: {vendor.email}
+                    </p>
+                  )}
+                  {vendor.address && (
+                    <p style={{ margin: '0', fontSize: '13px', color: '#6B7280', lineHeight: '1.5' }}>
+                      {vendor.address}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                {order.vendor.phone && (
-                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                    Tel: {order.vendor.phone}
-                  </p>
-                )}
-                {order.vendor.email && (
-                  <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                    E-posta: {order.vendor.email}
-                  </p>
-                )}
-                {order.vendor.address && (
-                  <p style={{ margin: '0', fontSize: '13px', color: '#6B7280', lineHeight: '1.5' }}>
-                    {order.vendor.address}
-                  </p>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
         )}
 
@@ -197,23 +248,27 @@ const Invoice = () => {
             </tr>
           </thead>
           <tbody>
-            {order.products?.map((product, index) => {
-              const priceAfterCoupon = product.price_after_coupon || product.unit_price * product.qty;
-              const taxRate = product.tax_rate || 0;
-              const priceWithoutTax = product.price_without_tax || (priceAfterCoupon / (1 + taxRate / 100));
-              const taxAmount = product.tax_amount || (priceAfterCoupon - priceWithoutTax);
+            {orderItems.map((item, index) => {
+              const itemName = item.product_name || item.name || 'Ürün';
+              const itemVariant = item.variant_name || item.variant || null;
+              const quantity = item.quantity || item.qty || 1;
+              const unitPrice = parseFloat(item.unit_price || item.price || 0);
+              const totalPrice = parseFloat(item.total_price || (unitPrice * quantity));
+              const taxRate = parseFloat(item.tax_rate || 18);
+              const priceWithoutTax = totalPrice / (1 + taxRate / 100);
+              const taxAmount = totalPrice - priceWithoutTax;
               
               return (
                 <tr key={index}>
                   <td>
-                    <span className="product-name">{product.name}</span>
-                    {product.variant && <span className="product-variant">{product.variant}</span>}
+                    <span className="product-name">{itemName}</span>
+                    {itemVariant && <span className="product-variant">{itemVariant}</span>}
                   </td>
-                  <td className="col-price">{formatMoney(priceWithoutTax / product.qty)}</td>
-                  <td className="col-qty">{product.qty}</td>
+                  <td className="col-price">{formatMoney(priceWithoutTax / quantity)}</td>
+                  <td className="col-qty">{quantity}</td>
                   <td className="col-price">{taxRate.toFixed(0)}</td>
                   <td className="col-price">{formatMoney(taxAmount)}</td>
-                  <td className="col-price">{formatMoney(priceAfterCoupon)}</td>
+                  <td className="col-price">{formatMoney(totalPrice)}</td>
                 </tr>
               );
             })}
@@ -226,15 +281,19 @@ const Invoice = () => {
               <span>Ara Toplam (KDV Hariç)</span>
               <span>{formatMoney(totals.subtotalWithoutTax)}</span>
             </div>
-            {order.coupon_discount > 0 && (
+            {(order.discount_amount || order.coupon_discount || 0) > 0 && (
               <div className="totals-row">
-                <span>Kupon İndirimi ({order.coupon_code})</span>
-                <span>-{formatMoney(order.coupon_discount)}</span>
+                <span>İndirim {(order.coupon_code || order.discount_code) && `(${order.coupon_code || order.discount_code})`}</span>
+                <span>-{formatMoney(order.discount_amount || order.coupon_discount || 0)}</span>
               </div>
             )}
             <div className="totals-row">
               <span>Toplam KDV</span>
               <span>{formatMoney(totals.totalTax)}</span>
+            </div>
+            <div className="totals-row">
+              <span>Kargo</span>
+              <span>{formatMoney(order.shipping_amount || totals.totalTax)}</span>
             </div>
             <div className="totals-row">
               <span>Kargo</span>
