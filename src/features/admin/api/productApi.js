@@ -2,7 +2,7 @@ import apiClient from '@lib/apiClient';
 
 // Get all products with filters
 export const getProducts = async (params = {}) => {
-  const response = await apiClient.get('/v1/products', { params });
+  const response = await apiClient.get('/v1/products/my-products', { params });
   return response.data;
 };
 
