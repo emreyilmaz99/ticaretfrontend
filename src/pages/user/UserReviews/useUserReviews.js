@@ -37,14 +37,15 @@ export const useUserReviews = () => {
   // Fetch user's reviews
   const { 
     data: reviewsData, 
-    isLoading: isLoadingReviews 
+    isLoading: isLoadingReviews,
+    error: reviewsError
   } = useQuery({
     queryKey: ['userReviews'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/user/reviews');
+      const response = await apiClient.get('/v1/reviews');
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
@@ -52,14 +53,15 @@ export const useUserReviews = () => {
   // Fetch reviewable orders (pending reviews)
   const { 
     data: reviewableData, 
-    isLoading: isLoadingReviewable 
+    isLoading: isLoadingReviewable,
+    error: reviewableError
   } = useQuery({
     queryKey: ['reviewableOrders'],
     queryFn: async () => {
-      const response = await apiClient.get('/v1/user/reviewable-orders');
+      const response = await apiClient.get('/v1/reviewable-orders');
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });

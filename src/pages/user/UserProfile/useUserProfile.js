@@ -48,12 +48,16 @@ export const useUserProfile = () => {
   // Populate form when user data is loaded
   useEffect(() => {
     if (user) {
+      // LocalStorage'dan oku (backend bu alanları döndürmüyor)
+      const savedBirthDate = localStorage.getItem('user_birth_date');
+      const savedGender = localStorage.getItem('user_gender');
+      
       setForm({
         name: user.name || '',
         phone: user.phone || '',
         identity_number: user.identity_number || '',
-        birth_date: user.birth_date || '',
-        gender: user.gender || ''
+        birth_date: user.birth_date || savedBirthDate || '',
+        gender: user.gender || savedGender || ''
       });
       if (user.avatar) setAvatarPreview(user.avatar);
     }
@@ -62,25 +66,40 @@ export const useUserProfile = () => {
   // Update profile mutation
   const updateMutation = useMutation({
     mutationFn: (data) => updateUserProfile(data),
-    onSuccess: async (response) => {
-      // Backend'den dönen güncel user bilgisini al
-      const updatedUser = response?.data?.user;
+    onSuccess: async (response, variables) => {
+      console.log('[UserProfile] Full Response:', response);
+      console.log('[UserProfile] Gönderilen variables:', variables);
       
-      // Query cache'i güncelle
-      await qc.invalidateQueries(['user', 'profile']);
-      await refreshUser(); // Auth context'teki user'ı güncelle
+      // Backend'den response.data doğrudan user objesi olarak geliyor
+      // AMA birth_date ve gender backend response'unda dönmüyor
+      // O yüzden gönderdiğimiz data'yı (variables) kullanıyoruz
+      const updatedUser = response?.data;
       
-      // Form state'ini de güncelle
-      if (updatedUser) {
-        setForm({
-          name: updatedUser.name || '',
-          phone: updatedUser.phone || '',
-          identity_number: updatedUser.identity_number || '',
-          birth_date: updatedUser.birth_date || '',
-          gender: updatedUser.gender || ''
-        });
-        console.log('[UserProfile] Form güncellendi:', updatedUser);
+      // Form'u gönderdiğimiz data ile güncelle (çünkü backend başarılı dedi)
+      setForm({
+        name: updatedUser?.name || variables.name || '',
+        phone: updatedUser?.phone || variables.phone || '',
+        identity_number: updatedUser?.identity_number || variables.identity_number || '',
+        birth_date: variables.birth_date || '', // Backend'den gelmediği için gönderdiğimiz data'yı kullan
+        gender: variables.gender || '' // Backend'den gelmediği için gönderdiğimiz data'yı kullan
+      });
+      
+      // LocalStorage'a kaydet (sayfa yenilendiğinde kaybolmasın)
+      if (variables.birth_date) {
+        localStorage.setItem('user_birth_date', variables.birth_date);
       }
+      if (variables.gender) {
+        localStorage.setItem('user_gender', variables.gender);
+      }
+      
+      console.log('[UserProfile] Form güncellendi ve localStorage\'a kaydedildi:', {
+        birth_date: variables.birth_date,
+        gender: variables.gender
+      });
+      
+      // Query cache'i güncelle ve auth context'i refresh et
+      qc.invalidateQueries(['user', 'profile']);
+      refreshUser(); // Auth context'teki user'ı arka planda güncelle
       
       toast.success('Başarılı', 'Profil bilgileriniz güncellendi.');
       setIsSaving(false);
