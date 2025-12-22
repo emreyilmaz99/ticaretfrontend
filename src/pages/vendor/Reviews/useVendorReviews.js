@@ -70,7 +70,11 @@ export const useVendorReviews = () => {
   // Store Response Mutation
   const storeResponseMutation = useMutation({
     mutationFn: ({ reviewId, response_text }) => 
-      vendorReviewService.storeResponse(reviewId, { response_text }),
+      vendorReviewService.storeResponse(reviewId, { 
+        response_text,
+        response: response_text, // Backend farklı field bekliyor olabilir
+        comment: response_text   // veya bu
+      }),
     onSuccess: () => {
       toast.success('Yanıtınız başarıyla gönderildi');
       queryClient.invalidateQueries(['vendorReviews']);
@@ -138,15 +142,15 @@ export const useVendorReviews = () => {
   }, []);
 
   // Computed values
-  const reviews = Array.isArray(reviewsData?.data?.data) 
-    ? reviewsData.data.data 
+  const reviews = Array.isArray(reviewsData?.data?.reviews) 
+    ? reviewsData.data.reviews 
     : [];
   
   const pagination = {
-    currentPage: reviewsData?.data?.current_page || 1,
-    totalPages: reviewsData?.data?.last_page || 1,
-    total: reviewsData?.data?.total || 0,
-    perPage: reviewsData?.data?.per_page || 10,
+    currentPage: reviewsData?.data?.pagination?.current_page || 1,
+    totalPages: reviewsData?.data?.pagination?.last_page || 1,
+    total: reviewsData?.data?.pagination?.total || 0,
+    perPage: reviewsData?.data?.pagination?.per_page || 10,
   };
 
   const stats = statsData?.data || {

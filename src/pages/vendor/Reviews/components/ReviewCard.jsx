@@ -58,7 +58,12 @@ const ReviewCard = ({
       {review.product && (
         <div style={styles.reviewProduct}>
           <img
-            src={review.product.image || review.product.main_photo || '/placeholder.jpg'}
+            src={getMediaUrl(
+              review.product.thumbnail || 
+              review.product.main_photo || 
+              review.product.image ||
+              (review.product.photos && review.product.photos[0])
+            )}
             alt={review.product?.name || 'Ürün'}
             style={styles.reviewProductImage}
             onError={(e) => { e.target.src = '/placeholder.jpg'; }}

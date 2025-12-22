@@ -3,10 +3,10 @@
 import apiClient from '@lib/apiClient';
 
 export const vendorReviewService = {
-  // Get all reviews with filters
+  // Get all reviews with filters (vendor's reviews only)
   getAllReviews: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const response = await apiClient.get(`/v1/reviews?${queryString}`);
+    const response = await apiClient.get(`/v1/vendor/reviews?${queryString}`);
     return response.data;
   },
 
@@ -19,7 +19,7 @@ export const vendorReviewService = {
 
   // Get review stats
   getStats: async () => {
-    const response = await apiClient.get('/v1/vendor/review-stats');
+    const response = await apiClient.get('/v1/reviews/stats');
     return response.data;
   },
 
