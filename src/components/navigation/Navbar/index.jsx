@@ -14,6 +14,7 @@ import {
 
 import AddressModal from '../../modals/AddressModal';
 import ConfirmModal from '../../modals/ConfirmModal';
+import MegaMenu from './MegaMenu';
 
 // --- Stiller ---
 // DİKKAT: styles.js dosyasını güncelledin, artık getStyles fonksiyonunu import ediyoruz
@@ -293,18 +294,7 @@ const Navbar = () => {
             {categoriesLoading ? (
               <span style={{fontSize: '14px', color: '#64748b'}}>Yükleniyor...</span>
             ) : (
-              categories.map((cat) => {
-                const Icon = cat.IconComponent;
-                return (
-                  <Link 
-                    key={cat.id}
-                    to={`/products?category=${cat.slug}`}
-                    style={styles.categoryLink}
-                  >
-                    <Icon style={{marginRight: '6px', fontSize: '14px'}} /> {cat.name}
-                  </Link>
-                );
-              })
+              <MegaMenu categories={categories} styles={styles} />
             )}
 
           </div>

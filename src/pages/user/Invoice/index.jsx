@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getOrder } from '../../../features/checkout/api/checkoutApi';
 import { getProduct } from '../../../api/publicApi';
+import apiClient from '../../../lib/apiClient';
 import { FiLoader } from 'react-icons/fi';
 
 const Invoice = () => {
@@ -20,13 +21,29 @@ const Invoice = () => {
   // Get items - items veya products olabilir
   const orderItems = order?.items || order?.products || [];
 
-  // Ürünlerden slug ile vendor bilgilerini çek
+  // Vendor bilgisini items'lardan slug ile çek
   useEffect(() => {
     const fetchVendors = async () => {
       if (!order || orderItems.length === 0) return;
       
+      // Önce order seviyesinde vendors array var mı kontrol et (BACKEND GÜNCELLENDİ)
+      if (order.vendors && order.vendors.length > 0) {
+        console.log('[Invoice] Vendors from order:', order.vendors);
+        setVendors(order.vendors);
+        setVendorsLoaded(true);
+        return;
+      }
+      
+      // Tek vendor objesi var mı kontrol et
+      if (order.vendor) {
+        console.log('[Invoice] Single vendor from order:', order.vendor);
+        setVendors([order.vendor]);
+        setVendorsLoaded(true);
+        return;
+      }
+
+      // Order seviyesinde yoksa, items'ların slug'larından çek
       try {
-        // Her benzersiz ürün slug'ı için vendor bilgisi çek
         const slugs = [...new Set(orderItems.map(item => item.slug).filter(Boolean))];
         console.log('[Invoice] Product slugs:', slugs);
         
@@ -35,11 +52,41 @@ const Invoice = () => {
         for (const slug of slugs) {
           try {
             const productData = await getProduct(slug);
-            console.log('[Invoice] Product data for slug', slug, ':', productData);
             const vendor = productData?.data?.product?.vendor || productData?.data?.vendor;
-            console.log('[Invoice] Vendor from product:', vendor);
             if (vendor && vendor.id) {
-              vendorMap.set(vendor.id, vendor);
+              // Vendor detay bilgisini almak için vendor store API'sini çağır
+              try {
+                // Önce slug ile dene
+                let response = await apiClient.get(`/v1/vendors/${vendor.slug}`);
+                console.log('[Invoice] Vendor detail response (by slug):', response.data);
+                let fullVendor = response.data?.data?.vendor;
+                
+                // Eğer slug ile tam bilgi gelmezse, ID ile de dene
+                if (fullVendor && !fullVendor.phone && !fullVendor.email) {
+                  try {
+                    response = await apiClient.get(`/v1/vendors/${vendor.id}`);
+                    console.log('[Invoice] Vendor detail response (by ID):', response.data);
+                    const vendorById = response.data?.data?.vendor;
+                    if (vendorById) {
+                      fullVendor = vendorById;
+                    }
+                  } catch (idErr) {
+                    console.log('[Invoice] Vendor detail by ID failed:', idErr);
+                  }
+                }
+                
+                if (fullVendor) {
+                  console.log('[Invoice] Full vendor data:', JSON.stringify(fullVendor, null, 2));
+                  vendorMap.set(fullVendor.id, fullVendor);
+                } else {
+                  console.log('[Invoice] No vendor in response, using basic vendor');
+                  vendorMap.set(vendor.id, vendor);
+                }
+              } catch (err) {
+                console.log('[Invoice] Vendor detail fetch error:', err);
+                // Vendor detail alınamazsa en azından basic bilgiyi kullan
+                vendorMap.set(vendor.id, vendor);
+              }
             }
           } catch (err) {
             console.log('[Invoice] Vendor fetch error for slug:', slug, err);
@@ -59,27 +106,42 @@ const Invoice = () => {
     }
   }, [order, orderItems, vendorsLoaded]);
 
+  // Vendor bilgisini al
+  const vendor = vendors.length > 0 ? vendors[0] : null;
+
   useEffect(() => {
     if (order && vendorsLoaded) {
-      console.log('[Invoice] Vendors loaded:', vendors);
-      // Auto-print when order and vendors are loaded
+      console.log('[Invoice] Order loaded successfully');
+      console.log('[Invoice] Vendors:', vendors);
+      // Auto-print when order is loaded
       setTimeout(() => window.print(), 500);
     }
-  }, [order, vendorsLoaded, vendors]);
+  }, [order, orderItems, vendor, vendors, vendorsLoaded]);
 
   const formatMoney = (amount) => {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount || 0);
   };
 
-  // Calculate totals - using the same logic as vendor invoice
+  // Calculate totals from product financials (same as vendor invoice)
   const calculateTotals = () => {
-    if (!order) {
-      return { subtotalWithoutTax: 0, totalTax: 0, total: 0 };
-    }
+    let subtotalWithoutTax = 0;
+    let totalTax = 0;
+    let total = 0;
 
-    const subtotalWithoutTax = (order.subtotal_amount || order.subtotal || 0) - (order.tax_amount || 0) - (order.discount_amount || order.coupon_discount || 0);
-    const totalTax = order.tax_amount || 0;
-    const total = order.total_amount || order.total || order.amount || 0;
+    if (orderItems && orderItems.length > 0) {
+      orderItems.forEach(item => {
+        const quantity = item.quantity || item.qty || 1;
+        const unitPrice = parseFloat(item.unit_price || item.price || 0);
+        const totalPrice = parseFloat(item.total_price || (unitPrice * quantity));
+        const taxRate = parseFloat(item.tax_rate || 18);
+        const priceWithoutTax = totalPrice / (1 + taxRate / 100);
+        const taxAmount = totalPrice - priceWithoutTax;
+        
+        subtotalWithoutTax += priceWithoutTax;
+        totalTax += taxAmount;
+        total += totalPrice;
+      });
+    }
 
     return { subtotalWithoutTax, totalTax, total };
   };
@@ -108,8 +170,8 @@ const Invoice = () => {
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; background-color: #FFFFFF; }
         .container { max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); background-color: #FFFFFF; }
         
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #1F2937; padding-bottom: 20px; margin-bottom: 30px; }
-        .brand { font-size: 28px; font-weight: 800; color: #1F2937; letter-spacing: -1px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 30px; }
+        .brand { font-size: 28px; font-weight: 800; color: #059669; letter-spacing: -1px; }
         .invoice-meta { text-align: right; }
         .invoice-meta h3 { margin: 0 0 5px 0; color: #111827; }
         .meta-item { font-size: 14px; color: #6B7280; }
@@ -130,7 +192,7 @@ const Invoice = () => {
         .totals-area { display: flex; justify-content: flex-end; margin-top: 30px; }
         .totals-table { width: 300px; }
         .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #6B7280; }
-        .grand-total { display: flex; justify-content: space-between; padding-top: 15px; margin-top: 10px; border-top: 2px solid #E5E7EB; font-size: 18px; font-weight: 800; color: #1F2937; }
+        .grand-total { display: flex; justify-content: space-between; padding-top: 15px; margin-top: 10px; border-top: 2px solid #E5E7EB; font-size: 18px; font-weight: 800; color: #059669; }
 
         .footer { margin-top: 60px; text-align: center; font-size: 12px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 20px; }
         
@@ -146,97 +208,62 @@ const Invoice = () => {
           <div className="invoice-meta">
             <h3>SİPARİŞ ÖZETİ</h3>
             <div className="meta-item">No: <strong>{order.order_number}</strong></div>
-            <div className="meta-item">Tarih: {order.date}</div>
+            <div className="meta-item">Tarih: {order.created_at ? new Date(order.created_at).toLocaleDateString('tr-TR') : order.date}</div>
           </div>
         </div>
 
-        {/* Satıcı Bilgileri */}
-        {vendors.length > 0 && (
-          <div style={{ 
-            backgroundColor: '#f9fafb', 
-            border: '1px solid #e5e7eb', 
-            borderRadius: '8px', 
-            padding: '20px',
-            marginBottom: '30px'
-          }}>
-            <h4 style={{ 
-              fontSize: '12px', 
-              textTransform: 'uppercase', 
-              color: '#9CA3AF', 
-              marginBottom: '12px', 
-              letterSpacing: '0.5px',
-              margin: '0 0 12px 0'
-            }}>
-              Satıcı Bilgileri
-            </h4>
-            {vendors.map((vendor, idx) => (
-              <div key={idx} style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr', 
-                gap: '16px',
-                marginBottom: vendors.length > 1 ? '16px' : 0,
-                paddingBottom: vendors.length > 1 && idx < vendors.length - 1 ? '16px' : 0,
-                borderBottom: vendors.length > 1 && idx < vendors.length - 1 ? '1px solid #e5e7eb' : 'none'
-              }}>
-                <div>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
-                    <strong style={{ color: '#111827' }}>{vendor.business_name || vendor.store_name || vendor.name}</strong>
-                  </p>
-                  {vendor.tax_number && (
-                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                      Vergi No: {vendor.tax_number}
-                    </p>
-                  )}
-                  {vendor.tax_office && (
-                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                      Vergi Dairesi: {vendor.tax_office}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  {vendor.phone && (
-                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                      Tel: {vendor.phone}
-                    </p>
-                  )}
-                  {vendor.email && (
-                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6B7280' }}>
-                      E-posta: {vendor.email}
-                    </p>
-                  )}
-                  {vendor.address && (
-                    <p style={{ margin: '0', fontSize: '13px', color: '#6B7280', lineHeight: '1.5' }}>
-                      {vendor.address}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
         <div className="info-section">
           <div className="info-box">
-            <h4>Müşteri Bilgileri</h4>
-            <p><strong>{order.shipping_address?.full_name || 'Müşteri'}</strong></p>
-            <p>{order.shipping_address?.phone || ''}</p>
+            <h4>Satıcı Bilgileri</h4>
+            {vendor ? (
+              <>
+                <p><strong>{vendor.company_name || vendor.business_name || vendor.store_name || vendor.name}</strong></p>
+                {vendor.name && vendor.company_name && vendor.name !== vendor.company_name && (
+                  <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px' }}>
+                    Yetkili: {vendor.name}
+                  </p>
+                )}
+                {(vendor.tax_id || vendor.tax_number) && (
+                  <p style={{ marginTop: '8px' }}>Vergi No: {vendor.tax_id || vendor.tax_number}</p>
+                )}
+                {vendor.tax_office && <p>Vergi Dairesi: {vendor.tax_office}</p>}
+                {vendor.phone && <p>Tel: {vendor.phone}</p>}
+                {vendor.email && <p>E-posta: {vendor.email}</p>}
+                {vendor.city && vendor.district && (
+                  <p className="address" style={{ marginTop: '8px' }}>
+                    {vendor.district} / {vendor.city}
+                  </p>
+                )}
+                {(vendor.address || vendor.business_address) && (
+                  <p className="address" style={{ marginTop: vendor.city ? '4px' : '8px' }}>
+                    {vendor.address || vendor.business_address}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p style={{ color: '#9CA3AF' }}>Satıcı bilgileri yüklenemedi</p>
+            )}
+          </div>
+          <div className="info-box">
+            <h4>Alıcı Bilgileri</h4>
+            <p><strong>{order.shipping_address?.full_name || order.customer?.name || 'Müşteri'}</strong></p>
+            {(order.customer?.email || order.shipping_address?.email) && (
+              <p>{order.customer?.email || order.shipping_address?.email}</p>
+            )}
+            {(order.shipping_address?.phone || order.customer?.phone) && (
+              <p>{order.shipping_address?.phone || order.customer?.phone}</p>
+            )}
             <div style={{ marginTop: '16px' }}>
               <h4>Teslimat Adresi</h4>
               <p className="address">
-                {order.shipping_address?.address_line}<br />
-                {order.shipping_address?.district}, {order.shipping_address?.city}<br />
+                {order.shipping_address?.address_line || 'Adres bilgisi bulunamadı.'}<br />
+                {order.shipping_address?.district && order.shipping_address?.city && (
+                  <>{order.shipping_address.district}, {order.shipping_address.city}<br /></>
+                )}
                 {order.shipping_address?.postal_code}
               </p>
             </div>
             <p style={{ marginTop: '12px' }}><strong>Ödeme:</strong> {order.payment_method || 'Kredi Kartı'}</p>
-          </div>
-          <div className="info-box">
-            <h4>Fatura Adresi</h4>
-            <p className="address">
-              {(order.billing_address?.address_line || order.shipping_address?.address_line)}<br />
-              {(order.billing_address?.district || order.shipping_address?.district)}, {(order.billing_address?.city || order.shipping_address?.city)}<br />
-              {(order.billing_address?.postal_code || order.shipping_address?.postal_code)}
-            </p>
           </div>
         </div>
 
@@ -285,23 +312,13 @@ const Invoice = () => {
               <span>Ara Toplam (KDV Hariç)</span>
               <span>{formatMoney(totals.subtotalWithoutTax)}</span>
             </div>
-            {(order.discount_amount || order.coupon_discount || 0) > 0 && (
-              <div className="totals-row">
-                <span>İndirim {(order.coupon_code || order.discount_code) && `(${order.coupon_code || order.discount_code})`}</span>
-                <span>-{formatMoney(order.discount_amount || order.coupon_discount || 0)}</span>
-              </div>
-            )}
             <div className="totals-row">
               <span>Toplam KDV</span>
               <span>{formatMoney(totals.totalTax)}</span>
             </div>
             <div className="totals-row">
               <span>Kargo</span>
-              <span>{formatMoney(order.shipping_amount || totals.totalTax)}</span>
-            </div>
-            <div className="totals-row">
-              <span>Kargo</span>
-              <span>{formatMoney(order.shipping_cost || 0)}</span>
+              <span>{formatMoney(order.shipping_amount || order.shipping_cost || 0)}</span>
             </div>
             <div className="grand-total">
               <span>GENEL TOPLAM</span>
@@ -312,7 +329,7 @@ const Invoice = () => {
 
         <div className="footer">
           <p>Bu belge bilgilendirme amaçlıdır. Mali değeri yoktur.</p>
-          <p>Ticaret.com tarafından oluşturulmuştur.</p>
+          <p>Ticaret.com Satıcı Paneli tarafından oluşturulmuştur.</p>
         </div>
       </div>
     </>

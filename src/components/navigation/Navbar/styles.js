@@ -13,9 +13,9 @@ export const getStyles = (isMobile) => ({
 
   // --- ANA KONTEYNER ---
   container: {
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
-    padding: isMobile ? '0 16px' : '0 20px',
+    padding: isMobile ? '0 16px' : '0 40px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -159,20 +159,21 @@ export const getStyles = (isMobile) => ({
     zIndex: 990,
   },
   bottomBarContainer: {
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
-    padding: isMobile ? '0' : '0 20px', // Mobilde padding'i scroll container halledecek
+    padding: isMobile ? '0' : '0 40px', // Mobilde padding'i scroll container halledecek
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     // --- BURASI SİHİRLİ KISIM (Yatay Scroll) ---
     overflowX: isMobile ? 'auto' : 'visible',
     whiteSpace: 'nowrap',
-    gap: isMobile ? '12px' : '24px',
+    gap: isMobile ? '12px' : '20px',
     // Scrollbarı gizle
     scrollbarWidth: 'none', 
     WebkitOverflowScrolling: 'touch',
-    paddingLeft: isMobile ? '16px' : '20px', // Mobilde başlangıç boşluğu
-    paddingRight: isMobile ? '16px' : '20px',
+    paddingLeft: isMobile ? '16px' : '40px', // Mobilde başlangıç boşluğu
+    paddingRight: isMobile ? '16px' : '40px',
   },
   
   // Adres Butonu (Mobilde Hap Şeklinde)
