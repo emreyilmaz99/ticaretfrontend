@@ -18,6 +18,9 @@ const DealSection = ({ styles, isMobile }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [hoveredButton, setHoveredButton] = useState(null); // Hover state for buttons
+  const [imageHovered, setImageHovered] = useState(false); // Hover state for image
+  const [isTransitioning, setIsTransitioning] = useState(false); // Transition state
   
   // Touch/Swipe states for mobile
   const [touchStart, setTouchStart] = useState(0);
@@ -74,11 +77,19 @@ const DealSection = ({ styles, isMobile }) => {
 
   // Navigation
   const goToPrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? deals.length - 1 : prev - 1));
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev === 0 ? deals.length - 1 : prev - 1));
+      setIsTransitioning(false);
+    }, 300);
   }, [deals.length]);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === deals.length - 1 ? 0 : prev + 1));
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev === deals.length - 1 ? 0 : prev + 1));
+      setIsTransitioning(false);
+    }, 300);
   }, [deals.length]);
 
   // Auto-slide every 5 seconds
@@ -202,6 +213,7 @@ const DealSection = ({ styles, isMobile }) => {
         ...styles.dealSection,
         background: `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 20)} 100%)`,
         position: 'relative',
+        transition: 'background 0.5s ease',
       }}
       onTouchStart={isMobile && deals.length > 1 ? handleTouchStart : undefined}
       onTouchMove={isMobile && deals.length > 1 ? handleTouchMove : undefined}
@@ -229,10 +241,18 @@ const DealSection = ({ styles, isMobile }) => {
               cursor: 'pointer',
               color: 'white',
               fontSize: '20px',
-              transition: 'all 0.3s',
+              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}
-            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
             <FaChevronLeft />
           </button>
@@ -255,10 +275,18 @@ const DealSection = ({ styles, isMobile }) => {
               cursor: 'pointer',
               color: 'white',
               fontSize: '20px',
-              transition: 'all 0.3s',
+              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}
-            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
             <FaChevronRight />
           </button>
@@ -322,12 +350,18 @@ const DealSection = ({ styles, isMobile }) => {
       )}
 
       {/* Deal Content */}
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 2, 
-        maxWidth: isMobile ? '100%' : '500px', 
-        textAlign: isMobile ? 'center' : 'left' 
-      }}>
+      <div 
+        key={currentIndex}
+        style={{ 
+          position: 'relative', 
+          zIndex: 2, 
+          maxWidth: isMobile ? '100%' : '500px', 
+          textAlign: isMobile ? 'center' : 'left',
+          opacity: isTransitioning ? 0 : 1,
+          transform: isTransitioning ? 'translateX(-30px)' : 'translateX(0)',
+          transition: 'all 0.3s ease-out',
+        }}
+      >
         {/* Badge */}
         <div style={{ 
           display: 'inline-block', 
@@ -336,7 +370,9 @@ const DealSection = ({ styles, isMobile }) => {
           borderRadius: '50px', 
           fontSize: isMobile ? '12px' : '14px', 
           fontWeight: '700', 
-          marginBottom: isMobile ? '16px' : '24px' 
+          marginBottom: isMobile ? '16px' : '24px',
+          animation: 'slideInLeft 0.5s ease-out, pulse 2s ease-in-out 2s infinite',
+          boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
         }}>
           {currentDeal.badge_text || 'Özel Fırsat'}
         </div>
@@ -347,7 +383,9 @@ const DealSection = ({ styles, isMobile }) => {
           fontSize: isMobile ? '28px' : '48px', 
           fontWeight: '800', 
           marginBottom: isMobile ? '16px' : '24px', 
-          lineHeight: 1.1 
+          lineHeight: 1.1,
+          transition: 'all 0.3s ease',
+          animation: 'fadeInUp 0.6s ease-out',
         }}>
           {currentDeal.title || currentDeal.product?.name}
         </h2>
@@ -357,7 +395,8 @@ const DealSection = ({ styles, isMobile }) => {
           fontSize: isMobile ? '14px' : '18px', 
           opacity: 0.8, 
           marginBottom: isMobile ? '20px' : '32px', 
-          lineHeight: 1.6 
+          lineHeight: 1.6,
+          animation: 'fadeInUp 0.6s ease-out 0.1s backwards',
         }}>
           {currentDeal.description || 'Sınırlı süre için özel indirim fırsatı!'}
         </p>
@@ -368,12 +407,15 @@ const DealSection = ({ styles, isMobile }) => {
           alignItems: 'center', 
           gap: isMobile ? '16px' : '24px', 
           marginBottom: isMobile ? '24px' : '40px', 
-          justifyContent: isMobile ? 'center' : 'flex-start' 
+          justifyContent: isMobile ? 'center' : 'flex-start',
+          animation: 'fadeInUp 0.6s ease-out 0.2s backwards',
         }}>
           <div style={{ 
             fontSize: isMobile ? '28px' : '36px', 
             fontWeight: '700', 
-            color: currentDeal.price_color || '#34d399' 
+            color: currentDeal.price_color || '#34d399',
+            transition: 'transform 0.3s ease',
+            animation: 'pulse 2s ease-in-out infinite',
           }}>
             {parseFloat(currentDeal.deal_price).toLocaleString('tr-TR')} TL
           </div>
@@ -392,11 +434,54 @@ const DealSection = ({ styles, isMobile }) => {
               borderRadius: '20px',
               fontSize: '14px',
               fontWeight: '700',
+              animation: 'bounce 2s ease-in-out infinite',
             }}>
               %{Math.round(currentDeal.discount_percentage)} İndirim
             </div>
           )}
         </div>
+
+        <style>{`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes slideInLeft {
+            from {
+              opacity: 0;
+              transform: translateX(-30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          
+          @keyframes pulse {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.05);
+            }
+          }
+          
+          @keyframes bounce {
+            0%, 100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-5px);
+            }
+          }
+        `}</style>
 
         {/* Action Buttons */}
         <div style={{ 
@@ -407,12 +492,19 @@ const DealSection = ({ styles, isMobile }) => {
           justifyContent: isMobile ? 'center' : 'flex-start' 
         }}>
           <button 
-            onClick={handleAddToCart} 
+            onClick={handleAddToCart}
+            onMouseEnter={() => setHoveredButton('cart')}
+            onMouseLeave={() => setHoveredButton(null)}
             style={{ 
               ...styles.heroBtn, 
               backgroundColor: currentDeal.add_to_cart_button_color || '#34d399', 
               color: '#0f172a', 
-              width: isMobile ? '100%' : 'auto' 
+              width: isMobile ? '100%' : 'auto',
+              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              transform: hoveredButton === 'cart' ? 'translateY(-4px) scale(1.05)' : 'translateY(0) scale(1)',
+              boxShadow: hoveredButton === 'cart' 
+                ? '0 20px 50px rgba(52, 211, 153, 0.5), 0 0 0 2px rgba(255,255,255,0.3)' 
+                : '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
             }}
           >
             <FaShoppingCart /> Sepete Ekle
@@ -421,12 +513,19 @@ const DealSection = ({ styles, isMobile }) => {
           <a 
             href={`/product/${currentDeal.product?.slug || currentDeal.product_id}`}
             onClick={handleClick}
+            onMouseEnter={() => setHoveredButton('view')}
+            onMouseLeave={() => setHoveredButton(null)}
             style={{ 
               ...styles.heroBtn, 
               backgroundColor: currentDeal.view_button_color || 'rgba(255,255,255,0.2)', 
               color: currentDeal.view_button_color === '#ffffff' || currentDeal.view_button_color?.toLowerCase().includes('fff') ? '#0f172a' : 'white',
               textDecoration: 'none',
-              width: isMobile ? '100%' : 'auto' 
+              width: isMobile ? '100%' : 'auto',
+              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              transform: hoveredButton === 'view' ? 'translateY(-4px) scale(1.05)' : 'translateY(0) scale(1)',
+              boxShadow: hoveredButton === 'view' 
+                ? '0 20px 50px rgba(255, 255, 255, 0.3), 0 0 0 2px rgba(255,255,255,0.4)' 
+                : '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
             }}
           >
             <FaEye /> İncele
@@ -594,7 +693,22 @@ const DealSection = ({ styles, isMobile }) => {
       
       {/* Product Image - Desktop only */}
       {!isMobile && (
-        <div style={{ position: 'relative', zIndex: 2 }}>
+        <div 
+          key={`image-${currentIndex}`}
+          style={{ 
+            position: 'relative', 
+            zIndex: 2,
+            transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: imageHovered 
+              ? 'scale(1.05) rotate(-5deg)' 
+              : isTransitioning 
+                ? 'scale(0.9) rotate(-15deg)' 
+                : 'scale(1) rotate(-10deg)',
+            opacity: isTransitioning ? 0 : 1,
+          }}
+          onMouseEnter={() => setImageHovered(true)}
+          onMouseLeave={() => setImageHovered(false)}
+        >
           <img 
             src={productImage} 
             alt={currentDeal.product?.name || 'Deal Product'} 
@@ -605,8 +719,11 @@ const DealSection = ({ styles, isMobile }) => {
               height: '400px', 
               objectFit: 'cover', 
               borderRadius: '24px', 
-              transform: 'rotate(-10deg)', 
-              boxShadow: '0 20px 50px rgba(0,0,0,0.3)' 
+              boxShadow: imageHovered 
+                ? '0 30px 80px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.2)' 
+                : '0 20px 50px rgba(0,0,0,0.3)',
+              transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              filter: imageHovered ? 'brightness(1.1)' : 'brightness(1)',
             }} 
           />
         </div>
@@ -637,7 +754,13 @@ const DealSection = ({ styles, isMobile }) => {
           {deals.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                  setCurrentIndex(index);
+                  setIsTransitioning(false);
+                }, 300);
+              }}
               style={{
                 width: currentIndex === index ? '24px' : '8px',
                 height: '8px',
@@ -645,7 +768,9 @@ const DealSection = ({ styles, isMobile }) => {
                 backgroundColor: currentIndex === index ? '#34d399' : 'rgba(255,255,255,0.4)',
                 border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.3s',
+                transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transform: currentIndex === index ? 'scale(1.1)' : 'scale(1)',
+                boxShadow: currentIndex === index ? '0 0 10px rgba(52, 211, 153, 0.5)' : 'none',
               }}
             />
           ))}

@@ -64,7 +64,14 @@ const ProductInfo = React.memo(({
       
       {/* Product Title */}
       <Link to={productUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <h3 style={isListMobile ? mobileListStyles.cardTitle : styles.cardTitle}>
+        <h3 
+          style={{
+            ...(isListMobile ? mobileListStyles.cardTitle : styles.cardTitle),
+            transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#0f172a'}
+        >
           {product.name}
         </h3>
       </Link>

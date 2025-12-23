@@ -32,27 +32,39 @@ const MegaMenu = ({ categories, styles }) => {
     };
   }, []);
 
+  // Scroll olduğunda mega menu'yu kapat
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (hoveredCategory !== null) {
+        setHoveredCategory(null);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [hoveredCategory]);
+
   const handleMouseEnter = (categoryId) => {
-    // Varsa önceki timeout'u iptal et
+    // Timeout varsa iptal et, açık kalsın
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
     setHoveredCategory(categoryId);
   };
 
-  const handleMouseLeave = () => {
-    // 1 saniye sonra kapan, böylece rahatça dropdown'a geçiş yapabilir
+  const handleContainerMouseLeave = () => {
+    // Kısa bir gecikme ile kapat (200ms) - Böylece dropdown'a geçiş yapabilirsiniz
     timeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
-    }, 1000);
-  };
-
-  const handleDropdownEnter = (categoryId) => {
-    // Varsa timeout'u iptal et, dropdown üzerine gelince açık kalsın
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setHoveredCategory(categoryId);
+    }, 200);
   };
 
   const megaMenuStyles = {
@@ -144,7 +156,7 @@ const MegaMenu = ({ categories, styles }) => {
   };
 
   return (
-    <div style={megaMenuStyles.container}>
+    <div style={megaMenuStyles.container} onMouseLeave={handleContainerMouseLeave}>
       {categories.map((cat) => {
         const Icon = cat.IconComponent;
         const isHovered = hoveredCategory === cat.id;
@@ -155,7 +167,6 @@ const MegaMenu = ({ categories, styles }) => {
             key={cat.id}
             style={{ position: 'relative' }}
             onMouseEnter={() => handleMouseEnter(cat.id)}
-            onMouseLeave={handleMouseLeave}
           >
             <Link
               to={`/products?category=${cat.slug}`}
@@ -175,8 +186,6 @@ const MegaMenu = ({ categories, styles }) => {
                   ...megaMenuStyles.megaMenuDropdown,
                   ...megaMenuStyles.megaMenuDropdownVisible,
                 }}
-                onMouseEnter={() => handleDropdownEnter(cat.id)}
-                onMouseLeave={handleMouseLeave}
               >
                 {cat.active_children.map((subcat) => {
                   const SubcatIcon = getIconComponent(subcat.icon);

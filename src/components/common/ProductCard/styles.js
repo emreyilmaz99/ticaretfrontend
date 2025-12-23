@@ -8,7 +8,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     borderStyle: 'solid',
     borderColor: '#e5e7eb',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
     position: 'relative',
     cursor: 'pointer',
     display: 'flex',
@@ -21,8 +21,9 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   cardHover: {
-    transform: 'translateY(-8px)',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)',
+    transform: 'translateY(-12px) scale(1.02)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(5, 150, 105, 0.1)',
+    borderColor: '#059669',
   },
   
   imageContainer: {
@@ -42,11 +43,12 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     width: '100%',
     height: '100%',
     objectFit: 'cover',
-    transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease',
   },
   
   cardImageHover: {
-    transform: 'scale(1.08)',
+    transform: 'scale(1.15) rotate(2deg)',
+    filter: 'brightness(1.05)',
   },
   
   cardBody: {
@@ -142,14 +144,14 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     fontSize: viewMode === 'list' && isMobile ? '11px' : '12px',
     fontWeight: '700',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
     boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
   },
   
   buyNowBtnHover: {
     backgroundColor: '#047857',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 16px rgba(5, 150, 105, 0.35)',
+    transform: 'translateY(-3px) scale(1.05)',
+    boxShadow: '0 8px 20px rgba(5, 150, 105, 0.4)',
   },
   
   addToCartBtn: {
@@ -165,7 +167,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
     flexShrink: 0,
   },
   
@@ -173,7 +175,8 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     backgroundColor: '#059669',
     color: 'white',
     borderColor: '#059669',
-    transform: 'scale(1.05)',
+    transform: 'scale(1.15) rotate(-5deg)',
+    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
   },
   
   discountBadge: {
@@ -189,6 +192,8 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     zIndex: 3,
     boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
     letterSpacing: '0.5px',
+    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
   },
   
   actionOverlay: {
@@ -215,7 +220,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     justifyContent: 'center',
     cursor: 'pointer',
     color: '#64748b',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   },
   
@@ -226,15 +231,17 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   
   cardActionBtnFavoriteHover: {
     backgroundColor: isFavorite ? '#fee2e2' : 'white',
-    transform: 'scale(1.1)',
+    transform: 'scale(1.2) rotate(10deg)',
     borderColor: isFavorite ? '#fca5a5' : '#e5e7eb',
+    boxShadow: '0 4px 16px rgba(220, 38, 38, 0.3)',
   },
   
   cardActionBtnQuickViewHover: {
     backgroundColor: '#f0fdf4',
-    transform: 'scale(1.1)',
+    transform: 'scale(1.2) rotate(-5deg)',
     color: '#059669',
     borderColor: '#d1fae5',
+    boxShadow: '0 4px 16px rgba(5, 150, 105, 0.3)',
   },
   
   cardActionBtnCompare: {
@@ -247,6 +254,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     backgroundColor: isInCompareList ? '#059669' : '#f0fdf4',
     color: isInCompareList ? 'white' : '#059669',
     borderColor: isInCompareList ? '#059669' : '#d1fae5',
-    transform: 'scale(1.1)',
+    transform: 'scale(1.2) rotate(5deg)',
+    boxShadow: '0 4px 16px rgba(5, 150, 105, 0.3)',
   },
 });

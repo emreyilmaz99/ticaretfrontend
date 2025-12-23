@@ -3,6 +3,7 @@ import { Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/common/Toast';
 import { FavoritesProvider } from './context/FavoritesContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // --- LAYOUTS (DÜZENLER) ---
 import Navbar from './components/navigation/Navbar';
@@ -104,12 +105,13 @@ function App() {
   useCartInitializer();
 
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <FavoritesProvider>
-            <Router>
-                <div className="App">
-                  <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <FavoritesProvider>
+              <Router>
+                  <div className="App">
+                    <Routes>
               
               {/* ======================================= */}
               {/* 1. MÜŞTERİ BÖLÜMÜ (Navbar GÖRÜNSÜN)     */}
@@ -353,6 +355,7 @@ function App() {
         </FavoritesProvider>
       </ToastProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
