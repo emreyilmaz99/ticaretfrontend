@@ -86,16 +86,19 @@ export const useHome = () => {
   // PERFORMANCE OPTIMIZATION: Memoized Categories Transformation
   // Categories array sadece categoriesData değiştiğinde yeniden oluşturulur
   // ============================================================================
-  const categories = useMemo(() => [
-    { id: 'all', name: 'Tüm Ürünler' },
-    ...(categoriesData?.data || []).map(cat => ({
-      id: cat.id,
-      name: cat.name,
-      slug: cat.slug,
-      icon: cat.icon,
-      image: cat.image,
-    })),
-  ], [categoriesData]);
+  const categories = useMemo(() => {
+    const dataArray = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
+    return [
+      { id: 'all', name: 'Tüm Ürünler' },
+      ...dataArray.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        icon: cat.icon,
+        image: cat.image,
+      })),
+    ];
+  }, [categoriesData]);
 
   // Get products from API response
   const products = productsData?.data || [];
