@@ -30,50 +30,103 @@ const TransactionTable = ({ transactions, styles }) => {
     try {
       setLoadingInvoice(orderId);
       const response = await apiClient.get(`/v1/orders/${orderId}`);
-      const orderData = response.data.data || response.data;
       
-      // Debug: API yanıtını kontrol et
-      console.log('Order API response:', orderData);
+      // API yanıtını al
+      const data = response.data?.data || response.data;
+      console.log('Raw API Response:', data);
       
-      // API yanıtını invoiceService'in beklediği formata dönüştür
+      // Backend'den gelen veriyi invoiceService formatına dönüştür
+      // Backend yapısı: { order, items, customer, vendor, address }
+      const orderInfo = data.order || data;
+      const items = data.items || orderInfo.items || orderInfo.products || [];
+      const customer = data.customer || orderInfo.customer || {};
+      const vendor = data.vendor || orderInfo.vendor || {};
+      const address = data.address || orderInfo.address || orderInfo.shipping_address || {};
+      
       const order = {
-        id: orderData.order_number || orderData.id,
-        date: orderData.formatted_date || orderData.created_at,
-        vendor: orderData.vendor || {
-          name: orderData.store_name || 'Satıcı',
-          tax_id: orderData.tax_id || '',
-          phone: orderData.vendor_phone || '',
-          email: orderData.vendor_email || '',
+        // Sipariş temel bilgileri
+        id: orderInfo.order_number || orderInfo.id || `ORD-${orderId}`,
+        date: formatOrderDate(orderInfo.created_at || orderInfo.order_date),
+        status: orderInfo.status || 'pending',
+        
+        // Satıcı bilgileri
+        vendor: {
+          name: vendor.store_name || vendor.name || vendor.business_name || 'Satıcı',
+          tax_id: vendor.tax_number || vendor.tax_id || vendor.vkn || '',
+          phone: vendor.phone || vendor.contact_phone || '',
+          email: vendor.email || vendor.contact_email || '',
+          address: vendor.address || vendor.business_address || '',
         },
-        customer: orderData.customer || {
-          name: orderData.customer_name || orderData.user?.name || 'Müşteri',
-          email: orderData.customer_email || orderData.user?.email || '',
-          phone: orderData.customer_phone || orderData.user?.phone || '',
+        
+        // Müşteri bilgileri
+        customer: {
+          name: customer.name || customer.full_name || `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Müşteri',
+          email: customer.email || '',
+          phone: customer.phone || customer.mobile || '',
         },
-        shippingAddress: orderData.shipping_address || orderData.address || '',
-        paymentMethod: orderData.payment_method || 'Kredi Kartı',
-        products: (orderData.items || orderData.products || []).map(item => ({
-          name: item.product_name || item.name || 'Ürün',
-          variant: item.variant_name || item.variant || '',
+        
+        // Teslimat adresi - string veya object olabilir
+        shippingAddress: typeof address === 'string' 
+          ? address 
+          : formatAddress(address),
+        
+        // Ödeme
+        paymentMethod: orderInfo.payment_method || orderInfo.paymentMethod || 'Kredi Kartı',
+        
+        // Ürünler
+        products: items.map(item => ({
+          name: item.product_name || item.name || item.title || 'Ürün',
+          variant: item.variant_name || item.variant || item.options || '',
           price: parseFloat(item.unit_price || item.price || 0),
-          qty: item.quantity || item.qty || 1,
-          financials: item.financials || {
-            price_without_tax: parseFloat(item.price_without_tax || item.unit_price || item.price || 0),
-            tax_rate: parseFloat(item.tax_rate || 0),
-            tax_amount: parseFloat(item.tax_amount || 0),
+          qty: parseInt(item.quantity || item.qty || 1),
+          financials: {
+            price_without_tax: parseFloat(item.price_without_tax || item.subtotal || item.unit_price || item.price || 0),
+            tax_rate: parseFloat(item.tax_rate || item.vat_rate || 0),
+            tax_amount: parseFloat(item.tax_amount || item.vat_amount || 0),
           }
         })),
-        shipping: parseFloat(orderData.shipping_cost || orderData.shipping || 0),
+        
+        // Kargo
+        shipping: parseFloat(orderInfo.shipping_cost || orderInfo.shipping_fee || orderInfo.shipping || 0),
       };
       
-      console.log('Transformed order:', order);
+      console.log('Transformed Order for Invoice:', order);
       printInvoice(order);
     } catch (error) {
       console.error('Fatura yüklenirken hata:', error);
-      alert('Fatura yüklenirken bir hata oluştu.');
+      alert('Fatura yüklenirken bir hata oluştu: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoadingInvoice(null);
     }
+  };
+  
+  // Tarih formatlama helper
+  const formatOrderDate = (dateStr) => {
+    if (!dateStr) return '-';
+    try {
+      const date = new Date(dateStr);
+      return new Intl.DateTimeFormat('tr-TR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } catch {
+      return dateStr;
+    }
+  };
+  
+  // Adres formatlama helper
+  const formatAddress = (addr) => {
+    if (!addr) return 'Adres bilgisi bulunamadı.';
+    const parts = [
+      addr.address_line || addr.street || addr.line1,
+      addr.district || addr.neighborhood,
+      addr.city || addr.province,
+      addr.country
+    ].filter(Boolean);
+    return parts.join(', ') || 'Adres bilgisi bulunamadı.';
   };
 
   // Boş durum
