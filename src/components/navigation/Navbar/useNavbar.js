@@ -62,10 +62,12 @@ const useNavbar = () => {
     }
   });
 
-  const categories = (categoriesData?.data || []).slice(0, 8).map(cat => ({
-    ...cat,
-    IconComponent: getIconComponent(cat.icon)
-  }));
+  const categories = Array.isArray(categoriesData?.data) 
+    ? categoriesData.data.slice(0, 8).map(cat => ({
+        ...cat,
+        IconComponent: getIconComponent(cat.icon)
+      }))
+    : [];
 
   // --- Adres Kaydetme Mutation ---
   const createAddressMutation = useMutation({

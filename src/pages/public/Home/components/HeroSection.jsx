@@ -14,7 +14,8 @@ const slides = [
     secondaryBtn: { text: "Satıcı Ol", link: "/vendor/register", icon: <FaStore /> },
     bgColor: "linear-gradient(135deg, #059669 0%, #047857 100%)",
     emoji: "🛍️",
-    showProducts: true // Bu slide'da ürünleri göster
+    showProducts: true,
+    productIndex: 0 // İlk ürünü göster
   },
   {
     id: 2,
@@ -24,7 +25,8 @@ const slides = [
     secondaryBtn: null,
     bgColor: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
     emoji: "📱",
-    showProducts: false
+    showProducts: true,
+    productIndex: 1 // İkinci ürünü göster
   },
   {
     id: 3,
@@ -34,7 +36,8 @@ const slides = [
     secondaryBtn: null,
     bgColor: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
     emoji: "🏠",
-    showProducts: false
+    showProducts: true,
+    productIndex: 2 // Üçüncü ürünü göster
   }
 ];
 
@@ -156,59 +159,165 @@ const HeroSection = ({ styles, isMobile }) => {
             padding: '20px'
           }}>
             {slide.showProducts && products.length > 0 ? (
-              // Ürün grid'i göster
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '10px',
-                width: '100%',
-                height: '100%'
-              }}>
-                {products.slice(0, 3).map((product) => (
-                  <Link 
-                    key={product.id}
-                    to={`/product/${product.slug}`}
+              // Tek premium ürün kartı göster - Her slide kendi ürününü gösterir
+              <Link 
+                to={`/product/${products[slide.productIndex]?.slug}`}
+                style={{
+                  position: 'relative',
+                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                  borderRadius: '24px',
+                  padding: '24px',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: isMobile ? '280px' : '380px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(20px)',
+                  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  cursor: 'pointer',
+                  overflow: 'hidden'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 30px 80px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)';
+                }}
+              >
+                {/* Gradient overlay effect */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #059669, #10b981, #34d399)',
+                  borderRadius: '24px 24px 0 0'
+                }} />
+
+                {/* Ürün resmi */}
+                <div style={{
+                  width: '100%',
+                  height: isMobile ? '200px' : '280px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  marginBottom: '20px',
+                  position: 'relative',
+                  border: '1px solid rgba(0, 0, 0, 0.05)'
+                }}>
+                  <img 
+                    src={products[slide.productIndex]?.image || '/placeholder-product.png'}
+                    alt={products[slide.productIndex]?.name}
                     style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      padding: '8px',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      transition: 'transform 0.2s',
-                      cursor: 'pointer'
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    <img 
-                      src={product.image || '/placeholder-product.png'}
-                      alt={product.name}
-                      style={{
-                        width: '100%',
-                        height: '80px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                        marginBottom: '6px'
-                      }}
-                      onError={(e) => { e.target.src = '/placeholder-product.png'; }}
-                    />
+                    onError={(e) => { e.target.src = '/placeholder-product.png'; }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  />
+                  
+                  {/* İndirim badge */}
+                  {products[slide.productIndex]?.has_deal && (
                     <div style={{
-                      fontSize: '10px',
-                      color: '#059669',
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      padding: '8px 14px',
+                      borderRadius: '12px',
+                      fontSize: '13px',
                       fontWeight: '700',
-                      textAlign: 'center',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      width: '100%'
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
+                      letterSpacing: '0.5px'
                     }}>
-                      ₺{typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price || 0).toFixed(2)}
+                      FIRSAT
                     </div>
-                  </Link>
-                ))}
-              </div>
+                  )}
+                </div>
+
+                {/* Ürün bilgileri */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  {/* Ürün adı */}
+                  <h3 style={{
+                    fontSize: isMobile ? '16px' : '18px',
+                    fontWeight: '700',
+                    color: '#1f2937',
+                    margin: 0,
+                    lineHeight: '1.4',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    minHeight: '44px'
+                  }}>
+                    {products[slide.productIndex]?.name}
+                  </h3>
+
+                  {/* Fiyat */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: '12px',
+                    paddingTop: '8px',
+                    borderTop: '1px solid rgba(0, 0, 0, 0.06)'
+                  }}>
+                    <span style={{
+                      fontSize: isMobile ? '24px' : '28px',
+                      fontWeight: '800',
+                      color: '#059669',
+                      letterSpacing: '-0.5px'
+                    }}>
+                      ₺{typeof products[slide.productIndex]?.price === 'number' 
+                        ? products[slide.productIndex].price.toFixed(2) 
+                        : parseFloat(products[slide.productIndex]?.price || 0).toFixed(2)}
+                    </span>
+                    {products[slide.productIndex]?.original_price && (
+                      <span style={{
+                        fontSize: '14px',
+                        color: '#9ca3af',
+                        textDecoration: 'line-through',
+                        fontWeight: '500'
+                      }}>
+                        ₺{typeof products[slide.productIndex]?.original_price === 'number'
+                          ? products[slide.productIndex].original_price.toFixed(2)
+                          : parseFloat(products[slide.productIndex]?.original_price || 0).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* CTA Button */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '14px 24px',
+                    backgroundColor: '#059669',
+                    color: 'white',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    marginTop: '8px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
+                  }}>
+                    <FaShoppingCart style={{ fontSize: '16px' }} />
+                    <span>Ürünü İncele</span>
+                  </div>
+                </div>
+              </Link>
             ) : (
               <span style={{ fontSize: '120px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))' }}>
                 {slide.emoji}
