@@ -372,7 +372,6 @@ const DealSection = ({ styles, isMobile }) => {
           fontWeight: '700', 
           marginBottom: isMobile ? '16px' : '24px',
           animation: 'slideInLeft 0.5s ease-out, pulse 2s ease-in-out 2s infinite',
-          boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
         }}>
           {currentDeal.badge_text || 'Özel Fırsat'}
         </div>

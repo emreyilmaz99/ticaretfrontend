@@ -47,7 +47,7 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
   },
   
   cardImageHover: {
-    transform: 'scale(1.15) rotate(2deg)',
+    transform: 'scale(1.08)',
     filter: 'brightness(1.05)',
   },
   
@@ -190,7 +190,6 @@ export const getCardStyles = (isMobile, viewMode, isInCompareList = false, isFav
     padding: '5px 10px',
     borderRadius: '8px',
     zIndex: 3,
-    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
     letterSpacing: '0.5px',
     transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
     animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',

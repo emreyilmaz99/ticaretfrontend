@@ -171,6 +171,7 @@ const ProductCard = React.memo(({
           }
         }}
         isMobile={isMobile}
+        isHovered={isHovered}
       />
 
       {/* Product Info */}
