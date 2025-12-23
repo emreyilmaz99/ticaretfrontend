@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaStore, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
+import { getProducts } from '../../../../api/publicApi';
 
 const slides = [
   {
@@ -11,7 +13,8 @@ const slides = [
     primaryBtn: { text: "Alışverişe Başla", link: "/products", icon: <FaShoppingCart /> },
     secondaryBtn: { text: "Satıcı Ol", link: "/vendor/register", icon: <FaStore /> },
     bgColor: "linear-gradient(135deg, #059669 0%, #047857 100%)",
-    emoji: "🛍️"
+    emoji: "🛍️",
+    showProducts: true // Bu slide'da ürünleri göster
   },
   {
     id: 2,
@@ -20,7 +23,8 @@ const slides = [
     primaryBtn: { text: "İncele", link: "/products?category=elektronik", icon: <FaShoppingCart /> },
     secondaryBtn: null,
     bgColor: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-    emoji: "📱"
+    emoji: "📱",
+    showProducts: false
   },
   {
     id: 3,
@@ -29,7 +33,8 @@ const slides = [
     primaryBtn: { text: "Keşfet", link: "/products?category=ev-yasam", icon: <FaShoppingCart /> },
     secondaryBtn: null,
     bgColor: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
-    emoji: "🏠"
+    emoji: "🏠",
+    showProducts: false
   }
 ];
 
@@ -41,6 +46,19 @@ const HeroSection = ({ styles, isMobile }) => {
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   const timeoutRef = useRef(null);
+
+  // Fetch featured products for display
+  const { data: featuredProducts } = useQuery({
+    queryKey: ['hero-products'],
+    queryFn: () => getProducts({ 
+      per_page: 3, 
+      sort_by: 'featured',
+      has_deal: true
+    }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const products = featuredProducts?.data || [];
 
   const resetTimeout = () => {
     if (timeoutRef.current) {
@@ -122,7 +140,7 @@ const HeroSection = ({ styles, isMobile }) => {
           </div>
         </div>
         
-        {/* Hero Image - Hidden on mobile */}
+        {/* Hero Image - Show products on first slide, emoji on others */}
         {!isMobile && (
           <div style={{ 
             width: '400px', 
@@ -132,11 +150,70 @@ const HeroSection = ({ styles, isMobile }) => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            animation: 'float 6s ease-in-out infinite'
+            animation: 'float 6s ease-in-out infinite',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '20px'
           }}>
-            <span style={{ fontSize: '120px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))' }}>
-              {slide.emoji}
-            </span>
+            {slide.showProducts && products.length > 0 ? (
+              // Ürün grid'i göster
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '10px',
+                width: '100%',
+                height: '100%'
+              }}>
+                {products.slice(0, 3).map((product) => (
+                  <Link 
+                    key={product.id}
+                    to={`/product/${product.slug}`}
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '12px',
+                      padding: '8px',
+                      textDecoration: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      transition: 'transform 0.2s',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <img 
+                      src={product.image || '/placeholder-product.png'}
+                      alt={product.name}
+                      style={{
+                        width: '100%',
+                        height: '80px',
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        marginBottom: '6px'
+                      }}
+                      onError={(e) => { e.target.src = '/placeholder-product.png'; }}
+                    />
+                    <div style={{
+                      fontSize: '10px',
+                      color: '#059669',
+                      fontWeight: '700',
+                      textAlign: 'center',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '100%'
+                    }}>
+                      ₺{typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price || 0).toFixed(2)}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <span style={{ fontSize: '120px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))' }}>
+                {slide.emoji}
+              </span>
+            )}
           </div>
         )}
       </div>
