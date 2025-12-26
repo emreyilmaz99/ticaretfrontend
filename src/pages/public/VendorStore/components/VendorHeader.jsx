@@ -2,11 +2,16 @@
 import React, { useState } from 'react';
 import { FaStar, FaStore, FaBoxOpen, FaUserPlus, FaCheck, FaShareAlt, FaInfoCircle, FaTimes, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt, FaCopy, FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 
-const VendorHeader = ({ vendor, stats, isMobile }) => {
+const VendorHeader = ({ vendor, stats, reviewSummary, isMobile }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+
+  // Use calculated review summary rating if available, fallback to vendor.rating_avg
+  const displayRating = reviewSummary?.average_rating 
+    ? parseFloat(reviewSummary.average_rating).toFixed(1)
+    : (vendor.rating_avg?.toFixed(1) || '0.0');
 
   const getLogoUrl = () => {
     if (vendor.logo_path) {
@@ -107,7 +112,7 @@ const VendorHeader = ({ vendor, stats, isMobile }) => {
                   <div style={styles.statItem}>
                     <div style={styles.ratingBadge}>
                       <FaStar style={styles.ratingIcon} />
-                      <span style={styles.ratingValue}>{vendor.rating_avg?.toFixed(1) || '0.0'}</span>
+                      <span style={styles.ratingValue}>{displayRating}</span>
                     </div>
                     <span style={styles.statLabel}>Puan</span>
                   </div>
@@ -231,7 +236,7 @@ const VendorHeader = ({ vendor, stats, isMobile }) => {
                   <h4 style={styles.modalVendorName}>{vendor.company_name || vendor.name}</h4>
                   <div style={styles.modalRating}>
                     <FaStar style={{ color: '#f59e0b' }} />
-                    <span>{vendor.rating_avg?.toFixed(1) || '0.0'}</span>
+                    <span>{displayRating}</span>
                     <span style={{ color: '#94a3b8' }}>({vendor.review_count || 0} değerlendirme)</span>
                   </div>
                 </div>
@@ -271,7 +276,7 @@ const VendorHeader = ({ vendor, stats, isMobile }) => {
                   <span style={styles.modalStatLabel}>Takipçi</span>
                 </div>
                 <div style={styles.modalStatItem}>
-                  <span style={styles.modalStatValue}>{vendor.rating_avg?.toFixed(1) || '0.0'}</span>
+                  <span style={styles.modalStatValue}>{displayRating}</span>
                   <span style={styles.modalStatLabel}>Puan</span>
                 </div>
               </div>

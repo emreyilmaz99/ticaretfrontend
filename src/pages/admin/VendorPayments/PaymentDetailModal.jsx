@@ -5,8 +5,8 @@ import {
   FaPercentage, FaShoppingCart, FaInfoCircle, FaCheck
 } from 'react-icons/fa';
 
-const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }) => {
-  if (!isOpen || !payment) return null;
+const PaymentDetailModal = ({ payout, isOpen, onClose, onApprove, onReject, onMarkAsProcessed, isMobile }) => {
+  if (!isOpen || !payout) return null;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('tr-TR', { 
@@ -16,10 +16,13 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('tr-TR', {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -244,14 +247,16 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
 
   const getStatusConfig = (status) => {
     const configs = {
-      pending: { text: 'Ödeme Bekliyor', color: '#f59e0b', bg: '#fef3c7' },
-      paid: { text: 'Ödendi', color: '#059669', bg: '#d1fae5' },
-      cancelled: { text: 'İptal Edildi', color: '#dc2626', bg: '#fee2e2' },
+      pending: { text: 'Beklemede', color: '#f59e0b', bg: '#fef3c7' },
+      approved: { text: 'Onaylandı', color: '#3b82f6', bg: '#dbeafe' },
+      rejected: { text: 'Reddedildi', color: '#dc2626', bg: '#fee2e2' },
+      processed: { text: 'İşlendi', color: '#059669', bg: '#d1fae5' },
     };
     return configs[status] || configs.pending;
   };
 
-  const statusConfig = getStatusConfig(payment.status);
+  const statusConfig = getStatusConfig(payout.status);
+  const netAmount = parseFloat(payout.amount) - parseFloat(payout.fee);
 
   return (
     <div style={styles.overlay} onClick={onClose}>
@@ -262,7 +267,7 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
               <FaReceipt size={24} color="#059669" />
               Hakediş Detayları
             </h2>
-            <p style={styles.subtitle}>ID: #{payment.id}</p>
+            <p style={styles.subtitle}>ID: #{payout.id} • Referans: {payout.reference || '-'}</p>
           </div>
           <button style={styles.closeBtn} onClick={onClose}>
             <FaTimes size={16} />
@@ -279,36 +284,35 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
             <div style={styles.infoGrid}>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Mağaza Adı</div>
-                <div style={styles.infoValue}>{payment.vendor_name}</div>
+                <div style={styles.infoValue}>{payout.vendor?.name || '-'}</div>
               </div>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>E-posta</div>
-                <div style={styles.infoValue}>{payment.vendor_email}</div>
+                <div style={styles.infoValue}>{payout.vendor?.email || '-'}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Şirket Adı</div>
+                <div style={styles.infoValue}>{payout.vendor?.company_name || '-'}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Telefon</div>
+                <div style={styles.infoValue}>{payout.vendor?.phone || '-'}</div>
               </div>
             </div>
           </div>
 
-          {/* Period Info */}
+          {/* Payment Info */}
           <div style={styles.section}>
             <div style={styles.sectionTitle}>
               <FaCalendar size={14} />
-              Dönem Bilgileri
+              Hakediş Bilgileri
             </div>
             <div style={styles.infoGrid}>
               <div style={styles.infoItem}>
-                <div style={styles.infoLabel}>Başlangıç</div>
-                <div style={styles.infoValue}>{formatDate(payment.period_start)}</div>
-              </div>
-              <div style={styles.infoItem}>
-                <div style={styles.infoLabel}>Bitiş</div>
-                <div style={styles.infoValue}>{formatDate(payment.period_end)}</div>
-              </div>
-              <div style={styles.infoItem}>
-                <div style={styles.infoLabel}>
-                  <FaShoppingCart size={12} />
-                  Sipariş Sayısı
+                <div style={styles.infoLabel}>Ödeme Yöntemi</div>
+                <div style={styles.infoValue}>
+                  {payout.method === 'bank_transfer' ? 'Banka Transferi' : payout.method}
                 </div>
-                <div style={styles.infoValue}>{payment.order_count} adet</div>
               </div>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>Durum</div>
@@ -322,6 +326,14 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
                   {statusConfig.text}
                 </span>
               </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Oluşturulma Tarihi</div>
+                <div style={styles.infoValue}>{formatDate(payout.created_at)}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>İşlenme Tarihi</div>
+                <div style={styles.infoValue}>{formatDate(payout.processed_at)}</div>
+              </div>
             </div>
           </div>
 
@@ -333,57 +345,81 @@ const PaymentDetailModal = ({ payment, isOpen, onClose, onMarkAsPaid, isMobile }
             </div>
             <div style={styles.breakdown}>
               <div style={styles.breakdownRow}>
-                <div style={styles.breakdownLabel}>Toplam Satış Tutarı</div>
-                <div style={styles.breakdownValue}>{formatCurrency(payment.total_sales)}</div>
+                <div style={styles.breakdownLabel}>Toplam Tutar</div>
+                <div style={styles.breakdownValue}>{formatCurrency(payout.amount)}</div>
               </div>
               <div style={styles.breakdownRow}>
                 <div style={styles.breakdownLabel}>
-                  Komisyon Kesintisi ({payment.commission_rate}%)
+                  Komisyon Kesintisi
                 </div>
                 <div style={{ ...styles.breakdownValue, color: '#dc2626' }}>
-                  -{formatCurrency(payment.commission_amount)}
+                  -{formatCurrency(payout.fee)}
                 </div>
               </div>
               <div style={styles.totalRow}>
                 <div style={styles.totalLabel}>Net Kazanç (Ödenecek Tutar)</div>
-                <div style={styles.totalValue}>{formatCurrency(payment.net_amount)}</div>
+                <div style={styles.totalValue}>{formatCurrency(netAmount)}</div>
               </div>
             </div>
           </div>
 
-          {/* Additional Info */}
-          {payment.notes && (
-            <div style={styles.section}>
-              <div style={styles.sectionTitle}>
-                <FaInfoCircle size={14} />
-                Notlar
+          {/* Vendor Balance Info */}
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>
+              <FaInfoCircle size={14} />
+              Satıcı Bakiye Bilgisi
+            </div>
+            <div style={styles.infoGrid}>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Mevcut Bakiye</div>
+                <div style={styles.infoValue}>{formatCurrency(payout.vendor?.balance || 0)}</div>
               </div>
-              <div style={{
-                ...styles.infoItem,
-                gridColumn: '1 / -1',
-              }}>
-                <p style={{ margin: 0, fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-                  {payment.notes}
-                </p>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Komisyon Planı</div>
+                <div style={styles.infoValue}>Plan #{payout.vendor?.commission_plan_id || '-'}</div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         <div style={styles.footer}>
           <button style={styles.cancelBtn} onClick={onClose}>
             Kapat
           </button>
-          {payment.status === 'pending' && (
+          {payout.status === 'pending' && (
+            <>
+              <button 
+                style={{ ...styles.confirmBtn, backgroundColor: '#dc2626' }}
+                onClick={() => {
+                  onReject(payout.id);
+                  onClose();
+                }}
+              >
+                <FaTimes size={16} />
+                Reddet
+              </button>
+              <button 
+                style={styles.confirmBtn}
+                onClick={() => {
+                  onApprove(payout.id);
+                  onClose();
+                }}
+              >
+                <FaCheck size={16} />
+                Onayla
+              </button>
+            </>
+          )}
+          {payout.status === 'approved' && (
             <button 
-              style={styles.confirmBtn}
+              style={{ ...styles.confirmBtn, backgroundColor: '#3b82f6' }}
               onClick={() => {
-                onMarkAsPaid(payment.id);
+                onMarkAsProcessed(payout.id);
                 onClose();
               }}
             >
               <FaCheck size={16} />
-              Ödendi İşaretle
+              İşlendi Olarak İşaretle
             </button>
           )}
         </div>

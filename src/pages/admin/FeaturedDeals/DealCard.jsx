@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaEye, FaMousePointer, FaShoppingCart, FaClock, FaImage, FaFire } from 'react-icons/fa';
-
-const BACKEND_URL = 'http://127.0.0.1:8000';
+import { getProductImageURL } from '../../../utils/imageUtils';
 
 const DealCard = ({ deal, onEdit, onDelete, onToggle, isDeleting, isToggling }) => {
   const [hoveredBtn, setHoveredBtn] = useState(null);
@@ -85,31 +84,8 @@ const DealCard = ({ deal, onEdit, onDelete, onToggle, isDeleting, isToggling }) 
     });
   };
 
-  // Get product image URL - check multiple possible paths
-  const getImageUrl = () => {
-    let url = null;
-    
-    if (deal.product?.photos?.[0]?.url) {
-      url = deal.product.photos[0].url;
-    } else if (deal.product?.photos?.[0]?.file_path) {
-      url = deal.product.photos[0].file_path;
-    } else if (deal.product?.main_image) {
-      url = deal.product.main_image;
-    } else if (deal.product?.image) {
-      url = deal.product.image;
-    } else if (deal.product?.images?.[0]) {
-      url = deal.product.images[0];
-    }
-    
-    // If URL exists and doesn't start with http, add backend URL
-    if (url && !url.startsWith('http')) {
-      return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-    }
-    
-    return url;
-  };
-
-  const imageUrl = getImageUrl();
+  // Get product image URL
+  const imageUrl = getProductImageURL(deal.product);
 
   return (
     <div 

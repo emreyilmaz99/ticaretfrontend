@@ -108,7 +108,7 @@ const VendorHomePage = ({ vendor, stats, products, onAddToCart, isMobile, setAct
           <div style={styles.sectionHeader}>
             <div style={styles.sectionTitleWrapper}>
               <FaFireAlt style={styles.sectionIcon} />
-              <h2 style={styles.sectionTitle}>Öne Çıkan Ürünler</h2>
+              <h2 style={styles.sectionTitle}>Tüm Ürünler</h2>
             </div>
             <button 
               style={styles.viewAllLink} 
@@ -119,7 +119,8 @@ const VendorHomePage = ({ vendor, stats, products, onAddToCart, isMobile, setAct
           </div>
           <div style={styles.productsGrid}>
             {featuredProducts.map(product => (
-              <ProductCard 
+              <ProductCard
+                key={product.id} 
                 key={product.id} 
                 product={product} 
                 onAddToCart={onAddToCart}
@@ -146,7 +147,8 @@ const VendorHomePage = ({ vendor, stats, products, onAddToCart, isMobile, setAct
           </div>
           <div style={styles.productsGrid}>
             {discountedProducts.map(product => (
-              <ProductCard 
+              <ProductCard
+                key={product.id} 
                 key={product.id} 
                 product={product} 
                 onAddToCart={onAddToCart}

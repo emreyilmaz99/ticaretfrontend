@@ -8,14 +8,14 @@ import apiClient from '@/lib/apiClient';
 
 /**
  * Request Payout - Çekim talebi oluştur
- * POST /api/v1/vendor/payouts/request
+ * POST /api/v1/vendor/payouts
  * @param {Object} data - Payout request data
  * @param {number} data.amount - Amount (min: 100, max: 50000)
  * @param {string} data.method - Payment method (optional)
  * @param {string} data.reference - Reference note (optional)
  */
 export const requestPayout = async (data) => {
-  const response = await apiClient.post('/v1/vendor/payouts/request', data);
+  const response = await apiClient.post('/v1/vendor/payouts', data);
   return response.data;
 };
 

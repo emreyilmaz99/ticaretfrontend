@@ -3,12 +3,21 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../lib/apiClient';
 import { useToast } from '../../../components/common/Toast';
+import { 
+  getPayouts, 
+  updatePayoutStatus,
+  approvePayout,
+  rejectPayout,
+  markPayoutAsProcessed 
+} from '../../../features/admin/api/vendorPayoutsApi';
 
 export const useVendorPayments = () => {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  // Filters
+  // State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateRange, setDateRange] = useState({
@@ -17,73 +26,114 @@ export const useVendorPayments = () => {
   });
   const [selectedVendor, setSelectedVendor] = useState(null);
 
-  // Fetch payments
-  const { data: paymentsData, isLoading } = useQuery({
-    queryKey: ['vendor-payments', statusFilter, dateRange],
+  // Fetch payouts with new API
+  const { data: payoutsResponse, isLoading, error } = useQuery({
+    queryKey: ['vendor-payouts', currentPage, perPage, statusFilter],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
-      }
-      if (dateRange.start) {
-        params.append('start_date', dateRange.start);
-      }
-      if (dateRange.end) {
-        params.append('end_date', dateRange.end);
-      }
-
-      const response = await apiClient.get(`/v1/admin/vendor-payments?${params.toString()}`);
-      return response.data;
+      const response = await getPayouts({ 
+        page: currentPage, 
+        per_page: perPage 
+      });
+      return response;
     },
     keepPreviousData: true,
   });
 
-  // Fetch stats
-  const { data: statsData } = useQuery({
-    queryKey: ['vendor-payments-stats'],
-    queryFn: async () => {
-      const response = await apiClient.get('/v1/admin/vendor-payments/stats');
-      return response.data;
-    },
-  });
-
-  // Mark as paid mutation
-  const markAsPaidMutation = useMutation({
-    mutationFn: async (paymentId) => {
-      const response = await apiClient.post(`/v1/admin/vendor-payments/${paymentId}/mark-paid`);
-      return response.data;
+  // Approve payout mutation
+  const approveMutation = useMutation({
+    mutationFn: async (payoutId) => {
+      return await approvePayout(payoutId);
     },
     onSuccess: () => {
-      toast.success('Başarılı', 'Ödeme başarıyla işaretlendi.');
-      queryClient.invalidateQueries(['vendor-payments']);
-      queryClient.invalidateQueries(['vendor-payments-stats']);
+      toast.success('Başarılı', 'Hakediş onaylandı.');
+      queryClient.invalidateQueries(['vendor-payouts']);
     },
     onError: (error) => {
-      toast.error('Hata', error?.response?.data?.message || 'Ödeme işaretlenirken hata oluştu.');
+      toast.error('Hata', error?.response?.data?.message || 'Onaylama işlemi başarısız oldu.');
     },
   });
 
-  // Filter payments by search term
-  const payments = useMemo(() => {
-    const allPayments = paymentsData?.data || [];
+  // Reject payout mutation
+  const rejectMutation = useMutation({
+    mutationFn: async (payoutId) => {
+      return await rejectPayout(payoutId);
+    },
+    onSuccess: () => {
+      toast.success('Başarılı', 'Hakediş reddedildi.');
+      queryClient.invalidateQueries(['vendor-payouts']);
+    },
+    onError: (error) => {
+      toast.error('Hata', error?.response?.data?.message || 'Reddetme işlemi başarısız oldu.');
+    },
+  });
+
+  // Mark as processed mutation
+  const markAsProcessedMutation = useMutation({
+    mutationFn: async (payoutId) => {
+      return await markPayoutAsProcessed(payoutId);
+    },
+    onSuccess: () => {
+      toast.success('Başarılı', 'Hakediş işlendi olarak işaretlendi.');
+      queryClient.invalidateQueries(['vendor-payouts']);
+    },
+    onError: (error) => {
+      toast.error('Hata', error?.response?.data?.message || 'İşleme başarısız oldu.');
+    },
+  });
+
+  // Get raw payouts data
+  const rawPayouts = payoutsResponse?.data || [];
+
+  // Filter payouts by search term and status
+  const payouts = useMemo(() => {
+    let filtered = [...rawPayouts];
     
-    if (!searchTerm) return allPayments;
+    // Status filter
+    if (statusFilter && statusFilter !== 'all') {
+      filtered = filtered.filter(payout => payout.status === statusFilter);
+    }
 
-    const lowerSearch = searchTerm.toLowerCase();
-    return allPayments.filter(payment => 
-      payment.vendor_name?.toLowerCase().includes(lowerSearch) ||
-      payment.vendor_email?.toLowerCase().includes(lowerSearch)
-    );
-  }, [paymentsData, searchTerm]);
+    // Search filter
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(payout => 
+        payout.vendor?.name?.toLowerCase().includes(lowerSearch) ||
+        payout.vendor?.email?.toLowerCase().includes(lowerSearch) ||
+        payout.vendor?.company_name?.toLowerCase().includes(lowerSearch) ||
+        payout.reference?.toLowerCase().includes(lowerSearch)
+      );
+    }
 
-  const stats = statsData?.data || {
-    total_pending_amount: 0,
-    total_paid_amount: 0,
-    total_vendors: 0,
-    pending_payments_count: 0,
-    total_commission: 0,
+    return filtered;
+  }, [rawPayouts, searchTerm, statusFilter]);
+
+  const pagination = payoutsResponse?.meta || {
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0
   };
+
+  // Calculate stats from payouts
+  const stats = useMemo(() => {
+    const allPayouts = payoutsResponse?.data || [];
+    
+    return {
+      total_pending_amount: allPayouts
+        .filter(p => p.status === 'pending')
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0),
+      total_approved_amount: allPayouts
+        .filter(p => p.status === 'approved')
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0),
+      total_processed_amount: allPayouts
+        .filter(p => p.status === 'processed')
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0),
+      pending_count: allPayouts.filter(p => p.status === 'pending').length,
+      approved_count: allPayouts.filter(p => p.status === 'approved').length,
+      processed_count: allPayouts.filter(p => p.status === 'processed').length,
+      total_commission: allPayouts.reduce((sum, p) => sum + parseFloat(p.fee || 0), 0),
+    };
+  }, [payoutsResponse]);
 
   // Export to Excel
   const handleExportExcel = async () => {
@@ -92,29 +142,31 @@ export const useVendorPayments = () => {
       
       // Prepare CSV data
       const headers = [
+        'ID',
         'Satıcı Adı',
         'E-posta',
-        'Dönem Başlangıç',
-        'Dönem Bitiş',
-        'Toplam Satış',
-        'Komisyon Oranı',
-        'Komisyon Tutarı',
-        'Net Kazanç',
-        'Sipariş Sayısı',
+        'Tutar',
+        'Komisyon',
+        'Ödeme Yöntemi',
         'Durum',
+        'Referans',
+        'Oluşturma Tarihi',
+        'İşlenme Tarihi',
       ];
 
-      const rows = payments.map(p => [
-        p.vendor_name,
-        p.vendor_email,
-        new Date(p.period_start).toLocaleDateString('tr-TR'),
-        new Date(p.period_end).toLocaleDateString('tr-TR'),
-        p.total_sales,
-        `%${p.commission_rate}`,
-        p.commission_amount,
-        p.net_amount,
-        p.order_count,
-        p.status === 'pending' ? 'Beklemede' : p.status === 'paid' ? 'Ödendi' : 'İptal',
+      const rows = payouts.map(p => [
+        p.id,
+        p.vendor?.name || '-',
+        p.vendor?.email || '-',
+        p.amount,
+        p.fee,
+        p.method || 'bank_transfer',
+        p.status === 'pending' ? 'Beklemede' : 
+          p.status === 'approved' ? 'Onaylandı' :
+          p.status === 'rejected' ? 'Reddedildi' : 'İşlendi',
+        p.reference || '-',
+        new Date(p.created_at).toLocaleDateString('tr-TR'),
+        p.processed_at ? new Date(p.processed_at).toLocaleDateString('tr-TR') : '-',
       ]);
 
       const csvContent = [
@@ -212,43 +264,38 @@ export const useVendorPayments = () => {
             hour: '2-digit',
             minute: '2-digit'
           })}<br>
-          <strong>Toplam Kayıt:</strong> ${payments.length}
+          <strong>Toplam Kayıt:</strong> ${payouts.length}
         </div>
         <table>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Satıcı</th>
-              <th>Dönem</th>
-              <th>Toplam Satış</th>
+              <th>Tutar</th>
               <th>Komisyon</th>
-              <th>Net Kazanç</th>
               <th>Durum</th>
+              <th>Tarih</th>
             </tr>
           </thead>
           <tbody>
-            ${payments.map(p => `
+            ${payouts.map(p => `
               <tr>
+                <td>${p.id}</td>
                 <td>
-                  <strong>${p.vendor_name}</strong><br>
-                  <small>${p.vendor_email}</small>
+                  <strong>${p.vendor?.name || '-'}</strong><br>
+                  <small>${p.vendor?.email || '-'}</small>
                 </td>
-                <td>
-                  ${new Date(p.period_start).toLocaleDateString('tr-TR')}<br>
-                  ${new Date(p.period_end).toLocaleDateString('tr-TR')}
-                </td>
-                <td>${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(p.total_sales)}</td>
-                <td>
-                  ${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(p.commission_amount)}<br>
-                  <small>(%${p.commission_rate})</small>
-                </td>
-                <td><strong>${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(p.net_amount)}</strong></td>
-                <td>${p.status === 'pending' ? 'Beklemede' : p.status === 'paid' ? 'Ödendi' : 'İptal'}</td>
+                <td>₺${parseFloat(p.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                <td>₺${parseFloat(p.fee).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                <td>${p.status === 'pending' ? 'Beklemede' : p.status === 'approved' ? 'Onaylandı' : p.status === 'rejected' ? 'Reddedildi' : 'İşlendi'}</td>
+                <td>${new Date(p.created_at).toLocaleDateString('tr-TR')}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
         <div class="footer">
-          Bu rapor otomatik olarak oluşturulmuştur.
+          <p>Bu rapor otomatik olarak oluşturulmuştur.</p>
+          <p>&copy; ${new Date().getFullYear()} E-Ticaret Platformu - Tüm hakları saklıdır.</p>
         </div>
       </body>
       </html>
@@ -265,9 +312,15 @@ export const useVendorPayments = () => {
   };
 
   return {
-    payments,
+    payouts,
     stats,
+    pagination,
+    currentPage,
+    setCurrentPage,
+    perPage,
+    setPerPage,
     isLoading,
+    error,
     searchTerm,
     setSearchTerm,
     statusFilter,
@@ -278,6 +331,11 @@ export const useVendorPayments = () => {
     setSelectedVendor,
     handleExportExcel,
     handlePrint,
-    markAsPaid: (id) => markAsPaidMutation.mutate(id),
+    approvePayout: (id) => approveMutation.mutate(id),
+    rejectPayout: (id) => rejectMutation.mutate(id),
+    markAsProcessed: (id) => markAsProcessedMutation.mutate(id),
+    isApproving: approveMutation.isLoading,
+    isRejecting: rejectMutation.isLoading,
+    isProcessing: markAsProcessedMutation.isLoading,
   };
 };

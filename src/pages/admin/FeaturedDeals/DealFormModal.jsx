@@ -1,34 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaImage, FaPercentage, FaTag, FaCalendarAlt, FaPalette, FaExclamationTriangle } from 'react-icons/fa';
 import ProductSelectorDrawer from './components/ProductSelectorDrawer';
-
-const BACKEND_URL = 'http://127.0.0.1:8000';
-
-// Helper function to get full image URL
-const getImageUrl = (product) => {
-  if (!product) return null;
-  
-  let url = null;
-  
-  if (product.photos?.[0]?.url) {
-    url = product.photos[0].url;
-  } else if (product.photos?.[0]?.file_path) {
-    url = product.photos[0].file_path;
-  } else if (product.main_image) {
-    url = product.main_image;
-  } else if (product.image) {
-    url = product.image;
-  } else if (product.images?.[0]) {
-    url = product.images[0];
-  }
-  
-  // If URL exists and doesn't start with http, add backend URL
-  if (url && !url.startsWith('http')) {
-    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-  }
-  
-  return url;
-};
+import { getProductImageURL } from '../../../utils/imageUtils';
 
 const DealFormModal = ({ 
   isOpen, 
@@ -331,8 +304,8 @@ const DealFormModal = ({
             >
               {selectedProduct ? (
                 <div style={modalStyles.selectedProduct}>
-                  {getImageUrl(selectedProduct) ? (
-                    <img src={getImageUrl(selectedProduct)} alt="" style={modalStyles.productThumb} />
+                  {getProductImageURL(selectedProduct) ? (
+                    <img src={getProductImageURL(selectedProduct)} alt="" style={modalStyles.productThumb} />
                   ) : (
                     <div style={modalStyles.productThumbPlaceholder}>
                       <FaImage color="#9ca3af" />
@@ -700,9 +673,9 @@ const DealFormModal = ({
 
                   {/* Right - Product Image */}
                   <div style={modalStyles.carouselRight}>
-                    {getImageUrl(selectedProduct) ? (
+                    {getProductImageURL(selectedProduct) ? (
                       <img 
-                        src={getImageUrl(selectedProduct)} 
+                        src={getProductImageURL(selectedProduct)} 
                         alt={selectedProduct.name}
                         style={{
                           width: '90px',

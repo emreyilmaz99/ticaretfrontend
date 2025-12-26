@@ -67,6 +67,7 @@ export const useVendorStore = () => {
     queryKey: ['vendor', slug],
     queryFn: async () => {
       const response = await apiClient.get(`/v1/vendors/${slug}`);
+      console.log('🏪 Vendor Data:', response.data.data);
       return response.data.data;
     },
     enabled: !!slug,
@@ -105,7 +106,7 @@ export const useVendorStore = () => {
     isFetchingNextPage,
     isLoading: productsLoading,
   } = useInfiniteQuery({
-    queryKey: ['vendorProducts', slug, selectedCategory, sortBy, debouncedPriceRange, debouncedSearchQuery],
+    queryKey: ['vendorProducts', slug, activeTab, selectedCategory, sortBy, debouncedPriceRange, debouncedSearchQuery],
     queryFn: async ({ pageParam = 1 }) => {
       const params = new URLSearchParams({
         page: pageParam,
@@ -125,13 +126,21 @@ export const useVendorStore = () => {
       return response.data;
     },
     getNextPageParam: (lastPage) => {
-      const { current_page, last_page } = lastPage.meta || {};
+      const { current_page, last_page } = lastPage.data?.meta || {};
       return current_page < last_page ? current_page + 1 : undefined;
     },
-    enabled: !!slug && (activeTab === 'products' || activeTab === 'deals'),
+    enabled: !!slug && (activeTab === 'home' || activeTab === 'products' || activeTab === 'deals'),
   });
 
-  const products = productsData?.pages.flatMap(page => page.data || []) || [];
+  // Get products and filter deals if needed
+  let products = productsData?.pages.flatMap(page => page.data?.data || []) || [];
+  
+  // Frontend filter for deals tab (backend may not filter correctly)
+  if (activeTab === 'deals') {
+    products = products.filter(product => 
+      product.original_price && parseFloat(product.original_price) > parseFloat(product.price)
+    );
+  }
 
   // Fetch vendor reviews
   const { data: reviewsData, isLoading: reviewsLoading } = useQuery({
@@ -149,12 +158,44 @@ export const useVendorStore = () => {
     enabled: !!slug && activeTab === 'reviews',
   });
 
-  const reviews = reviewsData?.data || [];
-  const reviewSummary = reviewsData?.summary || {
-    average_rating: 0,
-    total_reviews: 0,
-    rating_distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  const reviews = reviewsData?.data?.data || [];
+  
+  // Calculate summary from reviews if backend doesn't provide it
+  const calculateSummary = (reviewsList) => {
+    if (!reviewsList || reviewsList.length === 0) {
+      return {
+        average_rating: 0,
+        total_reviews: 0,
+        rating_distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+      };
+    }
+
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalRating = 0;
+
+    reviewsList.forEach(review => {
+      const rating = review.rating || 0;
+      if (rating >= 1 && rating <= 5) {
+        distribution[rating]++;
+        totalRating += rating;
+      }
+    });
+
+    return {
+      average_rating: reviewsList.length > 0 ? totalRating / reviewsList.length : 0,
+      total_reviews: reviewsList.length,
+      rating_distribution: distribution
+    };
   };
+
+  const backendSummary = reviewsData?.data?.summary;
+  const calculatedSummary = calculateSummary(reviews);
+  
+  // Use backend summary if it has data, otherwise use calculated
+  const reviewSummary = (backendSummary && backendSummary.total_reviews > 0) 
+    ? backendSummary 
+    : calculatedSummary;
+
   // Map rating_distribution to distribution for component compatibility
   const formattedReviewSummary = {
     ...reviewSummary,

@@ -92,9 +92,9 @@ const ProductImage = React.memo(({ product, productUrl, styles, isMobile, isHove
             gap: '4px',
             zIndex: 5,
           }}>
-            {productImages.map((_, index) => (
+            {productImages.map((img, index) => (
               <div
-                key={index}
+                key={`image-indicator-${index}-${img}`}
                 style={{
                   width: currentImageIndex === index ? '16px' : '6px',
                   height: '6px',

@@ -17,6 +17,7 @@ const VendorNav = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, isMob
         <div style={styles.tabs}>
           {tabs.map(tab => (
             <button
+              key={tab.id}
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               style={{

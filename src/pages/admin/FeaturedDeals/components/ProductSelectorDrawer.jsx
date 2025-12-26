@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaTimes, FaSearch, FaCheck } from 'react-icons/fa';
 import apiClient from '@lib/apiClient';
-
-const BACKEND_URL = 'http://127.0.0.1:8000';
+import { getProductImageURL } from '../../../../utils/imageUtils';
 
 export default function ProductSelectorDrawer({ isOpen, onClose, onSelect }) {
   const [allProducts, setAllProducts] = useState([]);
@@ -253,7 +252,7 @@ export default function ProductSelectorDrawer({ isOpen, onClose, onSelect }) {
                     }}>
                       {product.photos && product.photos[0] ? (
                         <img
-                          src={product.photos[0].url.startsWith('http') ? product.photos[0].url : `${BACKEND_URL}${product.photos[0].url}`}
+                          src={getProductImageURL(product)}
                           alt={product.name}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />

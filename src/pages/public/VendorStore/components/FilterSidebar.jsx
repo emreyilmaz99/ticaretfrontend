@@ -158,7 +158,8 @@ const FilterContent = ({
               Kategoriler yükleniyor...
             </div>
           ) : categories.map(category => (
-            <label key={category.id} style={styles.categoryItem}>
+            <label
+              key={category.id} key={category.id} style={styles.categoryItem}>
               <input
                 type="radio"
                 checked={selectedCategory === category.id}

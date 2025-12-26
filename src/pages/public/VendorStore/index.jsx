@@ -71,6 +71,7 @@ const VendorStore = () => {
       <VendorHeader 
         vendor={vendor} 
         stats={stats} 
+        reviewSummary={reviewSummary}
         isMobile={isMobile}
       />
 

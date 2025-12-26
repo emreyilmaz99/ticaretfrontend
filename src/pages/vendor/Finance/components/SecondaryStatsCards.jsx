@@ -15,7 +15,9 @@ const SecondaryStatsCards = ({ walletData, styles }) => {
         </div>
         <p style={styles.statLabel}>Bekleyen Ödeme</p>
         <h3 style={styles.statValue}>{walletData.pendingAmount}</h3>
-        <p style={styles.statDescription}>{walletData.pendingDate}</p>
+        {walletData.pendingDate && (
+          <p style={styles.statDescription}>{walletData.pendingDate}</p>
+        )}
       </div>
 
       {/* Toplam Ödenen */}
@@ -25,9 +27,11 @@ const SecondaryStatsCards = ({ walletData, styles }) => {
         </div>
         <p style={styles.statLabel}>Toplam Ödenen</p>
         <h3 style={styles.statValue}>{walletData.totalPaid}</h3>
-        <p style={styles.statTrend}>
-          <FaArrowUp size={10} /> Geçen aya göre {walletData.growthPercent}
-        </p>
+        {walletData.growthPercent && (
+          <p style={styles.statTrend}>
+            <FaArrowUp size={10} /> Geçen aya göre {walletData.growthPercent}
+          </p>
+        )}
       </div>
     </>
   );
@@ -38,7 +42,7 @@ SecondaryStatsCards.propTypes = {
     pendingAmount: PropTypes.string.isRequired,
     pendingDate: PropTypes.string.isRequired,
     totalPaid: PropTypes.string.isRequired,
-    growthPercent: PropTypes.string.isRequired,
+    growthPercent: PropTypes.string,
   }).isRequired,
   styles: PropTypes.object.isRequired,
 };

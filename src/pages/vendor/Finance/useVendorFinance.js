@@ -122,27 +122,27 @@ export const useVendorFinance = () => {
         pendingAmount: '₺0,00',
         pendingDate: '-',
         totalPaid: '₺0,00',
-        growthPercent: '+%0',
+        growthPercent: null,
       };
     }
 
     const stats = dashboardData.data;
     
-    // Pending date hesaplama (7 gün settlement period)
-    const hasPending = (stats.pending_balance || stats.pending_earnings || 0) > 0;
-    const pendingDate = hasPending ? '7 gün içinde çekilebilir olacak' : '-';
+    // Pending date - Backend'den gelen bilgiyi kullan veya boş bırak
+    const pendingDate = stats.pending_settlement_date || stats.next_settlement_date || '';
 
     // Field adları: available_balance veya available_earnings olabilir
-    const availableBalance = stats.available_balance ?? stats.available_earnings ?? 0;
-    const pendingAmount = stats.pending_balance ?? stats.pending_earnings ?? 0;
-    const totalPaid = stats.total_withdrawn ?? stats.total_paid ?? 0;
+    const availableBalance = parseFloat(stats.available_balance ?? stats.available_earnings ?? 0);
+    const pendingAmount = parseFloat(stats.pending_balance ?? stats.pending_earnings ?? 0);
+    const totalPaid = parseFloat(stats.total_withdrawn ?? stats.total_paid ?? 0);
+    const growthPercent = stats.growth_percent ?? stats.growth_percentage ?? null;
 
     return {
       availableBalance: formatCurrency(availableBalance),
       pendingAmount: formatCurrency(pendingAmount),
       pendingDate,
       totalPaid: formatCurrency(totalPaid),
-      growthPercent: '+%12',
+      growthPercent: growthPercent !== null ? (growthPercent > 0 ? `+%${growthPercent}` : `%${growthPercent}`) : null,
       stats,
     };
   }, [dashboardData]);

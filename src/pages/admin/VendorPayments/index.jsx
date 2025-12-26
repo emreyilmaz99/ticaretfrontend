@@ -23,8 +23,11 @@ const VendorPayments = () => {
   }, []);
   
   const {
-    payments,
+    payouts,
     stats,
+    pagination,
+    currentPage,
+    setCurrentPage,
     isLoading,
     searchTerm,
     setSearchTerm,
@@ -36,28 +39,34 @@ const VendorPayments = () => {
     setSelectedVendor,
     handleExportExcel,
     handlePrint,
-    markAsPaid,
+    approvePayout,
+    rejectPayout,
+    markAsProcessed,
+    isApproving,
+    isRejecting,
+    isProcessing,
   } = useVendorPayments();
 
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPayout, setSelectedPayout] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const handleViewDetail = (payment) => {
-    setSelectedPayment(payment);
+  const handleViewDetail = (payout) => {
+    setSelectedPayout(payout);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedPayment(null);
+    setSelectedPayout(null);
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { text: 'Ödeme Bekliyor', color: '#f59e0b', bg: '#fef3c7' },
-      paid: { text: 'Ödendi', color: '#059669', bg: '#d1fae5' },
-      cancelled: { text: 'İptal Edildi', color: '#dc2626', bg: '#fee2e2' },
+      pending: { text: 'Beklemede', color: '#f59e0b', bg: '#fef3c7' },
+      approved: { text: 'Onaylandı', color: '#3b82f6', bg: '#dbeafe' },
+      rejected: { text: 'Reddedildi', color: '#dc2626', bg: '#fee2e2' },
+      processed: { text: 'İşlendi', color: '#059669', bg: '#d1fae5' },
     };
     const config = statusConfig[status] || statusConfig.pending;
     
@@ -154,9 +163,10 @@ const VendorPayments = () => {
                   style={styles.filterSelect}
                 >
                   <option value="all">Tümü</option>
-                  <option value="pending">Ödeme Bekliyor</option>
-                  <option value="paid">Ödendi</option>
-                  <option value="cancelled">İptal Edildi</option>
+                  <option value="pending">Beklemede</option>
+                  <option value="approved">Onaylandı</option>
+                  <option value="rejected">Reddedildi</option>
+                  <option value="processed">İşlendi</option>
                 </select>
               </div>
 
@@ -191,7 +201,7 @@ const VendorPayments = () => {
             <div style={styles.spinner}></div>
             <p style={styles.loadingText}>Hakedişler yükleniyor...</p>
           </div>
-        ) : !payments || payments.length === 0 ? (
+        ) : !payouts || payouts.length === 0 ? (
           <div style={styles.emptyState}>
             <FaWallet size={48} color="#cbd5e1" />
             <h3 style={styles.emptyTitle}>Hakediş Bulunamadı</h3>
@@ -204,51 +214,59 @@ const VendorPayments = () => {
             {isMobile ? (
               // Mobile Card View
               <div style={styles.mobileCardsContainer}>
-                {payments.map((payment) => (
-                  <div key={payment.id} style={styles.mobileCard}>
+                {payouts.map((payout) => (
+                  <div key={payout.id} style={styles.mobileCard}>
                     <div style={styles.mobileCardHeader}>
                       <div style={styles.vendorInfo}>
                         <FaStore size={20} color="#059669" />
                         <div>
-                          <h4 style={styles.vendorName}>{payment.vendor_name}</h4>
-                          <p style={styles.vendorEmail}>{payment.vendor_email}</p>
+                          <h4 style={styles.vendorName}>{payout.vendor?.name || '-'}</h4>
+                          <p style={styles.vendorEmail}>{payout.vendor?.email || '-'}</p>
                         </div>
                       </div>
-                      {getStatusBadge(payment.status)}
+                      {getStatusBadge(payout.status)}
                     </div>
 
                     <div style={styles.mobileCardBody}>
                       <div style={styles.mobileRow}>
                         <span style={styles.mobileLabel}>
-                          <FaReceipt size={12} /> Toplam Satış
+                          <FaMoneyBillWave size={12} /> Tutar
                         </span>
                         <span style={styles.mobileValue}>
-                          {formatCurrency(payment.total_sales)}
+                          {formatCurrency(payout.amount)}
                         </span>
                       </div>
                       <div style={styles.mobileRow}>
                         <span style={styles.mobileLabel}>
-                          <FaPercentage size={12} /> Komisyon ({payment.commission_rate}%)
+                          <FaPercentage size={12} /> Komisyon
                         </span>
                         <span style={{ ...styles.mobileValue, color: '#dc2626' }}>
-                          -{formatCurrency(payment.commission_amount)}
+                          -{formatCurrency(payout.fee)}
                         </span>
                       </div>
                       <div style={styles.mobileDivider}></div>
                       <div style={styles.mobileRow}>
                         <span style={{ ...styles.mobileLabel, fontWeight: '600', color: '#059669' }}>
-                          <FaMoneyBillWave size={12} /> Net Kazanç
+                          <FaReceipt size={12} /> Net Tutar
                         </span>
                         <span style={{ ...styles.mobileValue, fontWeight: '700', fontSize: '18px', color: '#059669' }}>
-                          {formatCurrency(payment.net_amount)}
+                          {formatCurrency(parseFloat(payout.amount) - parseFloat(payout.fee))}
                         </span>
                       </div>
                       <div style={styles.mobileRow}>
                         <span style={styles.mobileLabel}>
-                          <FaCalendar size={12} /> Dönem
+                          <FaCalendar size={12} /> Ödeme Yöntemi
                         </span>
                         <span style={styles.mobileValue}>
-                          {formatDate(payment.period_start)} - {formatDate(payment.period_end)}
+                          {payout.method === 'bank_transfer' ? 'Banka Transferi' : payout.method}
+                        </span>
+                      </div>
+                      <div style={styles.mobileRow}>
+                        <span style={styles.mobileLabel}>
+                          <FaClock size={12} /> Oluşturulma
+                        </span>
+                        <span style={styles.mobileValue}>
+                          {formatDate(payout.created_at)}
                         </span>
                       </div>
                     </div>
@@ -256,19 +274,30 @@ const VendorPayments = () => {
                     <div style={styles.mobileCardFooter}>
                       <button
                         style={styles.viewDetailBtn}
-                        onClick={() => handleViewDetail(payment)}
+                        onClick={() => handleViewDetail(payout)}
                       >
                         <FaEye size={14} />
                         Detayları Gör
                       </button>
-                      {payment.status === 'pending' && (
-                        <button
-                          style={styles.markPaidBtn}
-                          onClick={() => markAsPaid(payment.id)}
-                        >
-                          <FaCheck size={14} />
-                          Ödendi İşaretle
-                        </button>
+                      {payout.status === 'pending' && (
+                        <>
+                          <button
+                            style={styles.markPaidBtn}
+                            onClick={() => approvePayout(payout.id)}
+                            disabled={isApproving}
+                          >
+                            <FaCheck size={14} />
+                            Onayla
+                          </button>
+                          <button
+                            style={{ ...styles.markPaidBtn, backgroundColor: '#fee2e2', color: '#dc2626' }}
+                            onClick={() => rejectPayout(payout.id)}
+                            disabled={isRejecting}
+                          >
+                            <FaTimes size={14} />
+                            Reddet
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -281,83 +310,92 @@ const VendorPayments = () => {
                   <thead>
                     <tr>
                       <th style={styles.th}>Satıcı</th>
-                      <th style={styles.th}>Dönem</th>
-                      <th style={styles.th}>Toplam Satış</th>
+                      <th style={styles.th}>Tutar</th>
                       <th style={styles.th}>Komisyon</th>
                       <th style={styles.th}>Net Kazanç</th>
+                      <th style={styles.th}>Yöntem</th>
                       <th style={styles.th}>Durum</th>
+                      <th style={styles.th}>Tarih</th>
                       <th style={styles.th}>İşlemler</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map((payment) => (
-                      <tr key={payment.id} style={styles.tr}>
+                    {payouts.map((payout) => (
+                      <tr key={payout.id} style={styles.tr}>
                         <td style={styles.td}>
                           <div style={styles.vendorCell}>
                             <div style={styles.vendorAvatar}>
                               <FaStore size={16} />
                             </div>
                             <div>
-                              <div style={styles.vendorNameTable}>{payment.vendor_name}</div>
-                              <div style={styles.vendorEmailTable}>{payment.vendor_email}</div>
+                              <div style={styles.vendorNameTable}>{payout.vendor?.name || '-'}</div>
+                              <div style={styles.vendorEmailTable}>{payout.vendor?.email || '-'}</div>
                             </div>
-                          </div>
-                        </td>
-                        <td style={styles.td}>
-                          <div style={styles.dateCell}>
-                            <FaCalendar size={12} color="#64748b" />
-                            <span style={styles.dateText}>
-                              {formatDate(payment.period_start)}
-                              <br />
-                              {formatDate(payment.period_end)}
-                            </span>
                           </div>
                         </td>
                         <td style={styles.td}>
                           <div style={styles.amountCell}>
                             <span style={styles.amountValue}>
-                              {formatCurrency(payment.total_sales)}
-                            </span>
-                            <span style={styles.amountLabel}>
-                              {payment.order_count} sipariş
+                              {formatCurrency(payout.amount)}
                             </span>
                           </div>
                         </td>
                         <td style={styles.td}>
                           <div style={styles.commissionCell}>
                             <span style={styles.commissionValue}>
-                              -{formatCurrency(payment.commission_amount)}
-                            </span>
-                            <span style={styles.commissionLabel}>
-                              %{payment.commission_rate}
+                              -{formatCurrency(payout.fee)}
                             </span>
                           </div>
                         </td>
                         <td style={styles.td}>
                           <div style={styles.netAmountCell}>
-                            {formatCurrency(payment.net_amount)}
+                            {formatCurrency(parseFloat(payout.amount) - parseFloat(payout.fee))}
                           </div>
                         </td>
                         <td style={styles.td}>
-                          {getStatusBadge(payment.status)}
+                          <span style={styles.methodBadge}>
+                            {payout.method === 'bank_transfer' ? 'Banka Transferi' : payout.method}
+                          </span>
+                        </td>
+                        <td style={styles.td}>
+                          {getStatusBadge(payout.status)}
+                        </td>
+                        <td style={styles.td}>
+                          <div style={styles.dateCell}>
+                            <FaCalendar size={12} color="#64748b" />
+                            <span style={styles.dateText}>
+                              {formatDate(payout.created_at)}
+                            </span>
+                          </div>
                         </td>
                         <td style={styles.td}>
                           <div style={styles.actionButtons}>
                             <button
                               style={styles.actionBtn}
-                              onClick={() => handleViewDetail(payment)}
+                              onClick={() => handleViewDetail(payout)}
                               title="Detayları Görüntüle"
                             >
                               <FaEye size={14} />
                             </button>
-                            {payment.status === 'pending' && (
-                              <button
-                                style={{ ...styles.actionBtn, backgroundColor: '#d1fae5', color: '#059669' }}
-                                onClick={() => markAsPaid(payment.id)}
-                                title="Ödendi İşaretle"
-                              >
-                                <FaCheck size={14} />
-                              </button>
+                            {payout.status === 'pending' && (
+                              <>
+                                <button
+                                  style={{ ...styles.actionBtn, backgroundColor: '#d1fae5', color: '#059669' }}
+                                  onClick={() => approvePayout(payout.id)}
+                                  title="Onayla"
+                                  disabled={isApproving}
+                                >
+                                  <FaCheck size={14} />
+                                </button>
+                                <button
+                                  style={{ ...styles.actionBtn, backgroundColor: '#fee2e2', color: '#dc2626' }}
+                                  onClick={() => rejectPayout(payout.id)}
+                                  title="Reddet"
+                                  disabled={isRejecting}
+                                >
+                                  <FaTimes size={14} />
+                                </button>
+                              </>
                             )}
                           </div>
                         </td>
@@ -372,12 +410,14 @@ const VendorPayments = () => {
       </div>
 
       {/* Detail Modal */}
-      {isModalOpen && selectedPayment && (
+      {isModalOpen && selectedPayout && (
         <PaymentDetailModal
-          payment={selectedPayment}
+          payout={selectedPayout}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onMarkAsPaid={markAsPaid}
+          onApprove={approvePayout}
+          onReject={rejectPayout}
+          onMarkAsProcessed={markAsProcessed}
           isMobile={isMobile}
         />
       )}

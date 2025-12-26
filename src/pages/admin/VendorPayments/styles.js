@@ -432,6 +432,18 @@ export const getStyles = (isMobile) => ({
     whiteSpace: 'nowrap',
   },
 
+  methodBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontWeight: '600',
+    backgroundColor: '#e0e7ff',
+    color: '#4f46e5',
+    whiteSpace: 'nowrap',
+  },
+
   actionButtons: {
     display: 'flex',
     gap: '8px',
