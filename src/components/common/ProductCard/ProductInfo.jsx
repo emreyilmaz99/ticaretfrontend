@@ -67,10 +67,10 @@ const ProductInfo = React.memo(({
         <h3 
           style={{
             ...(isListMobile ? mobileListStyles.cardTitle : styles.cardTitle),
-            transition: 'color 0.3s ease',
+            transition: isMobile ? 'none' : 'color 0.3s ease',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#059669'}
-          onMouseLeave={(e) => e.currentTarget.style.color = '#0f172a'}
+          onMouseEnter={isMobile ? undefined : (e) => e.currentTarget.style.color = '#059669'}
+          onMouseLeave={isMobile ? undefined : (e) => e.currentTarget.style.color = '#0f172a'}
         >
           {product.name}
         </h3>
@@ -83,13 +83,13 @@ const ProductInfo = React.memo(({
             <FaStar 
               key={i} 
               color={i < Math.floor(rating) ? '#f59e0b' : '#e5e7eb'} 
-              size={11}
+              size={isMobile ? 10 : 11}
             />
           ))}
-          <span style={{ color: '#0f172a', marginLeft: '4px', fontSize: '11px', fontWeight: '700' }}>
+          <span style={{ color: '#0f172a', marginLeft: '3px', fontSize: isMobile ? '10px' : '11px', fontWeight: '700' }}>
             {parseFloat(rating || 0).toFixed(1)}
           </span>
-          <span style={{ color: '#94a3b8', fontSize: '10px' }}>
+          <span style={{ color: '#94a3b8', fontSize: isMobile ? '9px' : '10px' }}>
             ({reviewCount})
           </span>
         </div>
@@ -116,23 +116,23 @@ const ProductInfo = React.memo(({
           <button 
             style={{
               width: '100%',
-              height: '32px',
-              borderRadius: '8px',
+              height: '30px',
+              borderRadius: '7px',
               backgroundColor: '#059669',
               color: 'white',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px',
-              fontSize: '11px',
+              gap: '4px',
+              fontSize: '10px',
               fontWeight: '700',
               cursor: 'pointer',
-              marginTop: '6px',
+              marginTop: '4px',
             }}
             onClick={onBuyNow}
           >
-            <span style={{ fontSize: '10px' }}>⚡</span>
+            <span style={{ fontSize: '9px' }}>⚡</span>
             <span>Hemen Al</span>
           </button>
         ) : (

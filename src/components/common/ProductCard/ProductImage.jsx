@@ -73,8 +73,8 @@ const ProductImage = React.memo(({ product, productUrl, styles, isMobile, isHove
           alt={product.name}
           style={{
             ...styles.cardImage,
-            opacity: isTransitioning ? 0.7 : 1,
-            transition: 'opacity 0.15s ease-in-out',
+            opacity: isTransitioning && !isMobile ? 0.7 : 1,
+            transition: isMobile ? 'none' : 'opacity 0.15s ease-in-out',
           }}
           loading="lazy"
           decoding="async"

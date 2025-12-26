@@ -2,8 +2,13 @@
 import React from 'react';
 import { FaBolt, FaShoppingCart } from 'react-icons/fa';
 import { useHoverEffect } from '../../../hooks/useHoverEffect';
+import { useResponsive } from '../../../hooks/useResponsive';
 
 const ProductActionButtons = React.memo(({ styles, onBuyNow, onAddToCart }) => {
+  const { isMobile } = useResponsive();
+  const buyNowIconSize = isMobile ? 11 : 13;
+  const cartIconSize = isMobile ? 13 : 15;
+  
   const {
     isHovered: isBuyNowHovered,
     handleMouseEnter: handleBuyNowEnter,
@@ -21,28 +26,28 @@ const ProductActionButtons = React.memo(({ styles, onBuyNow, onAddToCart }) => {
       <button 
         style={{
           ...styles.buyNowBtn,
-          ...(isBuyNowHovered ? styles.buyNowBtnHover : {})
+          ...(isBuyNowHovered && !isMobile ? styles.buyNowBtnHover : {})
         }}
         onClick={onBuyNow} 
         title="Hemen Satın Al"
-        onMouseEnter={handleBuyNowEnter}
-        onMouseLeave={handleBuyNowLeave}
+        onMouseEnter={isMobile ? undefined : handleBuyNowEnter}
+        onMouseLeave={isMobile ? undefined : handleBuyNowLeave}
       >
-        <FaBolt size={13} />
+        <FaBolt size={buyNowIconSize} />
         <span>Hemen Al</span>
       </button>
       
       <button 
         style={{
           ...styles.addToCartBtn,
-          ...(isAddToCartHovered ? styles.addToCartBtnHover : {})
+          ...(isAddToCartHovered && !isMobile ? styles.addToCartBtnHover : {})
         }}
         onClick={onAddToCart} 
         title="Sepete Ekle"
-        onMouseEnter={handleAddToCartEnter}
-        onMouseLeave={handleAddToCartLeave}
+        onMouseEnter={isMobile ? undefined : handleAddToCartEnter}
+        onMouseLeave={isMobile ? undefined : handleAddToCartLeave}
       >
-        <FaShoppingCart size={15} />
+        <FaShoppingCart size={cartIconSize} />
       </button>
     </div>
   );

@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaHeart, FaRegHeart, FaEye, FaExchangeAlt } from 'react-icons/fa';
 import { useHoverEffect } from '../../../hooks/useHoverEffect';
+import { useResponsive } from '../../../hooks/useResponsive';
 
 const ProductActions = React.memo(({ 
   product,
@@ -12,6 +13,10 @@ const ProductActions = React.memo(({
   onToggleCompare,
   styles 
 }) => {
+  const { isMobile } = useResponsive();
+  const iconSize = isMobile ? 13 : 15;
+  const compareIconSize = isMobile ? 12 : 14;
+  
   const {
     isHovered: isFavHovered,
     handleMouseEnter: handleFavEnter,
@@ -37,28 +42,28 @@ const ProductActions = React.memo(({
         style={{
           ...styles.cardActionBtn,
           ...styles.cardActionBtnFavorite,
-          ...(isFavHovered ? styles.cardActionBtnFavoriteHover : {})
+          ...(isFavHovered && !isMobile ? styles.cardActionBtnFavoriteHover : {})
         }}
         onClick={onToggleFavorite} 
         title="Favorilere Ekle"
-        onMouseEnter={handleFavEnter}
-        onMouseLeave={handleFavLeave}
+        onMouseEnter={isMobile ? undefined : handleFavEnter}
+        onMouseLeave={isMobile ? undefined : handleFavLeave}
       >
-        {isFavorite ? <FaHeart color="#ef4444" size={15} /> : <FaRegHeart size={15} />}
+        {isFavorite ? <FaHeart color="#ef4444" size={iconSize} /> : <FaRegHeart size={iconSize} />}
       </button>
       
       {/* Quick View Button */}
       <button 
         style={{
           ...styles.cardActionBtn,
-          ...(isQuickViewHovered ? styles.cardActionBtnQuickViewHover : {})
+          ...(isQuickViewHovered && !isMobile ? styles.cardActionBtnQuickViewHover : {})
         }}
         onClick={onQuickView} 
         title="Hızlı Bakış"
-        onMouseEnter={handleQuickViewEnter}
-        onMouseLeave={handleQuickViewLeave}
+        onMouseEnter={isMobile ? undefined : handleQuickViewEnter}
+        onMouseLeave={isMobile ? undefined : handleQuickViewLeave}
       >
-        <FaEye size={15} />
+        <FaEye size={iconSize} />
       </button>
       
       {/* Compare Button */}
@@ -67,14 +72,14 @@ const ProductActions = React.memo(({
           style={{ 
             ...styles.cardActionBtn,
             ...styles.cardActionBtnCompare,
-            ...(isCompareHovered ? styles.cardActionBtnCompareHover : {})
+            ...(isCompareHovered && !isMobile ? styles.cardActionBtnCompareHover : {})
           }} 
           onClick={onToggleCompare} 
           title="Karşılaştır"
-          onMouseEnter={handleCompareEnter}
-          onMouseLeave={handleCompareLeave}
+          onMouseEnter={isMobile ? undefined : handleCompareEnter}
+          onMouseLeave={isMobile ? undefined : handleCompareLeave}
         >
-          <FaExchangeAlt size={14} />
+          <FaExchangeAlt size={compareIconSize} />
         </button>
       )}
     </div>

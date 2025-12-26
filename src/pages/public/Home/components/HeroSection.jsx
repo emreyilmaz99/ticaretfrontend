@@ -131,100 +131,124 @@ const HeroSection = ({ styles, isMobile }) => {
       style={{ 
         ...styles.hero, 
         backgroundImage: `url(${slide.bgImage})`,
-        backgroundSize: 'cover',
+        backgroundSize: isMobile ? 'cover' : 'cover',
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
         transition: 'all 0.5s ease', 
         position: 'relative', 
-        overflow: 'hidden' 
+        overflow: 'hidden',
+        cursor: isMobile ? 'pointer' : 'default',
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      onClick={isMobile ? () => window.location.href = slide.primaryBtn.link : undefined}
     >
+      {/* Mobil için overlay - daha iyi okunabilirlik */}
+      {isMobile && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)',
+          zIndex: 1,
+        }} />
+      )}
+
       <div style={{ ...styles.heroContent, position: 'relative', zIndex: 2 }}>
-        <div style={{ 
-          ...styles.heroText, 
-          animation: 'fadeIn 0.5s ease-in-out',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
-          height: '100%'
-        }} key={slide.id}>
-          <div style={styles.heroButtons}>
-            <Link 
-              to={slide.primaryBtn.link} 
-              style={styles.heroBtn}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 16px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)';
-              }}
-            >
-              {slide.primaryBtn.icon} {slide.primaryBtn.text}
-            </Link>
-            {slide.secondaryBtn && (
+        {!isMobile && (
+          <div style={{ 
+            ...styles.heroText, 
+            animation: 'fadeIn 0.5s ease-in-out',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-end',
+            height: '100%'
+          }} key={slide.id}>
+            <div style={styles.heroButtons}>
               <Link 
-                to={slide.secondaryBtn.link} 
-                style={styles.secondaryButton}
+                to={slide.primaryBtn.link} 
+                style={styles.heroBtn}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
-                  e.currentTarget.style.boxShadow = '0 16px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.boxShadow = '0 16px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
-                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6)';
                 }}
               >
-                {slide.secondaryBtn.icon} {slide.secondaryBtn.text}
+                {slide.primaryBtn.icon} {slide.primaryBtn.text}
               </Link>
-            )}
+              {slide.secondaryBtn && (
+                <Link 
+                  to={slide.secondaryBtn.link} 
+                  style={styles.secondaryButton}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)';
+                    e.currentTarget.style.boxShadow = '0 16px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+                  }}
+                >
+                  {slide.secondaryBtn.icon} {slide.secondaryBtn.text}
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Navigation Arrows */}
-      <button 
-        onClick={goToPrevSlide}
-        style={navigationButtonStyle.left}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
-      >
-        <FaChevronLeft size={24} />
-      </button>
+      {/* Navigation Arrows - Sadece Desktop */}
+      {!isMobile && (
+        <>
+          <button 
+            onClick={goToPrevSlide}
+            style={navigationButtonStyle.left}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+          >
+            <FaChevronLeft size={24} />
+          </button>
 
-      <button 
-        onClick={goToNextSlide}
-        style={navigationButtonStyle.right}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
-      >
-        <FaChevronRight size={24} />
-      </button>
+          <button 
+            onClick={goToNextSlide}
+            style={navigationButtonStyle.right}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+          >
+            <FaChevronRight size={24} />
+          </button>
+        </>
+      )}
 
       {/* Indicators */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: isMobile ? '12px' : '20px',
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
-        gap: '8px',
+        gap: isMobile ? '6px' : '8px',
         zIndex: 10
       }}>
         {slides.map((_, idx) => (
           <div 
             key={idx}
-            onClick={() => setCurrentSlide(idx)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentSlide(idx);
+            }}
             style={{
-              width: currentSlide === idx ? '24px' : '8px',
-              height: '8px',
+              width: currentSlide === idx ? (isMobile ? '20px' : '24px') : (isMobile ? '6px' : '8px'),
+              height: isMobile ? '6px' : '8px',
               borderRadius: '4px',
               backgroundColor: 'white',
               opacity: currentSlide === idx ? 1 : 0.4,
