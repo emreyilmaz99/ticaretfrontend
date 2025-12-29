@@ -78,6 +78,7 @@ const Navbar = () => {
     itemCount,
     categories,
     categoriesLoading,
+    userAddresses,
     getLinkStyle,
     handleLogout,
     handleSearch,
@@ -307,7 +308,9 @@ const Navbar = () => {
         onClose={handleAddressModalClose} 
         onSave={handleSaveAddress}
         onDelete={handleDeleteAddress}
+        addresses={userAddresses}
         initialAddress={currentAddress}
+        user={user}
       />
 
       <ConfirmModal

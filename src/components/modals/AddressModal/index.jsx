@@ -332,7 +332,6 @@ const AddressModal = React.memo(({
 
   const { validateForm, formatPhone, formatIdentityNumber } = useAddressValidation();
   const [validationErrors, setValidationErrors] = useState([]);
-  const [activeTab, setActiveTab] = useState('form'); // 'form' or 'saved'
 
   const districts = useMemo(
     () => (formData.city ? getDistricts(formData.city) : []),
@@ -376,10 +375,11 @@ const AddressModal = React.memo(({
 
   const handleAddressSelect = useCallback(
     (address) => {
-      loadAddress(address);
-      setActiveTab('form');
+      // Kayıtlı bir adres seçildiğinde direkt olarak kaydet
+      onSave(address);
+      onClose();
     },
-    [loadAddress]
+    [onSave, onClose]
   );
 
   const handleDelete = useCallback(
@@ -586,6 +586,107 @@ const AddressModal = React.memo(({
       color: '#6b7280',
       lineHeight: 1.5,
     },
+    savedAddressPhone: {
+      fontSize: '12px',
+      color: '#9ca3af',
+      marginTop: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '40px 20px',
+      color: '#9ca3af',
+    },
+    emptyStateIcon: {
+      fontSize: '48px',
+      marginBottom: '16px',
+      opacity: 0.3,
+    },
+    emptyStateText: {
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#6b7280',
+      marginBottom: '8px',
+    },
+    emptyStateSubtext: {
+      fontSize: '13px',
+      color: '#9ca3af',
+    },
+    // Yatay adres bar stilleri
+    addressBarContainer: {
+      marginBottom: '20px',
+    },
+    addressBarLabel: {
+      fontSize: '13px',
+      fontWeight: '600',
+      color: '#374151',
+      marginBottom: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    },
+    addressBarScroll: {
+      display: 'flex',
+      gap: '10px',
+      overflowX: 'auto',
+      paddingBottom: '8px',
+      scrollbarWidth: 'thin',
+      scrollbarColor: '#10b981 #f3f4f6',
+    },
+    addressChip: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      padding: '10px 16px',
+      borderRadius: '12px',
+      border: '2px solid #e5e7eb',
+      backgroundColor: '#fff',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      minWidth: 'fit-content',
+    },
+    addressChipSelected: {
+      borderColor: '#10b981',
+      backgroundColor: '#d1fae5',
+    },
+    addressChipIcon: {
+      width: '32px',
+      height: '32px',
+      borderRadius: '8px',
+      backgroundColor: '#f3f4f6',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#6b7280',
+      fontSize: '14px',
+    },
+    addressChipIconSelected: {
+      backgroundColor: '#10b981',
+      color: '#fff',
+    },
+    addressChipContent: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '2px',
+    },
+    addressChipLabel: {
+      fontSize: '13px',
+      fontWeight: '600',
+      color: '#111827',
+    },
+    addressChipCity: {
+      fontSize: '11px',
+      color: '#6b7280',
+    },
+    dividerLine: {
+      height: '1px',
+      backgroundColor: '#e5e7eb',
+      margin: '0 0 20px 0',
+    },
     footer: {
       display: 'flex',
       gap: '12px',
@@ -653,29 +754,61 @@ const AddressModal = React.memo(({
         <div style={modalStyles.content}>
           {/* Left Panel - Form */}
           <div style={modalStyles.leftPanel}>
-            {/* Tabs */}
+            {/* Kayıtlı Adresler Bar - Form Üstünde */}
             {addresses.length > 0 && (
-              <div style={modalStyles.tabs}>
-                <button
-                  style={{
-                    ...modalStyles.tab,
-                    backgroundColor: activeTab === 'form' ? '#10b981' : '#f3f4f6',
-                    color: activeTab === 'form' ? '#fff' : '#6b7280',
-                  }}
-                  onClick={() => setActiveTab('form')}
-                >
-                  Yeni Adres
-                </button>
-                <button
-                  style={{
-                    ...modalStyles.tab,
-                    backgroundColor: activeTab === 'saved' ? '#10b981' : '#f3f4f6',
-                    color: activeTab === 'saved' ? '#fff' : '#6b7280',
-                  }}
-                  onClick={() => setActiveTab('saved')}
-                >
-                  Kayıtlı Adresler ({addresses.length})
-                </button>
+              <div style={modalStyles.addressBarContainer}>
+                <div style={modalStyles.addressBarLabel}>
+                  <FaMapMarkerAlt style={{ color: '#10b981' }} />
+                  Kayıtlı Adreslerim ({addresses.length})
+                </div>
+                <div style={modalStyles.addressBarScroll}>
+                  {addresses.map((address) => {
+                    const isSelected = formData.selectedId === address.id;
+                    return (
+                      <div
+                        key={address.id}
+                        style={{
+                          ...modalStyles.addressChip,
+                          ...(isSelected ? modalStyles.addressChipSelected : {}),
+                        }}
+                        onClick={() => handleAddressSelect(address)}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#10b981';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.15)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }
+                        }}
+                      >
+                        <div style={{
+                          ...modalStyles.addressChipIcon,
+                          ...(isSelected ? modalStyles.addressChipIconSelected : {}),
+                        }}>
+                          <FaHome />
+                        </div>
+                        <div style={modalStyles.addressChipContent}>
+                          <span style={modalStyles.addressChipLabel}>
+                            {address.label || 'Adres'}
+                          </span>
+                          <span style={modalStyles.addressChipCity}>
+                            {address.district}/{address.city}
+                          </span>
+                        </div>
+                        {isSelected && (
+                          <FaCheck style={{ color: '#10b981', fontSize: '14px', marginLeft: '4px' }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={modalStyles.dividerLine} />
               </div>
             )}
 
@@ -690,139 +823,103 @@ const AddressModal = React.memo(({
               </div>
             )}
 
-            {activeTab === 'form' ? (
-              <>
-                {/* Kişisel Bilgiler */}
-                <div style={modalStyles.formGrid}>
-                  <FormInput
-                    label="Ad Soyad"
-                    value={formData.fullName}
-                    onChange={(val) => updateField('fullName', val)}
-                    placeholder="Adınız ve Soyadınız"
-                    icon={FaUser}
-                    required
-                  />
-                  <FormInput
-                    label="Telefon"
-                    value={formData.phone}
-                    onChange={(val) => updateField('phone', formatPhone(val))}
-                    placeholder="5XX XXX XX XX"
-                    icon={FaPhone}
-                    type="tel"
-                    maxLength={11}
-                    required
-                  />
-                </div>
-
-                <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
-                  <FormInput
-                    label="TC Kimlik No"
-                    value={formData.identityNumber}
-                    onChange={(val) => updateField('identityNumber', formatIdentityNumber(val))}
-                    placeholder="11 Haneli TC Kimlik Numarası"
-                    icon={FaIdCard}
-                    maxLength={11}
-                  />
-                </div>
-
-                {/* Konum Bilgileri */}
-                <div style={modalStyles.formGrid}>
-                  <SearchableSelect
-                    label="İl"
-                    value={formData.city}
-                    options={cities}
-                    onChange={handleCityChange}
-                    placeholder="İl seçiniz"
-                    icon={FaCity}
-                    required
-                  />
-                  <SearchableSelect
-                    label="İlçe"
-                    value={formData.district}
-                    options={districts}
-                    onChange={handleDistrictChange}
-                    placeholder={formData.city ? "İlçe seçiniz" : "Önce il seçin"}
-                    icon={FaHome}
-                    disabled={!formData.city}
-                    required
-                  />
-                </div>
-
-                <div style={modalStyles.formGrid}>
-                  <SearchableSelect
-                    label="Mahalle"
-                    value={formData.neighborhood}
-                    options={neighborhoods}
-                    onChange={(val) => updateField('neighborhood', val)}
-                    placeholder={formData.district ? "Mahalle seçiniz" : "Önce ilçe seçin"}
-                    icon={FaHome}
-                    disabled={!formData.district}
-                    required
-                  />
-                  <FormInput
-                    label="Posta Kodu"
-                    value={formData.postalCode}
-                    onChange={(val) => updateField('postalCode', val)}
-                    placeholder="34000"
-                    icon={FaTag}
-                  />
-                </div>
-
-                <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
-                  <FormInput
-                    label="Adres Etiketi"
-                    value={formData.addressLabel}
-                    onChange={(val) => updateField('addressLabel', val)}
-                    placeholder="Ev, İş, vb."
-                    icon={FaTag}
-                    required
-                  />
-                </div>
-
-                <FormTextarea
-                  label="Açık Adres"
-                  value={formData.addressLine}
-                  onChange={(val) => updateField('addressLine', val)}
-                  placeholder="Cadde, sokak, bina no, daire no vb."
+            {/* Form Alanları */}
+            <>
+              {/* Kişisel Bilgiler */}
+              <div style={modalStyles.formGrid}>
+                <FormInput
+                  label="Ad Soyad"
+                  value={formData.fullName}
+                  onChange={(val) => updateField('fullName', val)}
+                  placeholder="Adınız ve Soyadınız"
+                  icon={FaUser}
                   required
                 />
-              </>
-            ) : (
-              <div style={modalStyles.savedAddresses}>
-                {addresses.map((address) => (
-                  <div
-                    key={address.id}
-                    style={{
-                      ...modalStyles.savedAddressCard,
-                      borderColor: formData.selectedId === address.id ? '#10b981' : '#e5e7eb',
-                      backgroundColor: formData.selectedId === address.id ? '#d1fae5' : '#fff',
-                    }}
-                    onClick={() => handleAddressSelect(address)}
-                    onMouseEnter={(e) => {
-                      if (formData.selectedId !== address.id) {
-                        e.currentTarget.style.borderColor = '#10b981';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (formData.selectedId !== address.id) {
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                      }
-                    }}
-                  >
-                    <span style={modalStyles.savedAddressLabel}>
-                      {address.label || 'Adres'}
-                    </span>
-                    <div style={modalStyles.savedAddressName}>
-                      {address.full_name}
-                    </div>
-                    <div style={modalStyles.savedAddressDetails}>
-                      {address.address_line}<br />
-                      {address.neighborhood}, {address.district}/{address.city}
-                    </div>
-                  </div>
-                ))}
+                <FormInput
+                  label="Telefon"
+                  value={formData.phone}
+                  onChange={(val) => updateField('phone', formatPhone(val))}
+                  placeholder="5XX XXX XX XX"
+                  icon={FaPhone}
+                  type="tel"
+                  maxLength={11}
+                  required
+                />
               </div>
-            )}
+
+              <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+                <FormInput
+                  label="TC Kimlik No"
+                  value={formData.identityNumber}
+                  onChange={(val) => updateField('identityNumber', formatIdentityNumber(val))}
+                  placeholder="11 Haneli TC Kimlik Numarası"
+                  icon={FaIdCard}
+                  maxLength={11}
+                />
+              </div>
+
+              {/* Konum Bilgileri */}
+              <div style={modalStyles.formGrid}>
+                <SearchableSelect
+                  label="İl"
+                  value={formData.city}
+                  options={cities}
+                  onChange={handleCityChange}
+                  placeholder="İl seçiniz"
+                  icon={FaCity}
+                  required
+                />
+                <SearchableSelect
+                  label="İlçe"
+                  value={formData.district}
+                  options={districts}
+                  onChange={handleDistrictChange}
+                  placeholder={formData.city ? "İlçe seçiniz" : "Önce il seçin"}
+                  icon={FaHome}
+                  disabled={!formData.city}
+                  required
+                />
+              </div>
+
+              <div style={modalStyles.formGrid}>
+                <SearchableSelect
+                  label="Mahalle"
+                  value={formData.neighborhood}
+                  options={neighborhoods}
+                  onChange={(val) => updateField('neighborhood', val)}
+                  placeholder={formData.district ? "Mahalle seçiniz" : "Önce ilçe seçin"}
+                  icon={FaHome}
+                  disabled={!formData.district}
+                  required
+                />
+                <FormInput
+                  label="Posta Kodu"
+                  value={formData.postalCode}
+                  onChange={(val) => updateField('postalCode', val)}
+                  placeholder="34000"
+                  icon={FaTag}
+                />
+              </div>
+
+              <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+                <FormInput
+                  label="Adres Etiketi"
+                  value={formData.addressLabel}
+                  onChange={(val) => updateField('addressLabel', val)}
+                  placeholder="Ev, İş, vb."
+                  icon={FaTag}
+                  required
+                />
+              </div>
+
+              <FormTextarea
+                label="Açık Adres"
+                value={formData.addressLine}
+                onChange={(val) => updateField('addressLine', val)}
+                placeholder="Cadde, sokak, bina no, daire no vb."
+                required
+              />
+            </>
           </div>
 
           {/* Right Panel - Map */}

@@ -1,7 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { createUserAddress, deleteUserAddress } from '../../../features/user/api/userAddressApi';
+import { createUserAddress, deleteUserAddress, getUserAddresses } from '../../../features/user/api/userAddressApi';
 import { getCategoryTree } from '../../../api/publicApi';
 import { useToast } from '../../common/Toast';
 import AuthContext from '../../../context/AuthContext';
@@ -47,6 +47,45 @@ const useNavbar = () => {
     const IconComponent = FaIcons[iconName];
     return IconComponent || FaIcons.FaBox;
   };
+
+  // ============================================================================
+  // USER ADDRESSES: Kullanıcı adreslerini çek ve varsayılanı ayarla
+  // ============================================================================
+  const { data: userAddressesData } = useQuery({
+    queryKey: ['user-addresses'],
+    queryFn: getUserAddresses,
+    enabled: !!user, // Sadece kullanıcı giriş yaptıysa çalıştır
+    staleTime: 1000 * 60 * 5, // 5 dakika cache
+    retry: 1,
+  });
+
+  // Kullanıcı adresleri değiştiğinde varsayılan adresi ayarla
+  useEffect(() => {
+    if (userAddressesData?.data && user) {
+      const addresses = userAddressesData.data;
+      
+      // Eğer currentAddress yoksa, varsayılan adresi bul veya ilk adresi kullan
+      if (!currentAddress && addresses.length > 0) {
+        const defaultAddress = addresses.find(addr => addr.is_default) || addresses[0];
+        if (defaultAddress) {
+          setCurrentAddress(defaultAddress);
+          localStorage.setItem('user_address', JSON.stringify(defaultAddress));
+        }
+      } else if (currentAddress) {
+        // Mevcut adresin güncel bilgilerini al
+        const updatedAddress = addresses.find(addr => addr.id === currentAddress.id);
+        if (updatedAddress) {
+          setCurrentAddress(updatedAddress);
+          localStorage.setItem('user_address', JSON.stringify(updatedAddress));
+        } else if (addresses.length > 0) {
+          // Seçili adres silinmiş, varsayılanı veya ilk adresi seç
+          const defaultAddress = addresses.find(addr => addr.is_default) || addresses[0];
+          setCurrentAddress(defaultAddress);
+          localStorage.setItem('user_address', JSON.stringify(defaultAddress));
+        }
+      }
+    }
+  }, [userAddressesData, user]);
 
   // ============================================================================
   // PERFORMANCE OPTIMIZATION: Kategorileri Çek - Home ile aynı queryKey
@@ -213,6 +252,9 @@ const useNavbar = () => {
     // Kategoriler
     categories,
     categoriesLoading,
+    
+    // Adresler
+    userAddresses: userAddressesData?.data || [],
     
     // Fonksiyonlar
     getLinkStyle,
